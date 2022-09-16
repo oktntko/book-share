@@ -1,0 +1,23 @@
+version: "3"
+services:
+  database:
+    container_name: bs-database
+    image: postgres:14.5
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      POSTGRES_PASSWORD: bs
+      POSTGRES_USER: bs
+      POSTGRES_DB: bs_db
+      TZ: "Asia/Tokyo"
+    restart: on-failure
+    volumes:
+      - bs-volume:/var/lib/postgresql/data
+    networks:
+      - bs-network
+
+volumes:
+  bs-volume:
+networks:
+  bs-network:
+    external: true
