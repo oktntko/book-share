@@ -1,0 +1,120 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// ユーザ
+model User {
+  user_id Int @id @default(autoincrement())
+
+  email    String @unique @db.VarChar(255)
+  username String @db.VarChar(50)
+  password String @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by Int
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+  updated_by Int
+
+  lending_volumes  Volume[]  @relation("lending") /// 貸出物
+  borrowed_volumes Volume[]  @relation("borrowed") /// 借用物
+  posts            Post[]
+  sessions         Session[]
+
+  @@index([username], name: "index_username")
+  @@map("users")
+}
+
+model Session {
+  session_id Int @id @default(autoincrement())
+
+  session_key    String   @unique @db.VarChar(255)
+  /// express-session
+  originalMaxAge Int
+  maxAge         Int?
+  signed         Boolean?
+  expires        DateTime @default(now()) @db.Timestamptz(3)
+  httpOnly       Boolean?
+  path           String?
+  domain         String?
+  secure         Boolean?
+  sameSite       Boolean?
+  /// custom
+  user_id        Int?
+
+  user User? @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("sessions")
+}
+
+/// 本
+model Book {
+  book_id Int @id @default(autoincrement())
+
+  book_title String @db.VarChar(255)
+  google_id  String @unique @db.VarChar(255) /// Google Books のID
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  posts   Post[]
+  volumes Volume[]
+
+  @@map("books")
+}
+
+model Post {
+  post_id        Int @id @default(autoincrement())
+  book_id        Int
+  contributor_id Int /// 投稿者ID
+
+  post_title  String  @default("") @db.VarChar(255)
+  description String  @default("") @db.Text()
+  published   Boolean @default(false)
+  hearts      Int     @default(0)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by Int
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+  updated_by Int
+
+  contributor User @relation(fields: [contributor_id], references: [user_id], onDelete: Cascade) /// 投稿者
+  book        Book @relation(fields: [book_id], references: [book_id], onDelete: Cascade)
+
+  @@map("posts")
+}
+
+/// 物理的な本
+model Volume {
+  volume_id   Int @id @default(autoincrement())
+  book_id     Int
+  owner_id    Int @default(0) /// 所有者ID
+  borrower_id Int @default(0) //// 借り手ID
+
+  bookshelf String       @default("") @db.VarChar(255) /// 本がある場所
+  status    VolumeStatus @default(STOCK)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by Int
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+  updated_by Int
+
+  owner    User? @relation(name: "lending", fields: [owner_id], references: [user_id], onDelete: Cascade) /// 所有者
+  borrower User? @relation(name: "borrowed", fields: [borrower_id], references: [user_id], onDelete: Cascade) /// 借り手
+  book     Book  @relation(fields: [book_id], references: [book_id], onDelete: Cascade)
+
+  @@map("volumes")
+}
+
+enum VolumeStatus {
+  STOCK /// 在庫
+  LENDING /// 貸出中
+}
