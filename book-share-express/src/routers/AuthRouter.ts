@@ -1,7 +1,7 @@
 import { Session, SessionData } from "express-session";
 import { z } from "zod";
-import { trpc } from "~/libs/trpc";
 import { createRouter } from "~/context";
+import { trpc } from "~/libs/trpc";
 import { AuthService } from "~/services/AuthService";
 
 export const auth = createRouter()
@@ -12,12 +12,12 @@ export const auth = createRouter()
     }),
     resolve: async ({ input, ctx }) => {
       // セッションの再生成
-      await regenerate(ctx?.req?.session);
+      await regenerate(ctx.req.session);
 
       const user = await AuthService.createAuth(input);
 
       // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
-      if (ctx?.req) {
+      if (ctx.req) {
         ctx.req.session.user_id = user.user_id;
       }
 
@@ -26,7 +26,7 @@ export const auth = createRouter()
   })
   .query("get", {
     resolve: async ({ ctx }) => {
-      if (!ctx?.user) {
+      if (!ctx.user) {
         throw new trpc.TRPCError({
           code: "UNAUTHORIZED",
         });
@@ -37,8 +37,8 @@ export const auth = createRouter()
   })
   .mutation("delete", {
     resolve: async ({ ctx }) => {
-      if (ctx?.req) {
-        ctx?.req.session.destroy(() => {
+      if (ctx.req) {
+        ctx.req.session.destroy(() => {
           /*Nothing To Do*/
         });
       }
@@ -48,19 +48,15 @@ export const auth = createRouter()
   });
 
 async function regenerate(
-  session?: Session & Partial<SessionData>
+  session: Session & Partial<SessionData>
 ): Promise<(Session & Partial<SessionData>) | void> {
-  if (session) {
-    return new Promise((resolve, reject) => {
-      const oldsession = session.regenerate((err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(oldsession);
-        }
-      });
+  return new Promise((resolve, reject) => {
+    const oldsession = session.regenerate((err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(oldsession);
+      }
     });
-  } else {
-    return Promise.resolve();
-  }
+  });
 }

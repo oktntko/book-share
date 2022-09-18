@@ -21,7 +21,6 @@ app.use(
     cookie: {
       maxAge: 24 * 60 * 60 * 1000 /*ms*/,
       httpOnly: true,
-      path: process.env.PATH || "/",
       domain: process.env.DOMAIN || undefined,
       secure: process.env.PROD ? true : false,
     },
