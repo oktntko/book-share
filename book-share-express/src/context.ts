@@ -5,9 +5,9 @@ import { trpc, trpcAdapters } from "~/libs/trpc";
 import { UsersRepository } from "~/repositories/UsersRepository";
 
 // The app's context - is generated for each incoming request
-export async function createContext(opts?: trpcAdapters.CreateExpressContextOptions) {
+export async function createContext(opts: trpcAdapters.CreateExpressContextOptions) {
   async function getUserFromSession() {
-    if (opts?.req?.session?.user_id) {
+    if (opts.req.session.user_id) {
       if (
         !opts.req.session.cookie.expires ||
         dayjs(opts.req.session.cookie.expires).isBefore(dayjs())
@@ -27,8 +27,8 @@ export async function createContext(opts?: trpcAdapters.CreateExpressContextOpti
   const user = await getUserFromSession();
 
   return {
-    req: opts?.req,
-    res: opts?.res,
+    req: opts.req,
+    res: opts.res,
     user,
   };
 }

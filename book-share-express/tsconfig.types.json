@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
+    "rootDir": "src",
     "declaration": true,
-    "outDir": "types",
     "emitDeclarationOnly": true
   },
-  "include": ["src/routers/AppRouter.ts"]
+  "include": ["src/**/*"]
 }
