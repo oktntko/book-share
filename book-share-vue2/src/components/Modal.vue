@@ -30,7 +30,8 @@
         >
           <div
             v-show="open"
-            class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            :class="`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8
+              ${container ? 'container' : 'sm:w-full sm:max-w-lg'}`"
             @click.stop
           >
             <component
@@ -63,6 +64,7 @@ type ModalProps = Partial<{
     escape: boolean;
     outside: boolean;
   };
+  container: boolean;
 }>;
 
 const Modal = Vue.extend({
@@ -98,6 +100,11 @@ const Modal = Vue.extend({
         outside: true,
       }),
     },
+    container: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -127,11 +134,17 @@ const Modal = Vue.extend({
 
     close() {
       this.open = false;
-      setTimeout(() => this.$emit("close"), this.dissmissDuration);
+      setTimeout(() => {
+        this.$emit("close");
+        this.componentEvents?.close?.();
+      }, this.dissmissDuration);
     },
     success(data: any) {
       this.open = false;
-      setTimeout(() => this.$emit("success", data), this.dissmissDuration);
+      setTimeout(() => {
+        this.$emit("success", data);
+        this.componentEvents?.success?.(data);
+      }, this.dissmissDuration);
     },
   },
 });

@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "~/App.vue";
 import "~/libs/iconify";
+import "~/libs/vxe-table";
 import "~/main.css";
 import router from "~/router";
 

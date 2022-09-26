@@ -3,9 +3,9 @@
 </template>
 
 <script lang="ts">
-import axios, { AxiosError } from "axios";
 import Vue from "vue";
 import { $dialog } from "~/components/Dialog.vue";
+import { isTRPCClientError } from "~/libs/trpc";
 
 export default Vue.extend({
   mounted() {
@@ -17,10 +17,8 @@ export default Vue.extend({
   methods: {
     onUnhandledRejection(event: PromiseRejectionEvent) {
       event.promise.catch((error) => {
-        if (axios.isAxiosError(error) && isApiError(error)) {
-          console.error(error);
-
-          const status = error.response?.status ?? 0;
+        if (isTRPCClientError(error)) {
+          const status = error.data?.httpStatus ?? 0;
           const colorset =
             0 < status && status < 400
               ? "info"
@@ -31,7 +29,7 @@ export default Vue.extend({
           $dialog.open({
             colorset,
             icon: colorset === "info" ? "bx:info-circle" : "bx:error",
-            message: error.response?.data.message,
+            message: error.message,
             confirmText: "OK",
             canCancel: {
               escape: true,
@@ -46,12 +44,4 @@ export default Vue.extend({
     },
   },
 });
-
-const isApiError = (error: AxiosError): error is AxiosError<{ message: string }> => {
-  return (
-    typeof error?.response?.data === "object" &&
-    error.response.data != null &&
-    "message" in error.response.data
-  );
-};
 </script>

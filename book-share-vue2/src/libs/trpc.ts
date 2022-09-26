@@ -1,7 +1,11 @@
 import type { AppRouter } from "@routers/AppRouter";
 
-import { createTRPCClient } from "@trpc/client";
+import { createTRPCClient, TRPCClientError } from "@trpc/client";
 
 export const trpc = createTRPCClient<AppRouter>({
-  url: "trpc",
+  url: "/trpc",
 });
+
+export function isTRPCClientError(cause: unknown): cause is TRPCClientError<AppRouter> {
+  return cause instanceof TRPCClientError;
+}

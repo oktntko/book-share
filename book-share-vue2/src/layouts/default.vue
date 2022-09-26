@@ -1,5 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50 text-gray-600 antialiased dark:bg-gray-700 dark:text-white">
+  <div
+    class="flex min-h-screen flex-col bg-gray-50 text-gray-600 antialiased dark:bg-gray-700 dark:text-white"
+  >
     <!-- Header -->
     <header class="body-font">
       <div class="container mx-auto flex flex-col flex-wrap items-center p-5 md:flex-row">
@@ -51,7 +53,6 @@
           <!-- 投稿を書く -->
           <RouterLink
             to="/drafts/new"
-            tag="button"
             class="flex rounded-lg border border-gray-800 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
           >
             <Icon icon="line-md:edit-twotone" class="mr-2 -ml-1 h-5 w-5"> </Icon>
@@ -62,7 +63,7 @@
     </header>
     <!-- /Header -->
 
-    <div class="min-h-full">
+    <div class="h-full flex-grow">
       <RouterView />
     </div>
   </div>

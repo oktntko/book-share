@@ -11,7 +11,7 @@
     >
       <div
         v-show="open"
-        class="fixed inset-0 flex h-full w-full items-center justify-center bg-gray-100 bg-opacity-10 p-4 backdrop-blur-[1px] transition-opacity md:h-auto"
+        class="fixed inset-0 flex h-full w-full items-center justify-center bg-gray-100 bg-opacity-10 p-4 backdrop-blur-[2px] transition-opacity md:h-auto"
         @click="handleOutsideClicked"
       >
         <Icon
