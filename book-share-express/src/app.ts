@@ -34,8 +34,9 @@ app.use(
   trpcAdapters.createExpressMiddleware({
     router,
     createContext,
-    onError({ error, type, path, input, ctx, req }) {
-      log.error(error, type, path, input, ctx, req);
+    onError({ type, path, input, error }) {
+      log.error(type, path, input);
+      log.error(error);
     },
   })
 );
