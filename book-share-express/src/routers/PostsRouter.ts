@@ -5,9 +5,9 @@ import { PostsService } from "~/services/PostsService";
 
 const PostSchema = z.object({
   post_id: z.number().positive(),
-  google_id: z.string().trim().max(255),
-  post_title: z.string().trim().max(255),
-  description: z.string().trim().max(255),
+  google_id: z.string().trim().max(255).optional(),
+  post_title: z.string().trim().max(255).min(1),
+  content: z.string().trim().max(255).min(1),
   publish: z.boolean(),
 });
 
@@ -31,7 +31,7 @@ export const posts = createAuthorizedRouter()
     input: PostSchema.pick({
       google_id: true,
       post_title: true,
-      description: true,
+      content: true,
     }),
     resolve: async ({ input, ctx }) => {
       return ORM.$transaction(async (prisma) =>
@@ -54,7 +54,7 @@ export const posts = createAuthorizedRouter()
       post_id: true,
       google_id: true,
       post_title: true,
-      description: true,
+      content: true,
     }),
     resolve: async ({ input, ctx }) => {
       return ORM.$transaction(async (prisma) =>

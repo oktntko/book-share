@@ -38,7 +38,7 @@ async function listPosts(input: {
         },
       },
       {
-        description: {
+        content: {
           contains: input.keyword,
         },
       },
@@ -89,19 +89,21 @@ async function createPost(
   operator_id: number,
   input: {
     post_title: string;
-    description: string;
-    google_id: string;
+    content: string;
+    google_id?: string;
   }
 ) {
-  const book = await BooksRepository.getBook(input.google_id);
-  const book_title: string = book.data.volumeInfo.title;
+  const book = await findBookOrCreate(prisma, input.google_id);
 
-  return PostsRepository.createPost(prisma, operator_id, {
-    post_title: input.post_title,
-    description: input.description,
-    google_id: input.google_id,
-    book_title,
-  });
+  return PostsRepository.createPost(
+    prisma,
+    operator_id,
+    {
+      post_title: input.post_title,
+      content: input.content,
+    },
+    book?.book_id
+  );
 }
 
 // # GET /posts/:post_id
@@ -116,19 +118,22 @@ async function updatePost(
   input: {
     post_id: number;
     post_title: string;
-    description: string;
-    google_id: string;
+    content: string;
+    google_id?: string;
   }
 ) {
-  const book = await BooksRepository.getBook(input.google_id);
-  const book_title: string = book.data.volumeInfo.title;
+  const book = await findBookOrCreate(prisma, input.google_id);
 
-  return PostsRepository.updatePost(prisma, operator_id, input.post_id, {
-    post_title: input.post_title,
-    description: input.description,
-    google_id: input.google_id,
-    book_title,
-  });
+  return PostsRepository.updatePost(
+    prisma,
+    operator_id,
+    input.post_id,
+    {
+      post_title: input.post_title,
+      content: input.content,
+    },
+    book?.book_id
+  );
 }
 
 // # PATCH /posts/:post_id/publish
@@ -165,3 +170,19 @@ export const PostsService = {
   publishPost,
   deletePost,
 };
+
+async function findBookOrCreate(prisma: PrismaClient, google_id?: string) {
+  //
+  if (!google_id) {
+    return undefined;
+  }
+
+  const book = await BooksRepository.findUniqueBook(prisma, google_id);
+  if (book) {
+    return book;
+  }
+
+  return BooksRepository.getBook(google_id).then((book) =>
+    BooksRepository.createBook(prisma, book)
+  );
+}

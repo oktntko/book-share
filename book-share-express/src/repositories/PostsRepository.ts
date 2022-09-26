@@ -39,7 +39,7 @@ async function findManyPosts(
         },
       },
       post_title: true,
-      description: true,
+      content: true,
       published: true,
       hearts: true,
       created_at: true,
@@ -57,10 +57,9 @@ async function createPost(
   operator_id: number,
   post: {
     post_title: string;
-    description: string;
-    google_id: string;
-    book_title: string;
-  }
+    content: string;
+  },
+  book_id?: number
 ) {
   log.debug("createPost", operator_id);
 
@@ -82,31 +81,17 @@ async function createPost(
         },
       },
       post_title: true,
-      description: true,
+      content: true,
       published: true,
       hearts: true,
       created_at: true,
       updated_at: true,
     },
     data: {
+      book_id,
+      contributor_id: operator_id,
       post_title: post.post_title,
-      description: post.description,
-      contributor: {
-        connect: {
-          user_id: operator_id,
-        },
-      },
-      book: {
-        connectOrCreate: {
-          where: {
-            google_id: post.google_id,
-          },
-          create: {
-            book_title: post.book_title,
-            google_id: post.google_id,
-          },
-        },
-      },
+      content: post.content,
       created_by: operator_id,
       updated_by: operator_id,
     },
@@ -134,7 +119,7 @@ async function findUniquePost(prisma: PrismaClient, post_id: number) {
         },
       },
       post_title: true,
-      description: true,
+      content: true,
       published: true,
       hearts: true,
       created_at: true,
@@ -152,10 +137,9 @@ async function updatePost(
   post_id: number,
   post: {
     post_title: string;
-    description: string;
-    google_id: string;
-    book_title: string;
-  }
+    content: string;
+  },
+  book_id?: number
 ) {
   log.debug("updatePost", operator_id);
 
@@ -177,31 +161,17 @@ async function updatePost(
         },
       },
       post_title: true,
-      description: true,
+      content: true,
       published: true,
       hearts: true,
       created_at: true,
       updated_at: true,
     },
     data: {
+      book_id,
+      contributor_id: operator_id,
       post_title: post.post_title,
-      description: post.description,
-      contributor: {
-        connect: {
-          user_id: operator_id,
-        },
-      },
-      book: {
-        connectOrCreate: {
-          where: {
-            google_id: post.google_id,
-          },
-          create: {
-            book_title: post.book_title,
-            google_id: post.google_id,
-          },
-        },
-      },
+      content: post.content,
       updated_by: operator_id,
     },
     where: {
@@ -231,7 +201,7 @@ async function deletePost(prisma: PrismaClient, operator_id: number, post_id: nu
         },
       },
       post_title: true,
-      description: true,
+      content: true,
       published: true,
       hearts: true,
       created_at: true,
@@ -267,7 +237,7 @@ async function publishPost(
         },
       },
       post_title: true,
-      description: true,
+      content: true,
       published: true,
       hearts: true,
       created_at: true,
