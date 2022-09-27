@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-2 rounded-lg bg-gray-100 p-5">
+  <div class="flex flex-col gap-2 rounded border bg-white p-4">
     <div class="flex gap-4">
       <!-- サムネイル -->
       <img

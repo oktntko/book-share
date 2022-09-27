@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4 p-6 text-gray-600">
+  <div class="flex flex-col gap-4 bg-gray-50 p-6 text-gray-600">
     <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
       <!-- 一段目 -->
       <div class="flex justify-between">
@@ -27,7 +27,6 @@
           <button
             type="button"
             class="inline-flex items-center rounded-lg border border-gray-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"
-            data-dismiss-target="#alert-additional-content-1"
             aria-label="Close"
             @click="handleClose"
           >
@@ -62,14 +61,16 @@
     <!-- 検索結果 -->
     <!-- 検索結果がある場合 -->
     <template v-if="pager.total > 0">
-      <div class="masonry-wrapper -m-4">
+      <div class="masonry-wrapper">
         <div
           v-for="volume of volumes"
           :key="volume.id"
-          class="masonry-item cursor-pointer py-4 px-2 transition-[drop-shadow] hover:drop-shadow-lg"
+          class="masonry-item cursor-pointer py-4 px-2"
           @click="handleSelect(volume)"
         >
-          <div class="flex flex-col gap-2 rounded-lg bg-gray-100 p-5">
+          <div
+            class="flex flex-col gap-2 rounded border-b border-r bg-gray-100 p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:transform hover:bg-white hover:drop-shadow"
+          >
             <div class="flex gap-4">
               <!-- サムネイル -->
               <img
@@ -158,7 +159,6 @@
     </template>
     <template v-else-if="pager.total === 0">
       <div
-        id="alert-additional-content-4"
         class="mb-4 border-t-2 border-yellow-300 bg-yellow-50 p-4 dark:bg-yellow-200"
         role="alert"
       >
@@ -178,29 +178,18 @@
       </div>
     </template>
     <template v-else>
-      <div
-        id="alert-additional-content-1"
-        class="mb-4 border-t-2 border-blue-300 bg-blue-50 p-4 dark:bg-blue-300"
-        role="alert"
-      >
+      <div class="mb-4 border-t-2 border-blue-300 bg-blue-50 p-4 dark:bg-blue-300" role="alert">
         <div class="flex items-center">
           <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-blue-900"></Icon>
           <span class="sr-only">Info</span>
-          <h3 class="text-lg font-medium text-blue-900">投稿を書く本を見つけましょう！</h3>
+          <h3 class="text-lg font-medium text-blue-900">検索のコツ</h3>
         </div>
-        <div class="mt-2 mb-4 text-sm text-blue-900">
-          本を選ぶと、あなたの投稿を見つけやすくなります。<br />スキップすることもできます。
-        </div>
-        <div class="flex">
-          <button
-            type="button"
-            class="rounded-lg border border-blue-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-blue-900 hover:bg-blue-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-blue-800 dark:text-blue-800 dark:hover:text-white"
-            data-dismiss-target="#alert-additional-content-1"
-            aria-label="Close"
-            @click="handleClose"
-          >
-            本を選ばないで投稿を書く
-          </button>
+        <div class="mt-4 mb-2 text-sm text-blue-700 dark:text-blue-800">
+          <li>ヒント 1. まずはシンプルに</li>
+          <li>ヒント 2. 音声で検索する</li>
+          <li>ヒント 3. 検索語句を工夫する</li>
+          <li>ヒント 4. 間違えてもだいじょうぶ</li>
+          <li>ヒント 5. 便利な機能を利用する</li>
         </div>
       </div>
     </template>
@@ -302,7 +291,23 @@ export default Vue.extend({
     };
   },
   methods: {
-    searchGoogle(keyword: string, queryfield: string) {
+    handleSubmit() {
+      this.pager.currentPage = 1;
+      this.listGoogleBooks(this.search.keyword, this.search.queryfield);
+    },
+    handlePageChange({ currentPage, pageSize }: { currentPage: number; pageSize: number }) {
+      this.pager.currentPage = currentPage;
+      this.pager.pageSize = pageSize;
+      this.listGoogleBooks(this.search.keyword, this.search.queryfield);
+    },
+    handleClose() {
+      this.$emit("close");
+    },
+    handleSelect(volume: Volume) {
+      this.$emit("selected", volume.id, volume);
+      this.$emit("close");
+    },
+    listGoogleBooks(keyword: string, queryfield: string) {
       const loading = $loading.open();
       // https://developers.google.com/books/docs/v1/reference/volumes/list
       axios
@@ -322,22 +327,6 @@ export default Vue.extend({
           this.volumes = data.items;
         })
         .finally(loading.close);
-    },
-    handleSubmit() {
-      this.pager.currentPage = 1;
-      this.searchGoogle(this.search.keyword, this.search.queryfield);
-    },
-    handlePageChange({ currentPage, pageSize }: { currentPage: number; pageSize: number }) {
-      this.pager.currentPage = currentPage;
-      this.pager.pageSize = pageSize;
-      this.searchGoogle(this.search.keyword, this.search.queryfield);
-    },
-    handleClose() {
-      this.$emit("close");
-    },
-    handleSelect(volume: Volume) {
-      this.$emit("selected", volume.id, volume);
-      this.$emit("close");
     },
   },
 });

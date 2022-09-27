@@ -116,7 +116,7 @@
 import Vue, { PropType } from "vue";
 
 type DialogProps = Partial<{
-  colorset: string;
+  colorset: "info" | "success" | "warning" | "danger";
   icon: string;
   title: string;
   message: string;

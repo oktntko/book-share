@@ -15,7 +15,9 @@
     "@tinymce/tinymce-vue": "^3.2.8",
     "@trpc/client": "^9.27.2",
     "axios": "^0.27.2",
+    "dayjs": "^1.11.5",
     "vue": "^2.7.10",
+    "vue-click-outside": "^1.1.0",
     "vue-router": "^3.6.5",
     "vxe-table": "^3.6.6",
     "xe-utils": "^3.5.6"

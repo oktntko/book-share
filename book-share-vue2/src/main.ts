@@ -3,7 +3,8 @@ import App from "~/App.vue";
 import "~/libs/iconify";
 import "~/libs/vxe-table";
 import "~/main.css";
-import router from "~/router";
+import "~/plugins/filters";
+import router from "~/plugins/router";
 
 Vue.config.productionTip = false;
 

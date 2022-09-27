@@ -1,16 +1,17 @@
 import { Prisma } from "@prisma/client";
 import log from "~/libs/log";
 import ORM from "~/libs/ORM";
+import { trpc } from "~/libs/trpc";
 import { BooksRepository } from "~/repositories/BooksRepository";
 import { PostsRepository } from "~/repositories/PostsRepository";
 import { PrismaClient } from "~/type";
 
 // # GET /posts
 async function listPosts(input: {
-  google_id: string;
-  keyword: string;
+  google_id?: string;
+  keyword?: string;
   contributor_id?: number | undefined;
-  sort: ("hearts" | "created_at" | "book_title" | "post_title")[];
+  sort: ("hearts" | "created_at" | "updated_at" | "book_title" | "post_title")[];
   limit: number;
   offset: number;
 }) {
@@ -61,6 +62,10 @@ async function listPosts(input: {
         return {
           created_at: "desc",
         };
+      case "updated_at":
+        return {
+          updated_at: "desc",
+        };
       case "book_title":
         return {
           book: {
@@ -93,7 +98,7 @@ async function createPost(
     google_id?: string;
   }
 ) {
-  const book = await findBookOrCreate(prisma, input.google_id);
+  const book = input.google_id ? await findBookOrCreate(prisma, input.google_id) : undefined;
 
   return PostsRepository.createPost(
     prisma,
@@ -108,7 +113,14 @@ async function createPost(
 
 // # GET /posts/:post_id
 async function findUniquePost(post_id: number) {
-  return PostsRepository.findUniquePost(ORM, post_id);
+  const post = await PostsRepository.findUniquePost(ORM, post_id);
+  if (post == null) {
+    throw new trpc.TRPCError({
+      code: "NOT_FOUND",
+      message: "Data already Deleted, please refresh.",
+    });
+  }
+  return post;
 }
 
 // # PUT /posts/:post_id
@@ -122,7 +134,7 @@ async function updatePost(
     google_id?: string;
   }
 ) {
-  const book = await findBookOrCreate(prisma, input.google_id);
+  const book = input.google_id ? await findBookOrCreate(prisma, input.google_id) : undefined;
 
   return PostsRepository.updatePost(
     prisma,
@@ -162,21 +174,7 @@ async function deletePost(
   return PostsRepository.deletePost(prisma, operator_id, input.post_id);
 }
 
-export const PostsService = {
-  listPosts,
-  createPost,
-  findUniquePost,
-  updatePost,
-  publishPost,
-  deletePost,
-};
-
-async function findBookOrCreate(prisma: PrismaClient, google_id?: string) {
-  //
-  if (!google_id) {
-    return undefined;
-  }
-
+async function findBookOrCreate(prisma: PrismaClient, google_id: string) {
   const book = await BooksRepository.findUniqueBook(prisma, google_id);
   if (book) {
     return book;
@@ -186,3 +184,13 @@ async function findBookOrCreate(prisma: PrismaClient, google_id?: string) {
     BooksRepository.createBook(prisma, book)
   );
 }
+
+export const PostsService = {
+  listPosts,
+  createPost,
+  findUniquePost,
+  updatePost,
+  publishPost,
+  deletePost,
+  findBookOrCreate,
+};

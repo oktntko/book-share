@@ -29,6 +29,7 @@ async function findManyPosts(
         select: {
           book_id: true,
           google_id: true,
+          book_title: true,
         },
       },
       contributor_id: true,
@@ -71,6 +72,7 @@ async function createPost(
         select: {
           book_id: true,
           google_id: true,
+          book_title: true,
         },
       },
       contributor_id: true,
@@ -109,6 +111,7 @@ async function findUniquePost(prisma: PrismaClient, post_id: number) {
         select: {
           book_id: true,
           google_id: true,
+          book_title: true,
         },
       },
       contributor_id: true,
@@ -151,6 +154,7 @@ async function updatePost(
         select: {
           book_id: true,
           google_id: true,
+          book_title: true,
         },
       },
       contributor_id: true,
@@ -191,6 +195,7 @@ async function deletePost(prisma: PrismaClient, operator_id: number, post_id: nu
         select: {
           book_id: true,
           google_id: true,
+          book_title: true,
         },
       },
       contributor_id: true,
@@ -227,6 +232,7 @@ async function publishPost(
         select: {
           book_id: true,
           google_id: true,
+          book_title: true,
         },
       },
       contributor_id: true,
