@@ -1,3 +1,4 @@
+import { typeToFlattenedError, ZodError } from "zod";
 import dayjs from "~/libs/dayjs";
 import log from "~/libs/log";
 import ORM from "~/libs/ORM";
@@ -37,12 +38,31 @@ type Context = trpc.inferAsyncReturnType<typeof createContext>;
 
 // Helper function to create a router with your app's context
 export function createRouter() {
-  return trpc.router<Context>();
+  return trpc.router<Context>().formatError(({ shape, error }) => {
+    const format = {
+      code: shape.code, // number
+      message: shape.message, // string,
+      data: {
+        httpStatus: shape.data.httpStatus,
+        codeName: error.code,
+        path: shape.data.path,
+        cause: undefined as typeToFlattenedError<any, string> | undefined,
+      }, // Record<string, unknown>
+    };
+
+    if (error.code === "BAD_REQUEST" && error.cause instanceof ZodError) {
+      format.message = "入力値に誤りがあります。";
+      format.data.cause = error.cause.flatten();
+      return format;
+    } else {
+      return format;
+    }
+  });
 }
 
 // This helper can be used anywhere in your app tree to enforce downstream procedures to be authorized.
 export function createAuthorizedRouter() {
-  return trpc.router<Context>().middleware(({ ctx, next }) => {
+  return createRouter().middleware(({ ctx, next }) => {
     if (!ctx.user) {
       throw new trpc.TRPCError({ code: "UNAUTHORIZED" });
     }

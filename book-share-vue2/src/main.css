@@ -2,6 +2,11 @@
 @import "tailwindcss/components"; /* @tailwind components; */
 @import "tailwindcss/utilities"; /* @tailwind utilities; */
 
+html {
+  /* スクロールバーの表示・非表示でずれるため、常にスクロールバーを表示 */
+  overflow-y: scroll;
+}
+
 body {
   margin: 0;
   font-family: "Open Sans", "Noto Sans JP", "Helvetica Neue", "Helvetica", "Hiragino Sans",

@@ -1,16 +1,17 @@
 import { Prisma } from "@prisma/client";
 import log from "~/libs/log";
 import ORM from "~/libs/ORM";
+import { trpc } from "~/libs/trpc";
 import { BooksRepository } from "~/repositories/BooksRepository";
 import { PostsRepository } from "~/repositories/PostsRepository";
 import { PrismaClient } from "~/type";
 
 // # GET /posts
 async function listPosts(input: {
-  google_id: string;
-  keyword: string;
+  google_id?: string;
+  keyword?: string;
   contributor_id?: number | undefined;
-  sort: ("hearts" | "created_at" | "book_title" | "post_title")[];
+  sort: ("hearts" | "created_at" | "updated_at" | "book_title" | "post_title")[];
   limit: number;
   offset: number;
 }) {
@@ -38,7 +39,7 @@ async function listPosts(input: {
         },
       },
       {
-        description: {
+        content: {
           contains: input.keyword,
         },
       },
@@ -60,6 +61,10 @@ async function listPosts(input: {
       case "created_at":
         return {
           created_at: "desc",
+        };
+      case "updated_at":
+        return {
+          updated_at: "desc",
         };
       case "book_title":
         return {
@@ -89,24 +94,33 @@ async function createPost(
   operator_id: number,
   input: {
     post_title: string;
-    description: string;
-    google_id: string;
+    content: string;
+    google_id?: string;
   }
 ) {
-  const book = await BooksRepository.getBook(input.google_id);
-  const book_title: string = book.data.volumeInfo.title;
+  const book = input.google_id ? await findBookOrCreate(prisma, input.google_id) : undefined;
 
-  return PostsRepository.createPost(prisma, operator_id, {
-    post_title: input.post_title,
-    description: input.description,
-    google_id: input.google_id,
-    book_title,
-  });
+  return PostsRepository.createPost(
+    prisma,
+    operator_id,
+    {
+      post_title: input.post_title,
+      content: input.content,
+    },
+    book?.book_id
+  );
 }
 
 // # GET /posts/:post_id
 async function findUniquePost(post_id: number) {
-  return PostsRepository.findUniquePost(ORM, post_id);
+  const post = await PostsRepository.findUniquePost(ORM, post_id);
+  if (post == null) {
+    throw new trpc.TRPCError({
+      code: "NOT_FOUND",
+      message: "Data already Deleted, please refresh.",
+    });
+  }
+  return post;
 }
 
 // # PUT /posts/:post_id
@@ -116,19 +130,22 @@ async function updatePost(
   input: {
     post_id: number;
     post_title: string;
-    description: string;
-    google_id: string;
+    content: string;
+    google_id?: string;
   }
 ) {
-  const book = await BooksRepository.getBook(input.google_id);
-  const book_title: string = book.data.volumeInfo.title;
+  const book = input.google_id ? await findBookOrCreate(prisma, input.google_id) : undefined;
 
-  return PostsRepository.updatePost(prisma, operator_id, input.post_id, {
-    post_title: input.post_title,
-    description: input.description,
-    google_id: input.google_id,
-    book_title,
-  });
+  return PostsRepository.updatePost(
+    prisma,
+    operator_id,
+    input.post_id,
+    {
+      post_title: input.post_title,
+      content: input.content,
+    },
+    book?.book_id
+  );
 }
 
 // # PATCH /posts/:post_id/publish
@@ -157,6 +174,17 @@ async function deletePost(
   return PostsRepository.deletePost(prisma, operator_id, input.post_id);
 }
 
+async function findBookOrCreate(prisma: PrismaClient, google_id: string) {
+  const book = await BooksRepository.findUniqueBook(prisma, google_id);
+  if (book) {
+    return book;
+  }
+
+  return BooksRepository.getBook(google_id).then((book) =>
+    BooksRepository.createBook(prisma, book)
+  );
+}
+
 export const PostsService = {
   listPosts,
   createPost,
@@ -164,4 +192,5 @@ export const PostsService = {
   updatePost,
   publishPost,
   deletePost,
+  findBookOrCreate,
 };

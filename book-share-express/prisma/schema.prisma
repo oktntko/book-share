@@ -72,32 +72,32 @@ model Book {
 }
 
 model Post {
-  post_id        Int @id @default(autoincrement())
-  book_id        Int
+  post_id        Int  @id @default(autoincrement())
+  book_id        Int?
   contributor_id Int /// 投稿者ID
 
-  post_title  String  @default("") @db.VarChar(255)
-  description String  @default("") @db.Text()
-  published   Boolean @default(false)
-  hearts      Int     @default(0)
+  post_title String  @default("") @db.VarChar(255)
+  content    String  @default("") @db.Text()
+  published  Boolean @default(false)
+  hearts     Int     @default(0)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   created_by Int
   updated_at DateTime @updatedAt @db.Timestamptz(3)
   updated_by Int
 
-  contributor User @relation(fields: [contributor_id], references: [user_id], onDelete: Cascade) /// 投稿者
-  book        Book @relation(fields: [book_id], references: [book_id], onDelete: Cascade)
+  contributor User  @relation(fields: [contributor_id], references: [user_id], onDelete: Cascade) /// 投稿者
+  book        Book? @relation(fields: [book_id], references: [book_id], onDelete: Cascade)
 
   @@map("posts")
 }
 
 /// 物理的な本
 model Volume {
-  volume_id   Int @id @default(autoincrement())
+  volume_id   Int  @id @default(autoincrement())
   book_id     Int
-  owner_id    Int @default(0) /// 所有者ID
-  borrower_id Int @default(0) //// 借り手ID
+  owner_id    Int? /// 所有者ID
+  borrower_id Int? //// 借り手ID
 
   bookshelf String       @default("") @db.VarChar(255) /// 本がある場所
   status    VolumeStatus @default(STOCK)

@@ -1,0 +1,16 @@
+[class*="vxe-"],
+[class*="vxe-"] * {
+  font-family: "Open Sans", "Noto Sans JP", "Helvetica Neue", "Helvetica", "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Arial", "Yu Gothic", "Meiryo", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.vxe-table--render-default .vxe-table--empty-content {
+  width: 100% !important;
+  text-align: left;
+}
+
+.vxe-pager .vxe-pager--sizes {
+  width: 8rem;
+}

@@ -90,8 +90,7 @@ export default Vue.extend({
           email: this.form.email,
           password: this.form.password,
         })
-        .then((data) => {
-          console.log(data);
+        .then(() => {
           this.$router.push({ name: "index" });
         })
         .catch((err) => {

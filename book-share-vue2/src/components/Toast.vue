@@ -145,6 +145,7 @@ export const $toast = {
       container.style.zIndex = "10";
       container.style.bottom = "3rem";
       container.style.left = "50%";
+      container.style.transform = "translateX(-50%)";
 
       container.appendChild(parent);
       document.body.appendChild(container);
