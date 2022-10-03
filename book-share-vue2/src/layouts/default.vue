@@ -4,12 +4,11 @@
   >
     <!-- Header -->
     <header class="body-font">
-      <div class="container mx-auto flex flex-col flex-wrap items-center p-5 md:flex-row">
+      <div class="container mx-auto flex flex-col flex-wrap items-center px-4 pt-5 md:flex-row">
         <nav class="flex flex-wrap items-center gap-5 text-base md:ml-auto lg:w-2/5">
           <RouterLink
             to="/posts"
             class="border-b-4 border-b-transparent hover:text-blue-600"
-            exact
             active-class="text-blue-600 border-b-gray-200"
           >
             投稿を読む
@@ -17,11 +16,17 @@
           <RouterLink
             to="/books"
             class="border-b-4 border-b-transparent hover:text-blue-600"
-            exact
             active-class="text-blue-600 border-b-gray-200"
           >
             本を探す
             <!-- 本を借りる・本を返す・本を貸し出す・投稿を書く・投稿を探す -->
+          </RouterLink>
+          <RouterLink
+            to="/library"
+            class="border-b-4 border-b-transparent hover:text-blue-600"
+            active-class="text-blue-600 border-b-gray-200"
+          >
+            図書館に入る
           </RouterLink>
         </nav>
         <RouterLink
@@ -78,7 +83,7 @@
             >
               <div
                 v-show="showMenu"
-                class="absolute right-0 z-10 mt-2 w-64 origin-top-right divide-y divide-gray-100 rounded-md bg-white text-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                class="absolute right-0 z-50 mt-2 w-64 origin-top-right divide-y divide-gray-100 rounded-md bg-white text-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                 role="menu"
                 aria-orientation="vertical"
                 tabindex="-1"
@@ -105,20 +110,28 @@
                 </div>
                 <div class="py-1" role="none">
                   <RouterLink
-                    to="/volumes"
+                    to="/library"
                     class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
                     exact
                     active-class="text-blue-600 border-l-gray-200"
                   >
-                    本を貸し出す
+                    図書館から本を借りる
                   </RouterLink>
                   <RouterLink
-                    to="/"
+                    to="/library/borrowed"
                     class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
                     exact
                     active-class="text-blue-600 border-l-gray-200"
                   >
-                    本を借りる・返す
+                    借りている本を返す
+                  </RouterLink>
+                  <RouterLink
+                    to="/library/new"
+                    class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
+                    exact
+                    active-class="text-blue-600 border-l-gray-200"
+                  >
+                    新しく本を寄贈する
                   </RouterLink>
                 </div>
                 <div class="py-1" role="none">

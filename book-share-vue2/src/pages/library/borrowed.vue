@@ -1,28 +1,38 @@
 <template>
   <div class="container mx-auto p-4">
-    <nav class="mb-4 flex" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <Icon icon="mdi:bookshelf" class="h-5 w-5"></Icon>
-        </li>
+    <nav class="mb-8 flex" aria-label="Breadcrumb ">
+      <ol class="inline-flex items-center space-x-1 md:space-x-5">
         <li class="inline-flex items-center">
           <RouterLink
-            to="/volumes"
+            to="/library"
             class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
             exact
             active-class="text-blue-600 font-bold"
           >
-            貸出中の本一覧
+            <Icon icon="game-icons:bookshelf" class="mr-1 h-5 w-5"></Icon>
+            図書館の本
           </RouterLink>
         </li>
         <li class="inline-flex items-center">
           <RouterLink
-            to="/volumes/new"
+            to="/library/borrowed"
             class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
             exact
             active-class="text-blue-600 font-bold"
           >
-            本を貸し出す
+            <Icon icon="icon-park:return" class="mr-1 h-5 w-5"></Icon>
+            借りている本を返す
+          </RouterLink>
+        </li>
+        <li class="inline-flex items-center">
+          <RouterLink
+            to="/library/new"
+            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
+            exact
+            active-class="text-blue-600 font-bold"
+          >
+            <Icon icon="bx:donate-heart" class="mr-1 h-5 w-5"></Icon>
+            新しく本を寄贈する
           </RouterLink>
         </li>
       </ol>
@@ -30,7 +40,50 @@
 
     <!-- 検索フォーム -->
     <form class="mb-4 flex flex-col gap-2" @submit.prevent="handleSubmit">
-      <!-- 一段目 -->
+      <!-- １段目 -->
+      <div class="flex items-center">
+        <!-- ラジオボタン -->
+        <Icon icon="bx:filter-alt" class="mr-2 h-4 w-4"></Icon>
+        <div class="flex">
+          <div v-for="[key, label] of fields" :key="key" class="mr-4 flex items-center">
+            <input
+              :id="`inline-radio-${key}`"
+              v-model="search.queryfield"
+              type="radio"
+              :value="key"
+              name="inline-radio-group"
+              class="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+            />
+            <label
+              :for="`inline-radio-${key}`"
+              class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+            >
+              {{ label }}
+            </label>
+          </div>
+        </div>
+
+        <Icon icon="bxs:sort-alt" class="ml-4 mr-2 h-4 w-4"></Icon>
+        <div class="flex">
+          <div v-for="[key, label] of sortKeys" :key="key" class="mr-4 flex items-center">
+            <input
+              :id="`inline-checkbox-${key}`"
+              v-model="search.sortfield"
+              type="radio"
+              :value="key"
+              class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+            />
+            <label
+              :for="`inline-checkbox-${key}`"
+              class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+            >
+              {{ label }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ２段目 -->
       <div>
         <label
           for="default-search"
@@ -66,7 +119,7 @@
         <vxe-column field="volume_id" width="80" title="ID" align="right" sortable>
           <template #default="{ row }">
             <RouterLink
-              :to="`/volumes/${row.volume_id}`"
+              :to="`/library/${row.volume_id}`"
               class="border-b-4 border-b-transparent text-blue-600"
             >
               {{ `#${row.volume_id}` }}
@@ -160,6 +213,14 @@ export default Vue.extend({
         pageSize: 10,
         total: 0,
       },
+      fields: Object.entries({
+        ONLY_DRAFTS: "すべて",
+        ONLY_PUBLISHED: "在庫あり",
+      }),
+      sortKeys: Object.entries({
+        book_title: "本のタイトル",
+        created_at: "作成日時",
+      }),
     };
   },
   created() {
