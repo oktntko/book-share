@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import EditVolumeVue from "~/pages/volumes/components/EditVolume.vue";
+import EditVolumeVue from "~/pages/library/components/EditVolume.vue";
 
 export default Vue.extend({
   components: {

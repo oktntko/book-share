@@ -10,6 +10,7 @@
         </li>
       </ol>
     </nav>
+
     <template v-if="firstView"></template>
     <template v-else-if="posts.length">
       <form class="mb-4 flex flex-col gap-4" @submit.prevent="handleSubmit">
@@ -56,6 +57,7 @@
           </div>
         </div>
       </form>
+
       <section class="mb-4 flex flex-row gap-4">
         <div class="flex w-1/2 grow flex-col justify-between gap-4">
           <div class="flex flex-col gap-4">
