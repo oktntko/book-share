@@ -1,6 +1,7 @@
 import { createRouter } from "~/context";
 import { accessLog } from "~/libs/log";
 import { auth } from "~/routers/AuthRouter";
+import { books } from "~/routers/BooksRouter";
 import { drafts } from "~/routers/DraftsRouter";
 import { posts } from "~/routers/PostsRouter";
 import { users } from "~/routers/UsersRouter";
@@ -23,6 +24,7 @@ export const router = createRouter()
     return result;
   })
   .merge("auth.", auth)
+  .merge("books.", books)
   .merge("drafts.", drafts)
   .merge("posts.", posts)
   .merge("users.", users)

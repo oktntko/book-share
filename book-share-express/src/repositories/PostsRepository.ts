@@ -25,13 +25,7 @@ async function findManyPosts(
     select: {
       post_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       contributor_id: true,
       contributor: {
         select: {
@@ -57,10 +51,11 @@ async function createPost(
   prisma: PrismaClient,
   operator_id: number,
   post: {
+    book_id: string;
+    book_title: string;
     post_title: string;
     content: string;
-  },
-  book_id?: number
+  }
 ) {
   log.debug("createPost", operator_id);
 
@@ -68,13 +63,7 @@ async function createPost(
     select: {
       post_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       contributor_id: true,
       contributor: {
         select: {
@@ -90,7 +79,8 @@ async function createPost(
       updated_at: true,
     },
     data: {
-      book_id,
+      book_id: post.book_id,
+      book_title: post.book_title,
       contributor_id: operator_id,
       post_title: post.post_title,
       content: post.content,
@@ -107,13 +97,7 @@ async function findUniquePost(prisma: PrismaClient, post_id: number) {
     select: {
       post_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       contributor_id: true,
       contributor: {
         select: {
@@ -139,10 +123,11 @@ async function updatePost(
   operator_id: number,
   post_id: number,
   post: {
+    book_id: string;
+    book_title: string;
     post_title: string;
     content: string;
-  },
-  book_id?: number
+  }
 ) {
   log.debug("updatePost", operator_id);
 
@@ -150,13 +135,7 @@ async function updatePost(
     select: {
       post_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       contributor_id: true,
       contributor: {
         select: {
@@ -172,7 +151,8 @@ async function updatePost(
       updated_at: true,
     },
     data: {
-      book_id,
+      book_id: post.book_id,
+      book_title: post.book_title,
       contributor_id: operator_id,
       post_title: post.post_title,
       content: post.content,
@@ -191,13 +171,7 @@ async function deletePost(prisma: PrismaClient, operator_id: number, post_id: nu
     select: {
       post_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       contributor_id: true,
       contributor: {
         select: {
@@ -228,13 +202,7 @@ async function publishPost(
     select: {
       post_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       contributor_id: true,
       contributor: {
         select: {

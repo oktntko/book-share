@@ -9,7 +9,7 @@ export const drafts = createAuthorizedRouter()
   .query("list", {
     input: z.object({
       keyword: z.string().trim().max(255).optional(),
-      google_id: z.string().trim().max(255).optional(),
+      book_id: z.string().trim().max(255).optional(),
       sort: z.enum(["hearts", "created_at", "updated_at", "book_title", "post_title"]).array(),
       limit: z.number().max(100).optional().default(10),
       offset: z.number().optional().default(0),
@@ -21,7 +21,8 @@ export const drafts = createAuthorizedRouter()
   // # POST /drafts
   .mutation("create", {
     input: PostSchema.pick({
-      google_id: true,
+      book_id: true,
+      book_title: true,
       post_title: true,
       content: true,
     }),
@@ -44,7 +45,8 @@ export const drafts = createAuthorizedRouter()
   .mutation("update", {
     input: PostSchema.pick({
       post_id: true,
-      google_id: true,
+      book_id: true,
+      book_title: true,
       post_title: true,
       content: true,
     }),
