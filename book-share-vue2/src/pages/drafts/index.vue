@@ -184,7 +184,7 @@
             size="small"
             :current-page="pager.currentPage"
             :page-size="pager.pageSize"
-            :total="pager.total"
+            :total="total"
             :page-sizes="[10, 20, 30, 40]"
             :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
             @page-change="handlePageChange"
@@ -271,8 +271,8 @@ export default Vue.extend({
       pager: {
         currentPage: 1,
         pageSize: 10,
-        total: 0,
       },
+      total: 0,
     };
   },
   created() {
@@ -310,7 +310,7 @@ export default Vue.extend({
           offset: this.pager.pageSize * (this.pager.currentPage - 1),
         })
         .then((data) => {
-          this.pager.total = data.total;
+          this.total = data.total;
           this.posts = data.posts;
 
           if (this.posts.length) {
@@ -325,7 +325,7 @@ export default Vue.extend({
         .mutation("drafts.delete", { post_id })
         .then(() => {
           this.posts = this.posts.filter((post) => post.post_id !== post_id);
-          this.pager.total--;
+          this.total--;
         })
         .finally(loading.close);
     },

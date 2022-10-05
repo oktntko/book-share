@@ -1,9 +1,94 @@
 <template>
-  <div>本を探す</div>
+  <div class="container mx-auto p-4">
+    <BooksSearchVue :on-dialog="false" :book_id="book_id" @selected="handleSelect">
+    </BooksSearchVue>
+    <div
+      v-click-outside="handleClear"
+      class="absolute"
+      :style="{ left: `${pageX}px`, top: `${pageY}px` }"
+    >
+      <transition
+        enter-class="transform opacity-0 scale-95"
+        enter-active-class="transition ease-out duration-100"
+        enter-to-class="transform opacity-100 scale-100"
+        leave-class="transform opacity-100 scale-100"
+        leave-active-class="transition ease-in duration-75"
+        leave-to-class="transform opacity-0 scale-95"
+      >
+        <div
+          v-show="book"
+          class="absolute left-0 z-50 mt-2 w-64 origin-top-right divide-y divide-gray-100 rounded-md bg-white text-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          role="menu"
+          aria-orientation="vertical"
+          tabindex="-1"
+        >
+          <div class="py-1" role="none">
+            <RouterLink
+              to="/posts"
+              class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
+              exact
+              active-class="text-blue-600 border-l-gray-200"
+            >
+              投稿を探す
+              <p class="text-xs text-gray-400">いい本にはいい投稿があります！</p>
+            </RouterLink>
+            <RouterLink
+              to="/library"
+              class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
+              exact
+              active-class="text-blue-600 border-l-gray-200"
+            >
+              図書館から本を借りる
+              <p class="text-xs text-gray-400">本を読みましょう！</p>
+            </RouterLink>
+            <RouterLink
+              to="/drafts/new"
+              class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
+              exact
+              active-class="text-blue-600 border-l-gray-200"
+            >
+              投稿を書く
+              <p class="text-xs text-gray-400">本を読んだら投稿を書こう！</p>
+            </RouterLink>
+          </div>
+        </div>
+      </transition>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import ClickOutside from "vue-click-outside";
+import BooksSearchVue from "~/components/BooksSearch.vue";
+import { Book } from "~/libs/trpc";
 
-export default Vue.extend({});
+export default Vue.extend({
+  directives: {
+    ClickOutside,
+  },
+  components: {
+    BooksSearchVue,
+  },
+  data() {
+    return {
+      book_id: "",
+      book: undefined as Book | undefined,
+      pageX: 0,
+      pageY: 0,
+    };
+  },
+  methods: {
+    handleClear() {
+      this.book = undefined;
+      this.book_id = "";
+    },
+    handleSelect(book: Book, e: PointerEvent) {
+      this.book_id = book.book_id;
+      this.book = book;
+      this.pageX = e.pageX;
+      this.pageY = e.pageY;
+    },
+  },
+});
 </script>
