@@ -177,7 +177,7 @@
         :loading="loading"
         :current-page="pager.currentPage"
         :page-size="pager.pageSize"
-        :total="pager.total"
+        :total="total"
         :layouts="[
           'PrevJump',
           'PrevPage',
@@ -211,8 +211,8 @@ export default Vue.extend({
       pager: {
         currentPage: 1,
         pageSize: 10,
-        total: 0,
       },
+      total: 0,
       fields: Object.entries({
         ONLY_DRAFTS: "すべて",
         ONLY_PUBLISHED: "在庫あり",
@@ -255,7 +255,7 @@ export default Vue.extend({
           offset: this.pager.pageSize * (this.pager.currentPage - 1),
         })
         .then((data) => {
-          this.pager.total = data.total;
+          this.total = data.total;
           this.volumes = data.volumes;
         })
         .finally(() => (this.loading = false));
@@ -266,7 +266,7 @@ export default Vue.extend({
         .mutation("volumes.delete", { volume_id })
         .then(() => {
           this.volumes = this.volumes.filter((volume) => volume.volume_id !== volume_id);
-          this.pager.total--;
+          this.total--;
         })
         .finally(() => (this.loading = false));
     },

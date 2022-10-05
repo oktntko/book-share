@@ -23,7 +23,7 @@
           </div>
         </div>
         <!-- やめるボタン -->
-        <div class="flex">
+        <div v-if="onDialog" class="flex">
           <button
             type="button"
             class="inline-flex items-center rounded-lg border border-gray-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"
@@ -59,17 +59,40 @@
       </div>
     </form>
     <!-- 検索結果 -->
+    <!-- 初回表示時 -->
+    <template v-if="total === undefined">
+      <div class="mb-4 border-t-2 border-blue-300 bg-blue-50 p-4 dark:bg-blue-300" role="alert">
+        <div class="flex items-center">
+          <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-blue-900"></Icon>
+          <span class="sr-only">Info</span>
+          <h3 class="text-lg font-medium text-blue-900">検索のコツ</h3>
+        </div>
+        <div class="mt-4 mb-2 text-sm text-blue-700 dark:text-blue-800">
+          <li>ヒント 1. まずはシンプルに</li>
+          <li>ヒント 2. 音声で検索する</li>
+          <li>ヒント 3. 検索語句を工夫する</li>
+          <li>ヒント 4. 間違えてもだいじょうぶ</li>
+          <li>ヒント 5. 便利な機能を利用する</li>
+        </div>
+      </div>
+    </template>
     <!-- 検索結果がある場合 -->
-    <template v-if="pager.total > 0">
+    <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
+    <template v-else-if="books && books.length > 0">
       <div class="masonry-wrapper">
         <div
           v-for="book of books"
           :key="book.book_id"
           class="masonry-item cursor-pointer py-4 px-2"
-          @click="handleSelect(book)"
+          @click.stop="(e) => handleSelect(book, e)"
         >
           <div
-            class="flex flex-col gap-2 rounded border-b border-r bg-gray-100 p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:transform hover:bg-white hover:drop-shadow"
+            :class="`flex flex-col gap-2 rounded border-b border-r bg-gray-100 p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:transform hover:bg-white hover:drop-shadow
+              ${
+                book_id === book.book_id
+                  ? '!-translate-x-0.5 !-translate-y-0.5 !transform !bg-blue-50 !drop-shadow'
+                  : ''
+              }`"
           >
             <div class="flex gap-4">
               <!-- サムネイル -->
@@ -145,13 +168,13 @@
         size="small"
         :current-page="pager.currentPage"
         :page-size="pager.pageSize"
-        :total="pager.total"
+        :total="total"
         :page-sizes="[10, 20, 30, 40]"
         :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
         @page-change="handlePageChange"
       ></VxePager>
     </template>
-    <template v-else-if="pager.total === 0">
+    <template v-else>
       <div
         class="mb-4 border-t-2 border-yellow-300 bg-yellow-50 p-4 dark:bg-yellow-200"
         role="alert"
@@ -171,22 +194,6 @@
         </div>
       </div>
     </template>
-    <template v-else>
-      <div class="mb-4 border-t-2 border-blue-300 bg-blue-50 p-4 dark:bg-blue-300" role="alert">
-        <div class="flex items-center">
-          <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-blue-900"></Icon>
-          <span class="sr-only">Info</span>
-          <h3 class="text-lg font-medium text-blue-900">検索のコツ</h3>
-        </div>
-        <div class="mt-4 mb-2 text-sm text-blue-700 dark:text-blue-800">
-          <li>ヒント 1. まずはシンプルに</li>
-          <li>ヒント 2. 音声で検索する</li>
-          <li>ヒント 3. 検索語句を工夫する</li>
-          <li>ヒント 4. 間違えてもだいじょうぶ</li>
-          <li>ヒント 5. 便利な機能を利用する</li>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
 
@@ -195,7 +202,21 @@ import Vue from "vue";
 import { $loading } from "~/components/Loading.vue";
 import { Book, trpc } from "~/libs/trpc";
 
+const KEY_BOOK_SEARCH = "KEY_BOOK_SEARCH";
+
 export default Vue.extend({
+  props: {
+    onDialog: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    book_id: {
+      type: String,
+      required: false,
+      default: "",
+    },
+  },
   data() {
     return {
       search: {
@@ -220,10 +241,22 @@ export default Vue.extend({
       pager: {
         currentPage: 1,
         pageSize: 10,
-        total: undefined as number | undefined,
       },
+      total: undefined as number | undefined,
       books: [] as Book[],
     };
+  },
+  created() {
+    const json = this.restoreSession();
+    if (json) {
+      const session = JSON.parse(json);
+      this.search = session.search;
+      this.pager = session.pager;
+
+      if (this.search?.keyword) {
+        this.listGoogleBooks(this.search.keyword, this.search.queryfield);
+      }
+    }
   },
   methods: {
     handleSubmit() {
@@ -238,8 +271,8 @@ export default Vue.extend({
     handleClose() {
       this.$emit("close");
     },
-    handleSelect(book: Book) {
-      this.$emit("selected", book);
+    handleSelect(book: Book, e: PointerEvent) {
+      this.$emit("selected", book, e);
       this.$emit("close");
     },
     listGoogleBooks(
@@ -255,10 +288,29 @@ export default Vue.extend({
           maxResults: this.pager.pageSize,
         })
         .then((data) => {
-          this.pager.total = data.total;
+          this.total = data.total;
           this.books = data.books;
+
+          if (this.total) {
+            this.saveSession();
+          }
         })
         .finally(loading.close);
+    },
+    saveSession() {
+      sessionStorage.setItem(
+        KEY_BOOK_SEARCH,
+        JSON.stringify({
+          search: this.search,
+          pager: this.pager,
+        })
+      );
+    },
+    crearSession() {
+      sessionStorage.removeItem(KEY_BOOK_SEARCH);
+    },
+    restoreSession() {
+      return sessionStorage.getItem(KEY_BOOK_SEARCH);
     },
   },
 });
