@@ -119,7 +119,7 @@ async function listBook(query: BookQuery) {
 
   return {
     total: data.totalItems,
-    books: data.items.map(transformBook),
+    books: data.items?.map(transformBook),
   };
 }
 
