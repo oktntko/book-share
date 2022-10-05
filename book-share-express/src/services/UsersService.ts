@@ -48,8 +48,10 @@ async function listUsers(input: {
     }
   });
 
-  const total = await UsersRepository.countUsers(ORM, where);
-  const users = await UsersRepository.findManyUsers(ORM, where, orderBy, input.limit, input.offset);
+  const [total, users] = await Promise.all([
+    UsersRepository.countUsers(ORM, where),
+    UsersRepository.findManyUsers(ORM, where, orderBy, input.limit, input.offset),
+  ]);
 
   return {
     total,

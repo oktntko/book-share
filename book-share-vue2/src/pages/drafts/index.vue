@@ -64,7 +64,7 @@
             <!-- 投稿のタイトルリスト -->
             <div
               v-for="post of posts"
-              :key="post.id"
+              :key="post.post_id"
               :class="`flex cursor-pointer flex-row gap-2 rounded border-b border-r bg-gray-100 p-4 transition-all hover:bg-white hover:drop-shadow
                 ${
                   currentPost && currentPost.post_id === post.post_id
@@ -73,13 +73,20 @@
                 }`"
               @click.prevent="handleSelect(post)"
             >
+              <!-- サムネイル -->
               <img
-                v-if="post.book && post.book.google_id"
-                :title="post.book.book_title"
-                :alt="post.book.book_title"
+                v-if="
+                  post.book &&
+                  post.book.volumeInfo &&
+                  post.book.volumeInfo.imageLinks &&
+                  post.book.volumeInfo.imageLinks.thumbnail
+                "
+                :title="post.book_title"
+                :alt="post.book_title"
                 class="h-[91px] w-[64px] rounded object-cover object-center"
-                :src="`http://books.google.com/books/content?id=${post.book.google_id}&amp;printsec=frontcover&amp;img=1&amp;zoom=1&amp;edge=curl&amp;source=gbs_api`"
+                :src="post.book.volumeInfo.imageLinks.thumbnail"
               />
+              <!-- サムネイルがなかった時のダミー画像 -->
               <img
                 v-else
                 alt="content"

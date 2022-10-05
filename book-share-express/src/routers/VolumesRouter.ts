@@ -5,7 +5,8 @@ import { VolumesService } from "~/services/VolumesService";
 
 const VolumeSchema = z.object({
   volume_id: z.number().positive(),
-  google_id: z.string().trim().max(255),
+  book_id: z.string().trim().max(255),
+  book_title: z.string().trim().max(400),
   owner: z.enum(["ME", "UNKNOWN"]),
   bookshelf: z.string().trim().max(255),
   borrower_id: z.number().positive(),
@@ -15,7 +16,7 @@ export const volumes = createAuthorizedRouter()
   // # GET /volumes
   .query("list", {
     input: z.object({
-      google_id: z.string().trim().max(255).optional(),
+      book_id: z.string().trim().max(255).optional(),
       keyword: z.string().trim().max(255).optional(),
       owner_id: z.number().positive().optional(),
       borrower_id: z.number().positive().optional(),
@@ -31,7 +32,8 @@ export const volumes = createAuthorizedRouter()
   // # POST /volumes
   .mutation("create", {
     input: VolumeSchema.pick({
-      google_id: true,
+      book_id: true,
+      book_title: true,
       owner: true,
       bookshelf: true,
     }),
@@ -54,7 +56,8 @@ export const volumes = createAuthorizedRouter()
   .mutation("update", {
     input: VolumeSchema.pick({
       volume_id: true,
-      google_id: true,
+      book_id: true,
+      book_title: true,
       owner: true,
       bookshelf: true,
     }),

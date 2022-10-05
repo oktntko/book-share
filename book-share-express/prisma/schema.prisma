@@ -55,27 +55,12 @@ model Session {
   @@map("sessions")
 }
 
-/// 本
-model Book {
-  book_id Int @id @default(autoincrement())
-
-  book_title String @db.VarChar(255)
-  google_id  String @unique @db.VarChar(255) /// Google Books のID
-
-  created_at DateTime @default(now()) @db.Timestamptz(3)
-  updated_at DateTime @updatedAt @db.Timestamptz(3)
-
-  posts   Post[]
-  volumes Volume[]
-
-  @@map("books")
-}
-
 model Post {
-  post_id        Int  @id @default(autoincrement())
-  book_id        Int?
+  post_id        Int @id @default(autoincrement())
   contributor_id Int /// 投稿者ID
 
+  book_id    String  @default("") @db.VarChar(255)
+  book_title String  @default("") @db.VarChar(400)
   post_title String  @default("") @db.VarChar(255)
   content    String  @default("") @db.Text()
   published  Boolean @default(false)
@@ -86,8 +71,7 @@ model Post {
   updated_at DateTime @updatedAt @db.Timestamptz(3)
   updated_by Int
 
-  contributor User  @relation(fields: [contributor_id], references: [user_id], onDelete: Cascade) /// 投稿者
-  book        Book? @relation(fields: [book_id], references: [book_id], onDelete: Cascade)
+  contributor User @relation(fields: [contributor_id], references: [user_id], onDelete: Cascade) /// 投稿者
 
   @@map("posts")
 }
@@ -95,12 +79,13 @@ model Post {
 /// 物理的な本
 model Volume {
   volume_id   Int  @id @default(autoincrement())
-  book_id     Int
   owner_id    Int? /// 所有者ID
   borrower_id Int? //// 借り手ID
 
-  bookshelf String       @default("") @db.VarChar(255) /// 本がある場所
-  status    VolumeStatus @default(STOCK)
+  book_id    String       @default("") @db.VarChar(255)
+  book_title String       @default("") @db.VarChar(400)
+  bookshelf  String       @default("") @db.VarChar(255) /// 本がある場所
+  status     VolumeStatus @default(STOCK)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   created_by Int
@@ -109,7 +94,6 @@ model Volume {
 
   owner    User? @relation(name: "lending", fields: [owner_id], references: [user_id], onDelete: Cascade) /// 所有者
   borrower User? @relation(name: "borrowed", fields: [borrower_id], references: [user_id], onDelete: Cascade) /// 借り手
-  book     Book  @relation(fields: [book_id], references: [book_id], onDelete: Cascade)
 
   @@map("volumes")
 }

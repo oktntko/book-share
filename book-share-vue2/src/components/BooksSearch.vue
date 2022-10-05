@@ -63,10 +63,10 @@
     <template v-if="pager.total > 0">
       <div class="masonry-wrapper">
         <div
-          v-for="volume of volumes"
-          :key="volume.id"
+          v-for="book of books"
+          :key="book.book_id"
           class="masonry-item cursor-pointer py-4 px-2"
-          @click="handleSelect(volume)"
+          @click="handleSelect(book)"
         >
           <div
             class="flex flex-col gap-2 rounded border-b border-r bg-gray-100 p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:transform hover:bg-white hover:drop-shadow"
@@ -75,12 +75,12 @@
               <!-- サムネイル -->
               <img
                 v-if="
-                  volume.volumeInfo &&
-                  volume.volumeInfo.imageLinks &&
-                  volume.volumeInfo.imageLinks.thumbnail
+                  book.volumeInfo &&
+                  book.volumeInfo.imageLinks &&
+                  book.volumeInfo.imageLinks.thumbnail
                 "
                 class="h-[182px] w-[128px] rounded object-cover object-center"
-                :src="volume.volumeInfo.imageLinks.thumbnail"
+                :src="book.volumeInfo.imageLinks.thumbnail"
                 alt="content"
               />
               <!-- サムネイルがなかった時のダミー画像 -->
@@ -93,39 +93,33 @@
               <!-- 本の情報 -->
               <div class="hidden flex-col gap-1 lg:flex">
                 <h3
-                  v-if="volume.volumeInfo.authors"
+                  v-if="book.volumeInfo.authors"
                   class="title-font text-xs text-blue-500 transition-colors hover:text-blue-900 hover:underline"
                 >
-                  {{ volume.volumeInfo.authors.join(", ") }}
+                  {{ book.volumeInfo.authors.join(", ") }}
                 </h3>
-                <h2
-                  v-if="volume.volumeInfo.title"
-                  class="title-font text-lg font-bold text-gray-900"
-                >
-                  {{ volume.volumeInfo.title }}
+                <h2 v-if="book.volumeInfo.title" class="title-font text-lg font-bold text-gray-900">
+                  {{ book.volumeInfo.title }}
                 </h2>
-                <h2 v-if="volume.volumeInfo.subtitle" class="title-font text-sm text-gray-600">
-                  {{ volume.volumeInfo.subtitle }}
+                <h2 v-if="book.volumeInfo.subtitle" class="title-font text-sm text-gray-600">
+                  {{ book.volumeInfo.subtitle }}
                 </h2>
-                <span
-                  v-if="volume.volumeInfo.publishedDate"
-                  class="title-font text-xs text-gray-600"
-                >
-                  {{ volume.volumeInfo.publishedDate }}
+                <span v-if="book.volumeInfo.publishedDate" class="title-font text-xs text-gray-600">
+                  {{ book.volumeInfo.publishedDate }}
                 </span>
-                <span v-if="volume.volumeInfo.publisher" class="title-font text-xs text-gray-600">
-                  {{ volume.volumeInfo.publisher }}
+                <span v-if="book.volumeInfo.publisher" class="title-font text-xs text-gray-600">
+                  {{ book.volumeInfo.publisher }}
                 </span>
               </div>
             </div>
             <!-- 本の説明 -->
             <p class="line-clamp text-base leading-relaxed">
-              {{ volume.volumeInfo.description }}
+              {{ book.volumeInfo.description }}
             </p>
             <footer class="flex items-center justify-end gap-2">
               <a
-                v-if="volume.volumeInfo.infoLink"
-                :href="volume.volumeInfo.infoLink"
+                v-if="book.volumeInfo.infoLink"
+                :href="book.volumeInfo.infoLink"
                 target="_blank"
                 class="flex text-center text-sm font-medium capitalize text-blue-500 transition-colors hover:text-blue-900 hover:underline"
                 @click.stop
@@ -133,8 +127,8 @@
                 google site
               </a>
               <a
-                v-if="volume.volumeInfo.previewLink"
-                :href="volume.volumeInfo.previewLink"
+                v-if="book.volumeInfo.previewLink"
+                :href="book.volumeInfo.previewLink"
                 target="_blank"
                 class="flex text-center text-sm font-medium text-blue-500 transition-colors hover:text-blue-900 hover:underline"
                 @click.stop
@@ -199,80 +193,21 @@
 <script lang="ts">
 import Vue from "vue";
 import { $loading } from "~/components/Loading.vue";
-import { axios } from "~/libs/axios";
-
-export type Volume = {
-  // kind: "books#volume"; // Resource type for a volume. (In LITE projection.)
-  // google_id
-  id: string; // Unique identifier for a volume. (In LITE projection.)
-  // etag: string; // Opaque identifier for a specific version of a volume resource. (In LITE projection)
-  // Volume API のGET (ex) https://www.googleapis.com/books/v1/volumes/ke9XEAAAQBAJ
-  selfLink: string; // URL to this resource. (In LITE projection.)
-  volumeInfo: {
-    // General volume information.
-    title: string; // Volume title. (In LITE projection.)
-    subtitle: string; // Volume subtitle. (In LITE projection.)
-    authors: string[]; // The names of the authors and/or editors for this volume. (In LITE projection)
-    publisher: string; // Publisher of this volume. (In LITE projection.)
-    publishedDate: string; // Date of publication. (In LITE projection.)
-    description: string; // A synopsis of the volume. The text of the description is formatted in HTML and includes simple formatting elements, such as b, i, and br tags. (in LITE projection)
-    contentVersion: string; // An identifier for the version of the volume content (text & images). (In LITE projection)
-    infoLink: string; // URL to view information about this volume on the Google Books site. (In LITE projection)
-    // canonicalVolumeLink: string; // Canonical URL for a volume. (In LITE projection.)
-    previewLink: string; // URL to preview this volume on the Google Books site.
-    imageLinks?: {
-      // A list of image links for all the sizes that are available. (in LITE projection)
-      thumbnail: string; // Image link for thumbnail size (width of ~128 pixels). (in LITE projection)
-      smallThumbnail: string; // Image link for small thumbnail size (width of ~80 pixels). (in LITE projection)
-      small?: string; // Image link for small size (width of ~300 pixels). (in LITE projection)
-      medium?: string; // Image link for medium size (width of ~575 pixels). (in LITE projection)
-      large?: string; // Image link for large size (width of ~800 pixels). (in LITE projection)
-      extraLarge?: string; // Image link for extra large size (width of ~1280 pixels). (in LITE projection)
-    };
-    saleInfo: {
-      // Any information about a volume related to the eBookstore and/or purchaseability. This information can depend on the country where the request originates from (i.e. books may not be for sale in certain countries).
-      // buyLink: string; // URL to purchase this volume on the Google Books site. (in LITE projection)
-      country: string; // The two-letter ISO_3166-1 country code for which this sale information is valid. (In LITE projection.)
-      listPrice: {
-        // Suggested retail price. (in LITE projection)
-        amount: number; // Amount in the currency listed below. (In LITE projection.)
-        currencyCode: string; // An ISO 4217, three-letter currency code. (In LITE projection.)
-      };
-      retailPrice: {
-        // The actual selling price of the book. This is the same as the suggested retail or list price unless there are offers or discounts on this volume. (in LITE projection)
-        amount: number; // Amount in the currency listed below. (In LITE projection.)
-        currencyCode: string; // An ISO 4217, three-letter currency code. (In LITE projection.)
-      };
-    };
-    accessInfo: {
-      // Any information about a volume related to reading or obtaining that volume text. This information can depend on country (books may be public domain in one country but not in another, e.g.).
-      accessViewStatus: string; // Combines the access and viewability of this volume into a single status field for this user. Values can be FULL_PURCHASED, FULL_PUBLIC_DOMAIN, SAMPLE or NONE. (In LITE projection.)
-      country: string; // The two-letter ISO_3166-1 country code for which this access information is valid. (In LITE projection.)
-      epub: {
-        // Information about epub content. (in LITE projection)
-        downloadLink: string; // URL to download epub. (In LITE projection.)
-        acsTokenLink: string; // URL to retrieve ACS token for epub download. (In LITE projection.)
-        isAvailable: boolean; // Is a flowing text epub available either as public domain or for purchase. (In LITE projection.)
-      };
-      pdf: {
-        // Information about pdf content. (in LITE projection)
-        downloadLink: string; // URL to download pdf. (In LITE projection.)
-        acsTokenLink: string; // URL to retrieve ACS token for pdf download. (In LITE projection.)
-        isAvailable: boolean; // Is a scanned image pdf available either as public domain or for purchase. (In LITE projection.)
-      };
-    };
-    searchInfo: {
-      // Search result information related to this volume.
-      textSnippet: string; // A text snippet containing the search query.
-    };
-  };
-};
+import { Book, trpc } from "~/libs/trpc";
 
 export default Vue.extend({
   data() {
     return {
       search: {
-        queryfield: "",
+        queryfield: "" as
+          | ""
+          | "intitle"
+          | "inauthor"
+          | "inpublisher"
+          | "subject"
+          | "isbn"
+          | "lccn"
+          | "oclc",
         keyword: "",
       },
       fields: Object.entries({
@@ -287,7 +222,7 @@ export default Vue.extend({
         pageSize: 10,
         total: undefined as number | undefined,
       },
-      volumes: [] as Volume[],
+      books: [] as Book[],
     };
   },
   methods: {
@@ -303,28 +238,25 @@ export default Vue.extend({
     handleClose() {
       this.$emit("close");
     },
-    handleSelect(volume: Volume) {
-      this.$emit("selected", volume.id, volume);
+    handleSelect(book: Book) {
+      this.$emit("selected", book);
       this.$emit("close");
     },
-    listGoogleBooks(keyword: string, queryfield: string) {
+    listGoogleBooks(
+      keyword: string,
+      queryfield: "" | "intitle" | "inauthor" | "inpublisher" | "subject" | "isbn" | "lccn" | "oclc"
+    ) {
       const loading = $loading.open();
-      // https://developers.google.com/books/docs/v1/reference/volumes/list
-      axios
-        .get<{
-          totalItems: number;
-          items: Volume[];
-        }>("https://www.googleapis.com/books/v1/volumes", {
-          params: {
-            q: queryfield ? `${queryfield}:${keyword}` : keyword,
-            startIndex: (this.pager.currentPage - 1) * this.pager.pageSize,
-            maxResults: this.pager.pageSize,
-            orderBy: "relevance", // "newest|relevance"
-          },
+      return trpc
+        .query("books.list", {
+          q: keyword,
+          queryfield: queryfield,
+          startIndex: (this.pager.currentPage - 1) * this.pager.pageSize,
+          maxResults: this.pager.pageSize,
         })
-        .then(({ data }) => {
-          this.pager.total = data.totalItems;
-          this.volumes = data.items;
+        .then((data) => {
+          this.pager.total = data.total;
+          this.books = data.books;
         })
         .finally(loading.close);
     },

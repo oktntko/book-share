@@ -1,11 +1,30 @@
 <template>
   <div>
+    <nav class="mb-4 flex" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <a class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-400">
+            <Icon icon="fluent:drafts-16-regular" class="h-5 w-5"></Icon>
+            投稿を書く
+          </a>
+        </li>
+      </ol>
+    </nav>
+
     <form class="flex flex-col gap-2" @submit.prevent>
       <!-- 選択した本 -->
-      <div v-show="volume" class="relative">
-        <VolumeVue :volume="volume"> </VolumeVue>
+      <div v-show="book" class="relative">
+        <BookVue :book="book"> </BookVue>
         <div class="absolute top-4 right-4">
-          <div class="flex">
+          <div class="flex gap-4">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-lg border border-blue-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-blue-900 hover:bg-blue-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-blue-800 dark:text-blue-800 dark:hover:text-white"
+              @click="openVolumesSearchVue"
+            >
+              <Icon icon="flat-color-icons:search" class="mr-2 -ml-1 h-5 w-5"></Icon>
+              <p>本を探す</p>
+            </button>
             <button
               type="button"
               class="inline-flex items-center rounded-lg border border-gray-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"
@@ -20,7 +39,7 @@
       </div>
       <!-- 本が選択されなかったときは、本を探してほしいメッセージ -->
       <div
-        v-show="!volume"
+        v-show="!book"
         class="mb-4 border-t-2 border-blue-300 bg-blue-50 p-4 dark:bg-blue-300"
         role="alert"
       >
@@ -35,11 +54,11 @@
         <div class="flex">
           <button
             type="button"
-            class="rounded-lg border border-blue-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-blue-900 hover:bg-blue-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-blue-800 dark:text-blue-800 dark:hover:text-white"
-            aria-label="Close"
+            class="inline-flex items-center rounded-lg border border-blue-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-blue-900 hover:bg-blue-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-blue-800 dark:text-blue-800 dark:hover:text-white"
             @click="openVolumesSearchVue"
           >
-            本を探す
+            <Icon icon="flat-color-icons:search" class="mr-2 -ml-1 h-5 w-5"></Icon>
+            <p>本を探す</p>
           </button>
         </div>
       </div>
@@ -121,18 +140,17 @@
 <script lang="ts">
 import Editor from "@tinymce/tinymce-vue";
 import Vue from "vue";
+import BookVue from "~/components/Book.vue";
+import BooksSearchVue from "~/components/BooksSearch.vue";
 import { $loading } from "~/components/Loading.vue";
 import { $modal } from "~/components/Modal.vue";
 import { $toast } from "~/components/Toast.vue";
-import VolumeVue from "~/components/Volume.vue";
-import VolumesSearchVue, { Volume } from "~/components/VolumesSearch.vue";
-import { axios } from "~/libs/axios";
-import { trpc } from "~/libs/trpc";
+import { Book, trpc } from "~/libs/trpc";
 
 export default Vue.extend({
   components: {
     Editor,
-    VolumeVue,
+    BookVue,
   },
   props: {
     post_id: {
@@ -142,29 +160,25 @@ export default Vue.extend({
     },
   },
   data() {
-    const google_id =
-      typeof this.$route.query.google_id === "string" ? this.$route.query.google_id : undefined;
+    const book_id = typeof this.$route.query.book_id === "string" ? this.$route.query.book_id : "";
 
     return {
-      volume: undefined as Volume | undefined,
+      book: undefined as Book | undefined,
       form: {
+        book_id,
+        book_title: "",
         post_title: "",
         content: "",
-        google_id,
       },
     };
   },
   created() {
     if (this.post_id) {
       // 編集の時
-      this.getDraft(this.post_id).then(() => {
-        if (this.form.google_id) {
-          return this.getGoogleBook(this.form.google_id);
-        }
-      });
-    } else if (this.form.google_id) {
+      this.getDraft(this.post_id);
+    } else if (this.form.book_id) {
       // 本を選んでから投稿を書くとき
-      this.getGoogleBook(this.form.google_id);
+      this.getBook(this.form.book_id);
     }
     // 登録の時は何もしない
   },
@@ -188,12 +202,14 @@ export default Vue.extend({
       });
     },
     handleClear() {
-      this.form.google_id = "";
-      this.volume = undefined;
+      this.form.book_id = "";
+      this.form.book_title = "";
+      this.book = undefined;
     },
-    handleSelect(google_id: string, volume: Volume) {
-      this.form.google_id = google_id;
-      this.volume = volume;
+    handleSelect(book: Book) {
+      this.form.book_id = book.book_id;
+      this.form.book_title = book.book_title;
+      this.book = book;
     },
     getDraft(post_id: number) {
       const loading = $loading.open();
@@ -201,10 +217,13 @@ export default Vue.extend({
         .query("drafts.get", { post_id })
         .then((data) => {
           this.form = {
+            book_id: data.book?.book_id ?? "",
+            book_title: data.book?.book_title ?? "",
             post_title: data.post_title,
             content: data.content,
-            google_id: data.book?.google_id,
           };
+
+          this.book = data.book;
         })
         .finally(loading.close);
     },
@@ -216,23 +235,24 @@ export default Vue.extend({
       const loading = $loading.open();
       return trpc.mutation("drafts.update", { post_id, ...this.form }).finally(loading.close);
     },
-    getGoogleBook(google_id: string) {
+    getBook(book_id: string) {
       const loading = $loading.open();
-      // https://developers.google.com/books/docs/v1/reference/volumes/get
-      return axios
-        .get<Volume>(`https://www.googleapis.com/books/v1/volumes/${google_id}`)
-        .then(({ data }) => {
-          this.volume = data;
+      return trpc
+        .query("books.get", {
+          book_id,
+        })
+        .then((book) => {
+          this.book = book;
         })
         .finally(loading.close);
     },
     openVolumesSearchVue() {
       $modal.open({
-        component: VolumesSearchVue,
+        component: BooksSearchVue,
         container: true,
         componentEvents: {
-          selected: (google_id: string, volume: Volume) => {
-            this.handleSelect(google_id, volume);
+          selected: (book: Book) => {
+            this.handleSelect(book);
           },
         },
       });

@@ -25,13 +25,7 @@ async function findManyVolumes(
     select: {
       volume_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       owner_id: true,
       owner: {
         select: {
@@ -64,7 +58,8 @@ async function createVolume(
   prisma: PrismaClient,
   operator_id: number,
   volume: {
-    book_id: number;
+    book_id: string;
+    book_title: string;
     owner_id: number | null;
     bookshelf: string;
   }
@@ -75,13 +70,7 @@ async function createVolume(
     select: {
       volume_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       owner_id: true,
       owner: {
         select: {
@@ -105,6 +94,7 @@ async function createVolume(
     },
     data: {
       book_id: volume.book_id,
+      book_title: volume.book_title,
       owner_id: volume.owner_id,
       bookshelf: volume.bookshelf,
       status: VolumeStatus.STOCK,
@@ -121,13 +111,7 @@ async function findUniqueVolume(prisma: PrismaClient, volume_id: number) {
     select: {
       volume_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       owner_id: true,
       owner: {
         select: {
@@ -160,7 +144,8 @@ async function updateVolume(
   operator_id: number,
   volume_id: number,
   volume: {
-    book_id: number;
+    book_id: string;
+    book_title: string;
     owner_id: number | null;
     bookshelf: string;
   }
@@ -171,13 +156,7 @@ async function updateVolume(
     select: {
       volume_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       owner_id: true,
       owner: {
         select: {
@@ -201,6 +180,7 @@ async function updateVolume(
     },
     data: {
       book_id: volume.book_id,
+      book_title: volume.book_title,
       owner_id: volume.owner_id,
       bookshelf: volume.bookshelf,
       created_by: operator_id,
@@ -219,13 +199,7 @@ async function deleteVolume(prisma: PrismaClient, operator_id: number, volume_id
     select: {
       volume_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       owner_id: true,
       owner: {
         select: {
@@ -263,13 +237,7 @@ async function borrowOrBackVolume(
     select: {
       volume_id: true,
       book_id: true,
-      book: {
-        select: {
-          book_id: true,
-          google_id: true,
-          book_title: true,
-        },
-      },
+      book_title: true,
       owner_id: true,
       owner: {
         select: {
