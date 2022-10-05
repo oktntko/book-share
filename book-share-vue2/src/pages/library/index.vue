@@ -200,12 +200,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { $dialog } from "~/components/Dialog.vue";
-import { trpc, Volume, VolumeQuery } from "~/libs/trpc";
+import { trpc, Volume, VolumesQuery } from "~/libs/trpc";
 
 export default Vue.extend({
   data() {
     return {
-      search: {} as VolumeQuery,
+      search: {} as VolumesQuery,
       volumes: [] as Volume[],
       loading: true,
       pager: {

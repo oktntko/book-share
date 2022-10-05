@@ -3,14 +3,11 @@
     <div class="flex gap-4">
       <!-- サムネイル -->
       <img
-        v-if="
-          volume.volumeInfo &&
-          volume.volumeInfo.imageLinks &&
-          volume.volumeInfo.imageLinks.thumbnail
-        "
+        v-if="book.volumeInfo && book.volumeInfo.imageLinks && book.volumeInfo.imageLinks.thumbnail"
+        :title="book.book_title"
+        :alt="book.book_title"
         class="h-[182px] w-[128px] rounded object-cover object-center"
-        :src="volume.volumeInfo.imageLinks.thumbnail"
-        alt="content"
+        :src="book.volumeInfo.imageLinks.thumbnail"
       />
       <!-- サムネイルがなかった時のダミー画像 -->
       <img
@@ -22,30 +19,30 @@
       <!-- 本の情報 -->
       <div class="hidden flex-col gap-1 lg:flex">
         <h3
-          v-if="volume.volumeInfo.authors"
+          v-if="book.volumeInfo.authors"
           class="title-font text-xs text-blue-500 transition-colors hover:text-blue-900 hover:underline"
         >
-          {{ volume.volumeInfo.authors.join(", ") }}
+          {{ book.volumeInfo.authors.join(", ") }}
         </h3>
-        <h2 v-if="volume.volumeInfo.title" class="title-font text-lg font-bold text-gray-900">
-          {{ volume.volumeInfo.title }}
+        <h2 v-if="book.book_title" class="title-font text-lg font-bold text-gray-900">
+          {{ book.book_title }}
         </h2>
-        <h2 v-if="volume.volumeInfo.subtitle" class="title-font text-sm text-gray-600">
-          {{ volume.volumeInfo.subtitle }}
+        <h2 v-if="book.volumeInfo.subtitle" class="title-font text-sm text-gray-600">
+          {{ book.volumeInfo.subtitle }}
         </h2>
-        <span v-if="volume.volumeInfo.publishedDate" class="title-font text-xs text-gray-600">
-          {{ volume.volumeInfo.publishedDate }}
+        <span v-if="book.volumeInfo.publishedDate" class="title-font text-xs text-gray-600">
+          {{ book.volumeInfo.publishedDate }}
         </span>
-        <span v-if="volume.volumeInfo.publisher" class="title-font text-xs text-gray-600">
-          {{ volume.volumeInfo.publisher }}
+        <span v-if="book.volumeInfo.publisher" class="title-font text-xs text-gray-600">
+          {{ book.volumeInfo.publisher }}
         </span>
-        <p v-if="volume.volumeInfo.description" class="line-clamp text-base leading-relaxed">
-          {{ volume.volumeInfo.description }}
+        <p v-if="book.volumeInfo.description" class="line-clamp text-base leading-relaxed">
+          {{ book.volumeInfo.description }}
         </p>
         <footer class="flex items-center justify-end gap-2">
           <a
-            v-if="volume.volumeInfo.infoLink"
-            :href="volume.volumeInfo.infoLink"
+            v-if="book.volumeInfo.infoLink"
+            :href="book.volumeInfo.infoLink"
             target="_blank"
             class="flex text-center text-sm font-medium capitalize text-blue-500 transition-colors hover:text-blue-900 hover:underline"
             @click.stop
@@ -53,8 +50,8 @@
             google site
           </a>
           <a
-            v-if="volume.volumeInfo.previewLink"
-            :href="volume.volumeInfo.previewLink"
+            v-if="book.volumeInfo.previewLink"
+            :href="book.volumeInfo.previewLink"
             target="_blank"
             class="flex text-center text-sm font-medium text-blue-500 transition-colors hover:text-blue-900 hover:underline"
             @click.stop
@@ -70,14 +67,14 @@
 <script lang="ts">
 import Vue from "vue";
 import type { PropType } from "vue/types/v3-component-props";
-import type { Volume } from "~/components/VolumesSearch.vue";
+import { Book } from "~/libs/trpc";
 
 export default Vue.extend({
   props: {
-    volume: {
-      type: Object as PropType<Volume>,
+    book: {
+      type: Object as PropType<Book>,
       required: false,
-      default: () => ({ volumeInfo: {} } as Volume),
+      default: () => ({ volumeInfo: {} } as Book),
     },
   },
 });
