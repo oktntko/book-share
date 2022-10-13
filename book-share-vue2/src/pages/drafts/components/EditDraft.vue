@@ -1,20 +1,9 @@
 <template>
   <div>
-    <nav class="mb-4 flex" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <a class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-400">
-            <Icon icon="fluent:drafts-16-regular" class="h-5 w-5"></Icon>
-            投稿を書く
-          </a>
-        </li>
-      </ol>
-    </nav>
-
     <form class="flex flex-col gap-2" @submit.prevent>
       <!-- 選択した本 -->
       <div v-show="book" class="relative">
-        <BookVue :book="book"> </BookVue>
+        <BookVue class="rounded border bg-gray-100" :book="book" :hoverable="false"> </BookVue>
         <div class="absolute top-4 right-4">
           <div class="flex gap-4">
             <button
@@ -141,9 +130,9 @@
 import Editor from "@tinymce/tinymce-vue";
 import Vue from "vue";
 import BookVue from "~/components/Book.vue";
-import BooksSearchVue from "~/components/BooksSearch.vue";
 import { $loading } from "~/components/Loading.vue";
 import { $modal } from "~/components/Modal.vue";
+import SearchBooksVue from "~/components/SearchBooks.vue";
 import { $toast } from "~/components/Toast.vue";
 import { Book, trpc } from "~/libs/trpc";
 
@@ -248,7 +237,7 @@ export default Vue.extend({
     },
     openVolumesSearchVue() {
       $modal.open({
-        component: BooksSearchVue,
+        component: SearchBooksVue,
         container: true,
         componentEvents: {
           selected: (book: Book) => {

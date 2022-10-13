@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto p-4">
-    <BooksSearchVue :on-dialog="false" :book_id="book_id" @selected="handleSelect">
-    </BooksSearchVue>
+    <SearchBooksVue :on-dialog="false" :book_id="book_id" @selected="handleSelect">
+    </SearchBooksVue>
     <div
       v-click-outside="handleClear"
       class="absolute"
@@ -60,7 +60,7 @@
 <script lang="ts">
 import Vue from "vue";
 import ClickOutside from "vue-click-outside";
-import BooksSearchVue from "~/components/BooksSearch.vue";
+import SearchBooksVue from "~/components/SearchBooks.vue";
 import { Book } from "~/libs/trpc";
 
 export default Vue.extend({
@@ -68,7 +68,7 @@ export default Vue.extend({
     ClickOutside,
   },
   components: {
-    BooksSearchVue,
+    SearchBooksVue,
   },
   data() {
     return {
@@ -84,10 +84,20 @@ export default Vue.extend({
       this.book_id = "";
     },
     handleSelect(book: Book, e: PointerEvent) {
-      this.book_id = book.book_id;
-      this.book = book;
-      this.pageX = e.pageX;
-      this.pageY = e.pageY;
+      if (this.book === undefined) {
+        this.book_id = book.book_id;
+        this.book = book;
+        this.pageX = e.pageX;
+        this.pageY = e.pageY;
+      } else {
+        this.handleClear();
+        setTimeout(() => {
+          this.book_id = book.book_id;
+          this.book = book;
+          this.pageX = e.pageX;
+          this.pageY = e.pageY;
+        }, 100);
+      }
     },
   },
 });

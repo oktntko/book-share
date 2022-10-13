@@ -44,3 +44,52 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* https://twitter.com/pulpxstyle/status/1332510748690378758 */
+/* PinterestレイアウトをCSSのみで実装 */
+@media (min-width: 640px) {
+  .masonry-wrapper {
+    column-count: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .masonry-wrapper {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry-wrapper {
+    column-count: 3;
+  }
+}
+
+.masonry-wrapper .masonry-item {
+  break-inside: avoid;
+}
+
+/* https://blanche-toile.com/web/css-line-clamp-property */
+/* 複数行の省略 */
+.line-clamp {
+  margin: 1rem 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  -webkit-line-clamp: 2;
+}
+.line-clamp-3 {
+  -webkit-line-clamp: 3;
+}
+.line-clamp-4 {
+  -webkit-line-clamp: 4;
+}
+.line-clamp-5 {
+  -webkit-line-clamp: 5;
+}
+.line-clamp-6 {
+  -webkit-line-clamp: 6;
+}

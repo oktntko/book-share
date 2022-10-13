@@ -1,42 +1,6 @@
 <template>
   <div class="container mx-auto p-4">
-    <nav class="mb-8 flex" aria-label="Breadcrumb ">
-      <ol class="inline-flex items-center space-x-1 md:space-x-5">
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="game-icons:bookshelf" class="mr-1 h-5 w-5"></Icon>
-            図書館の本
-          </RouterLink>
-        </li>
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library/borrowed"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="icon-park:return" class="mr-1 h-5 w-5"></Icon>
-            借りている本を返す
-          </RouterLink>
-        </li>
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library/new"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="bx:donate-heart" class="mr-1 h-5 w-5"></Icon>
-            新しく本を寄贈する
-          </RouterLink>
-        </li>
-      </ol>
-    </nav>
+    <LibraryNavVue> </LibraryNavVue>
 
     <!-- 検索フォーム -->
     <form class="mb-4 flex flex-col gap-2" @submit.prevent="handleSubmit">
@@ -172,7 +136,7 @@
           </div>
         </template>
       </VxeTable>
-      <vxe-pager
+      <VxePager
         perfect
         :loading="loading"
         :current-page="pager.currentPage"
@@ -192,7 +156,7 @@
       >
         <template #left> </template>
         <template #right> </template>
-      </vxe-pager>
+      </VxePager>
     </div>
   </div>
 </template>
@@ -201,8 +165,10 @@
 import Vue from "vue";
 import { $dialog } from "~/components/Dialog.vue";
 import { trpc, Volume, VolumesQuery } from "~/libs/trpc";
+import LibraryNavVue from "~/pages/library/components/LibraryNav.vue";
 
 export default Vue.extend({
+  components: { LibraryNavVue },
   data() {
     return {
       search: {} as VolumesQuery,

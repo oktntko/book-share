@@ -23,6 +23,8 @@ export type User = inferProcedureOutput<AppRouter["_def"]["queries"]["users.get"
 export type UserInput = inferProcedureInput<AppRouter["_def"]["mutations"]["users.create"]>;
 export type UsersQuery = inferProcedureInput<AppRouter["_def"]["queries"]["users.list"]>;
 
+type BookVolumes = inferProcedureOutput<AppRouter["_def"]["queries"]["volumes.search"]>["bookVolumes"];
+export type BookVolume = BookVolumes[number];
 export type Volume = inferProcedureOutput<AppRouter["_def"]["queries"]["volumes.get"]>;
 export type VolumeInput = inferProcedureInput<AppRouter["_def"]["mutations"]["volumes.create"]>;
 export type VolumesQuery = inferProcedureInput<AppRouter["_def"]["queries"]["volumes.list"]>;

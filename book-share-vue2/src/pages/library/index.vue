@@ -1,42 +1,6 @@
 <template>
   <div class="container mx-auto p-4">
-    <nav class="mb-8 flex" aria-label="Breadcrumb ">
-      <ol class="inline-flex items-center space-x-1 md:space-x-5">
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="game-icons:bookshelf" class="mr-1 h-5 w-5"></Icon>
-            図書館の本
-          </RouterLink>
-        </li>
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library/borrowed"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="icon-park:return" class="mr-1 h-5 w-5"></Icon>
-            借りている本を返す
-          </RouterLink>
-        </li>
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library/new"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="bx:donate-heart" class="mr-1 h-5 w-5"></Icon>
-            新しく本を寄贈する
-          </RouterLink>
-        </li>
-      </ol>
-    </nav>
+    <LibraryNavVue> </LibraryNavVue>
 
     <!-- 検索フォーム -->
     <form class="mb-4 flex flex-col gap-2" @submit.prevent="handleSubmit">
@@ -56,25 +20,6 @@
             />
             <label
               :for="`inline-radio-${key}`"
-              class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-            >
-              {{ label }}
-            </label>
-          </div>
-        </div>
-
-        <Icon icon="bxs:sort-alt" class="ml-4 mr-2 h-4 w-4"></Icon>
-        <div class="flex">
-          <div v-for="[key, label] of sortKeys" :key="key" class="mr-4 flex items-center">
-            <input
-              :id="`inline-checkbox-${key}`"
-              v-model="search.sortfield"
-              type="radio"
-              :value="key"
-              class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-            />
-            <label
-              :for="`inline-checkbox-${key}`"
               class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
             >
               {{ label }}
@@ -109,104 +54,101 @@
 
     <!-- 検索結果 -->
     <div>
-      <VxeTable
-        :loading="loading"
-        :height="loading ? 300 : undefined"
-        border
-        resizable
-        :data="volumes"
-      >
-        <vxe-column field="volume_id" width="80" title="ID" align="right" sortable>
-          <template #default="{ row }">
-            <RouterLink
-              :to="`/library/${row.volume_id}`"
-              class="border-b-4 border-b-transparent text-blue-600"
-            >
-              {{ `#${row.volume_id}` }}
-            </RouterLink>
-          </template>
-        </vxe-column>
-        <vxe-column field="status" width="80" title="状態" sortable>
-          <template #default="{ row }">
-            <div
-              v-if="row.status === 'STOCK'"
-              class="leading-sm inline-flex items-center rounded-2xl bg-green-200 px-3 py-1 text-xs font-bold uppercase text-green-700"
-            >
-              在庫
-            </div>
-            <div
-              v-else-if="row.status === 'LENDING'"
-              class="leading-sm inline-flex items-center rounded-2xl bg-pink-200 px-3 py-1 text-xs font-bold uppercase text-pink-700"
-            >
-              貸出中
-            </div>
-          </template>
-        </vxe-column>
-        <vxe-column field="bookshelf" title="本棚" sortable></vxe-column>
-        <vxe-column field="book.book_title" title="タイトル" sortable></vxe-column>
-        <vxe-column field="owner.username" title="所有者" sortable>
-          <template #default="{ row }">
-            <div v-if="row.owner">{{ row.owner.username }}</div>
-            <div
-              v-else
-              class="leading-sm inline-flex items-center rounded-2xl bg-gray-200 px-3 py-1 text-xs font-bold uppercase text-gray-700"
-            >
-              不明
-            </div>
-          </template>
-        </vxe-column>
-        <vxe-column field="borrower.username" title="借りている人" sortable></vxe-column>
-        <vxe-column
-          field="created_at"
-          title="登録日時"
-          sortable
-          formatter="formatDatetime"
-          width="160"
-        ></vxe-column>
-        <template #empty>
-          <div
-            class="border-t border-b border-yellow-500 bg-yellow-100 px-4 py-3 text-yellow-700"
-            role="alert"
+      <div class="masonry-wrapper">
+        <div
+          v-for="bookVolume of bookVolumes"
+          :key="bookVolume.book_id"
+          class="masonry-item py-4 px-2"
+        >
+          <BookVue
+            :book="bookVolume.book"
+            :hoverable="false"
+            :show-description="false"
+            class="rounded border bg-gray-100"
           >
-            <p class="font-bold">該当するデータが見つかりません</p>
-          </div>
-        </template>
-      </VxeTable>
-      <vxe-pager
-        perfect
-        :loading="loading"
+            <template #header>
+              <!-- ステータス -->
+              <header class="mb-4 flex items-center gap-4 text-sm">
+                <div
+                  :class="`leading-sm text inline-flex items-center rounded-2xl px-3 py-1 font-bold uppercase
+                    ${
+                      bookVolume.status === '予約中'
+                        ? 'bg-blue-200 text-blue-700'
+                        : bookVolume.status === '借用中'
+                        ? 'bg-blue-200 text-blue-700'
+                        : bookVolume.status === '在庫あり'
+                        ? 'bg-green-200 text-green-700'
+                        : // 在庫なし
+                          'bg-gray-200 text-gray-700'
+                    }`"
+                >
+                  {{ bookVolume.status }}
+                </div>
+                <div class="text-xs">
+                  {{ bookVolume.stock_count }} / {{ bookVolume.all_count }} (在庫数 / 全件数)
+                </div>
+              </header>
+            </template>
+
+            <template #footer>
+              <footer class="mt-6">
+                <button
+                  v-if="bookVolume.status === '予約中' || bookVolume.status === '借用中'"
+                  type="button"
+                  class="inline-flex justify-center rounded-lg border border-blue-800 bg-blue-100 px-4 py-2 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-blue-600 hover:text-white"
+                  @click="handleBack(bookVolume)"
+                >
+                  {{ bookVolume.status === "予約中" ? "予約を取り消す" : "借りている本を返す" }}
+                </button>
+                <button
+                  v-else
+                  type="button"
+                  :class="`inline-flex justify-center rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors
+                    ${
+                      bookVolume.status === '在庫なし'
+                        ? 'border-gray-400 bg-white text-gray-400 hover:bg-gray-400 hover:text-white'
+                        : 'border-green-800 bg-green-100 text-gray-900 hover:bg-green-600 hover:text-white'
+                    }`"
+                  @click.stop="showVolumes(bookVolume)"
+                >
+                  借りる・予約する
+                </button>
+              </footer>
+            </template>
+          </BookVue>
+        </div>
+      </div>
+      <VxePager
+        class="!bg-transparent"
+        background
+        size="small"
         :current-page="pager.currentPage"
         :page-size="pager.pageSize"
         :total="total"
-        :layouts="[
-          'PrevJump',
-          'PrevPage',
-          'Number',
-          'NextPage',
-          'NextJump',
-          'Sizes',
-          'FullJump',
-          'Total',
-        ]"
+        :page-sizes="[10, 20, 30, 40]"
+        :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
         @page-change="handlePageChange"
-      >
-        <template #left> </template>
-        <template #right> </template>
-      </vxe-pager>
+      ></VxePager>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import BookVue from "~/components/Book.vue";
 import { $dialog } from "~/components/Dialog.vue";
-import { trpc, Volume, VolumesQuery } from "~/libs/trpc";
+import { $loading } from "~/components/Loading.vue";
+import { $sidemenu } from "~/components/Sidemenu.vue";
+import { BookVolume, trpc, VolumesQuery } from "~/libs/trpc";
+import LibraryNavVue from "~/pages/library/components/LibraryNav.vue";
+import ShowVolumesVue from "~/pages/library/components/ShowVolumes.vue";
 
 export default Vue.extend({
+  components: { LibraryNavVue, BookVue },
   data() {
     return {
       search: {} as VolumesQuery,
-      volumes: [] as Volume[],
+      bookVolumes: [] as BookVolume[],
       loading: true,
       pager: {
         currentPage: 1,
@@ -214,62 +156,75 @@ export default Vue.extend({
       },
       total: 0,
       fields: Object.entries({
-        ONLY_DRAFTS: "すべて",
-        ONLY_PUBLISHED: "在庫あり",
-      }),
-      sortKeys: Object.entries({
-        book_title: "本のタイトル",
-        created_at: "作成日時",
+        ALL: "すべて",
+        HAS_STOCK: "在庫あり",
       }),
     };
   },
   created() {
-    this.listVolumes();
+    this.searchVolumes();
   },
   methods: {
     handleSubmit() {
-      this.listVolumes();
-    },
-    handleDelete(volume: Volume) {
-      $dialog
-        .open({
-          colorset: "danger",
-          icon: "bx:error",
-          message: `本の貸し出しを終了します。よろしいですか？`,
-        })
-        .then(() => {
-          this.deleteVolume(volume.volume_id);
-        });
+      this.searchVolumes();
     },
     handlePageChange({ currentPage, pageSize }: { currentPage: number; pageSize: number }) {
       this.pager.currentPage = currentPage;
       this.pager.pageSize = pageSize;
-      this.listVolumes();
+      this.searchVolumes();
     },
-    listVolumes() {
-      this.loading = true;
+    searchVolumes() {
+      const loading = $loading.open();
       return trpc
-        .query("volumes.list", {
-          sort: ["created_at"],
+        .query("volumes.search", {
           limit: this.pager.pageSize,
           offset: this.pager.pageSize * (this.pager.currentPage - 1),
         })
         .then((data) => {
           this.total = data.total;
-          this.volumes = data.volumes;
+          this.bookVolumes = data.bookVolumes;
         })
-        .finally(() => (this.loading = false));
+        .finally(loading.close);
     },
-    deleteVolume(volume_id: number) {
-      this.loading = true;
-      return trpc
-        .mutation("volumes.delete", { volume_id })
-        .then(() => {
-          this.volumes = this.volumes.filter((volume) => volume.volume_id !== volume_id);
-          this.total--;
-        })
-        .finally(() => (this.loading = false));
+    async handleBack(bookVolume: BookVolume) {
+      if (bookVolume.status === "借用中") {
+        await $dialog.open({
+          colorset: "warning",
+          icon: "bx:info-circle",
+          message: "本を返却します。本棚は確認しましたか？",
+        });
+      }
+
+      Promise.all(
+        bookVolume.volumes
+          .filter((volume) => volume.borrower_id)
+          .map((volume) => {
+            return trpc.mutation("volumes.back", {
+              volume_id: volume.volume_id,
+            });
+          })
+      ).then(() => {
+        this.searchVolumes();
+      });
+    },
+    showVolumes(bookVolume: BookVolume) {
+      $sidemenu.open({
+        component: ShowVolumesVue,
+        componentProps: {
+          bookVolume,
+        },
+        componentEvents: {
+          borrow: () => {
+            this.searchVolumes();
+          },
+          reserve: () => {
+            this.searchVolumes();
+          },
+        },
+      });
     },
   },
 });
 </script>
+
+<style scoped></style>

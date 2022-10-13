@@ -31,7 +31,7 @@
         </nav>
         <RouterLink
           to="/"
-          class="title-font order-first mb-4 flex items-center font-medium text-gray-900 md:mb-0 lg:order-none lg:w-1/5 lg:items-center lg:justify-center"
+          class="order-first mb-4 flex items-center font-medium text-gray-900 md:mb-0 lg:order-none lg:w-1/5 lg:items-center lg:justify-center"
         >
           <Icon icon="noto-v1:books" class="h-10 w-10 rounded-full p-2 text-white"> </Icon>
           <span class="ml-3 text-xl">Book Share</span>

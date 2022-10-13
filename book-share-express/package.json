@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --verbose --watch src --exec \"node --require @swc-node/register\" src/app.ts",
-    "prebuild": "rimraf dist",
-    "build": "swc src --out-dir dist",
+    "build": "npm-run-all --parallel build:*",
+    "prebuild:src": "rimraf dist",
+    "build:src": "swc src --out-dir dist",
     "prebuild:types": "rimraf types",
     "build:types": "tsc --outDir types --project tsconfig.types.json && tsc-alias",
     "db": "npm-run-all --sequential db:*",

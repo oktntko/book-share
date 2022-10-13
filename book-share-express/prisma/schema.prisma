@@ -78,14 +78,16 @@ model Post {
 
 /// 物理的な本
 model Volume {
-  volume_id   Int  @id @default(autoincrement())
-  owner_id    Int? /// 所有者ID
-  borrower_id Int? //// 借り手ID
+  volume_id Int @id @default(autoincrement())
 
-  book_id    String       @default("") @db.VarChar(255)
-  book_title String       @default("") @db.VarChar(400)
-  bookshelf  String       @default("") @db.VarChar(255) /// 本がある場所
-  status     VolumeStatus @default(STOCK)
+  book_id      String       @default("") @db.VarChar(255)
+  book_title   String       @default("") @db.VarChar(400)
+  bookshelf    String       @default("") @db.VarChar(255) /// 本がある場所
+  status       VolumeStatus @default(STOCK)
+  owner_id     Int? /// 所有者ID
+  borrower_id  Int? /// 借り手ID. 予約者＝借り手 とする
+  borrow_date  String       @default("") @db.VarChar(10) // 借り手から 一か月 返さなかったら返却が催促される. など
+  reserve_date String       @default("") @db.VarChar(10) // 予約してから 一週間 借りなかったら予約が解除される. など
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   created_by Int
@@ -100,5 +102,6 @@ model Volume {
 
 enum VolumeStatus {
   STOCK /// 在庫
+  RESERVE // 予約中
   LENDING /// 貸出中
 }

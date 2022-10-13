@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4 bg-gray-50 p-6 text-gray-600">
+  <div class="flex flex-col gap-4 bg-gray-50 text-gray-600">
     <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
       <!-- 一段目 -->
       <div class="flex justify-between">
@@ -26,7 +26,7 @@
         <div v-if="onDialog" class="flex">
           <button
             type="button"
-            class="inline-flex items-center rounded-lg border border-gray-900 bg-transparent px-3 py-1.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"
+            class="inline-flex items-center rounded-lg border border-gray-900 bg-white bg-transparent px-3 py-1.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200 dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"
             aria-label="Close"
             @click="handleClose"
           >
@@ -86,80 +86,12 @@
           class="masonry-item cursor-pointer py-4 px-2"
           @click.stop="(e) => handleSelect(book, e)"
         >
-          <div
-            :class="`flex flex-col gap-2 rounded border-b border-r bg-gray-100 p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:transform hover:bg-white hover:drop-shadow
-              ${
-                book_id === book.book_id
-                  ? '!-translate-x-0.5 !-translate-y-0.5 !transform !bg-blue-50 !drop-shadow'
-                  : ''
-              }`"
+          <BookVue
+            class="rounded border bg-gray-100"
+            :book="book"
+            :active="book_id === book.book_id"
           >
-            <div class="flex gap-4">
-              <!-- サムネイル -->
-              <img
-                v-if="
-                  book.volumeInfo &&
-                  book.volumeInfo.imageLinks &&
-                  book.volumeInfo.imageLinks.thumbnail
-                "
-                class="h-[182px] w-[128px] rounded object-cover object-center"
-                :src="book.volumeInfo.imageLinks.thumbnail"
-                alt="content"
-              />
-              <!-- サムネイルがなかった時のダミー画像 -->
-              <img
-                v-else
-                class="h-[182px] w-[128px] rounded object-cover object-center"
-                src="https://dummyimage.com/128x182"
-                alt="content"
-              />
-              <!-- 本の情報 -->
-              <div class="hidden flex-col gap-1 lg:flex">
-                <h3
-                  v-if="book.volumeInfo.authors"
-                  class="title-font text-xs text-blue-500 transition-colors hover:text-blue-900 hover:underline"
-                >
-                  {{ book.volumeInfo.authors.join(", ") }}
-                </h3>
-                <h2 v-if="book.volumeInfo.title" class="title-font text-lg font-bold text-gray-900">
-                  {{ book.volumeInfo.title }}
-                </h2>
-                <h2 v-if="book.volumeInfo.subtitle" class="title-font text-sm text-gray-600">
-                  {{ book.volumeInfo.subtitle }}
-                </h2>
-                <span v-if="book.volumeInfo.publishedDate" class="title-font text-xs text-gray-600">
-                  {{ book.volumeInfo.publishedDate }}
-                </span>
-                <span v-if="book.volumeInfo.publisher" class="title-font text-xs text-gray-600">
-                  {{ book.volumeInfo.publisher }}
-                </span>
-              </div>
-            </div>
-            <!-- 本の説明 -->
-            <p class="line-clamp text-base leading-relaxed">
-              {{ book.volumeInfo.description }}
-            </p>
-            <footer class="flex items-center justify-end gap-2">
-              <a
-                v-if="book.volumeInfo.infoLink"
-                :href="book.volumeInfo.infoLink"
-                target="_blank"
-                class="flex text-center text-sm font-medium capitalize text-blue-500 transition-colors hover:text-blue-900 hover:underline"
-                @click.stop
-              >
-                google site
-              </a>
-              <a
-                v-if="book.volumeInfo.previewLink"
-                :href="book.volumeInfo.previewLink"
-                target="_blank"
-                class="flex text-center text-sm font-medium text-blue-500 transition-colors hover:text-blue-900 hover:underline"
-                @click.stop
-              >
-                サンプル
-              </a>
-            </footer>
-          </div>
+          </BookVue>
         </div>
       </div>
       <VxePager
@@ -200,11 +132,13 @@
 <script lang="ts">
 import Vue from "vue";
 import { $loading } from "~/components/Loading.vue";
+import BookVue from "~/components/Book.vue";
 import { Book, trpc } from "~/libs/trpc";
 
 const KEY_BOOK_SEARCH = "KEY_BOOK_SEARCH";
 
 export default Vue.extend({
+  components: { BookVue },
   props: {
     onDialog: {
       type: Boolean,
@@ -316,20 +250,4 @@ export default Vue.extend({
 });
 </script>
 
-<style scoped>
-.masonry-wrapper {
-  column-count: 4;
-}
-
-.masonry-wrapper .masonry-item {
-  break-inside: avoid;
-}
-
-.line-clamp {
-  margin: 1rem 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 6;
-  overflow: hidden;
-}
-</style>
+<style scoped></style>
