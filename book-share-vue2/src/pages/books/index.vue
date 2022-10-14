@@ -24,7 +24,10 @@
         >
           <div class="py-1" role="none">
             <RouterLink
-              to="/posts"
+              :to="{
+                path: `/posts`,
+                query: { book_id },
+              }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact
               active-class="text-blue-600 border-l-gray-200"
@@ -33,7 +36,10 @@
               <p class="text-xs text-gray-400">いい本にはいい投稿があります！</p>
             </RouterLink>
             <RouterLink
-              to="/library"
+              :to="{
+                path: `/library`,
+                query: { book_id },
+              }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact
               active-class="text-blue-600 border-l-gray-200"
@@ -42,7 +48,10 @@
               <p class="text-xs text-gray-400">本を読みましょう！</p>
             </RouterLink>
             <RouterLink
-              to="/drafts/new"
+              :to="{
+                path: `/drafts/new`,
+                query: { book_id },
+              }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact
               active-class="text-blue-600 border-l-gray-200"

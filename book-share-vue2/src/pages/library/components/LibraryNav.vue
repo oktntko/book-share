@@ -34,6 +34,17 @@
           新しく本を寄贈する
         </RouterLink>
       </li>
+      <li class="inline-flex items-center">
+        <RouterLink
+          to="/library/donated"
+          class="inline-flex items-center text-sm hover:text-blue-600 dark:text-gray-400"
+          exact
+          active-class="font-bold text-gray-700"
+        >
+          <Icon icon="bi:postcard-heart" class="mr-1 h-5 w-5"></Icon>
+          寄贈した本
+        </RouterLink>
+      </li>
     </ol>
   </nav>
 </template>

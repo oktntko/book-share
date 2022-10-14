@@ -112,7 +112,7 @@
       >
       </Editor>
       <!-- フッター -->
-      <footer class="flex justify-end">
+      <footer class="flex justify-start gap-4">
         <button
           type="button"
           class="inline-flex min-w-[120px] justify-center rounded-lg border border-green-800 bg-green-100 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-green-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"

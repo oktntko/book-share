@@ -97,14 +97,22 @@
       </div>
 
       <!-- フッター -->
-      <footer class="flex justify-end">
+      <footer class="flex justify-start gap-4">
         <button
-          type="button"
+          type="submit"
           class="inline-flex min-w-[120px] justify-center rounded-lg border border-green-800 bg-green-100 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-green-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
-          @click="handleSubmit"
         >
           <Icon icon="entypo:save" class="mr-2 -ml-1 h-5 w-5"> </Icon>
           保存する
+        </button>
+        <button
+          v-if="volume_id"
+          type="button"
+          class="inline-flex min-w-[120px] justify-center rounded-lg border border-yellow-800 bg-yellow-100 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-yellow-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
+          @click="handleDelete"
+        >
+          <Icon icon="fa6-solid:trash" class="mr-2 -ml-1 h-5 w-5"> </Icon>
+          削除する
         </button>
       </footer>
     </form>
@@ -202,6 +210,25 @@ export default Vue.extend({
       this.form.book_id = book.book_id;
       this.form.book_title = book.book_title;
       this.book = book;
+    },
+    handleDelete() {
+      $dialog
+        .open({
+          colorset: "danger",
+          icon: "bx:error",
+          message: `本を削除します。よろしいですか？`,
+        })
+        .then(() => {
+          const loading = $loading.open();
+          trpc
+            .mutation("volumes.delete", {
+              volume_id: this.volume_id,
+            })
+            .then(() => {
+              this.$router.replace(`/library`);
+            })
+            .finally(loading.close);
+        });
     },
     getVolume(volume_id: number) {
       const loading = $loading.open();

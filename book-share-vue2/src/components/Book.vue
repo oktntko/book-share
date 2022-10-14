@@ -38,12 +38,12 @@
           <template v-else>
             <!-- サムネイルがなかった時のダミー画像 -->
             <img
-              class="relative z-20 h-[185px] w-[128px] rounded object-cover object-center"
+              class="relative z-10 h-[185px] w-[128px] rounded object-cover object-center"
               src="https://dummyimage.com/128x185"
               alt="content"
             />
             <img
-              class="absolute -bottom-2 left-2 z-10 h-[185px] w-[128px] object-cover object-center opacity-80 blur"
+              class="absolute -bottom-2 left-2 z-[9] h-[185px] w-[128px] object-cover object-center opacity-80 blur"
               src="https://dummyimage.com/128x185"
               alt="content"
             />

@@ -11,6 +11,20 @@
         resizable
         :data="volumes"
       >
+        <VxeColumn field="volume_id" title="ID" sortable width="80" align="right">
+          <template #default="{ row }">
+            <div class="inline-flex">
+              <RouterLink
+                :to="`/library/${row.volume_id}`"
+                class="text-blue-500 transition-colors hover:text-blue-900 hover:underline"
+                exact
+                active-class="text-blue-600 border-l-gray-200"
+              >
+                #{{ row.volume_id }}
+              </RouterLink>
+            </div>
+          </template>
+        </VxeColumn>
         <VxeColumn field="status" width="200" title="状態" sortable>
           <template #default="{ row }">
             <div class="inline-flex">
@@ -27,32 +41,37 @@
                 </div>
               </template>
               <!-- LENDING -->
-              <template v-else>
+              <template v-else-if="row.status === 'LENDING'">
                 <div
-                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-200 px-3 py-1 text-xs font-bold uppercase text-blue-700"
+                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-gray-200 px-3 py-1 text-xs font-bold uppercase text-gray-700"
                 >
-                  借用中
+                  貸出中
                 </div>
                 <div class="flex flex-col">
-                  <span class="-my-2 text-[0.5rem]">借用日</span>
+                  <span class="-my-2 text-[0.5rem]">貸出中</span>
                   <span>{{ row.borrow_date }}</span>
+                </div>
+              </template>
+              <!-- STOCK -->
+              <template v-else>
+                <div
+                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-green-200 px-3 py-1 text-xs font-bold uppercase text-green-700"
+                >
+                  在庫あり
                 </div>
               </template>
             </div>
           </template>
         </VxeColumn>
-        <VxeColumn field="bookshelf" width="200" title="本棚" sortable></VxeColumn>
         <VxeColumn field="book.book_title" title="タイトル" sortable> </VxeColumn>
-        <VxeColumn width="184">
+        <VxeColumn field="bookshelf" width="200" title="本棚" sortable></VxeColumn>
+        <VxeColumn title="所有者" width="104" sortable>
           <template #default="{ row }">
-            <div class="flex justify-center">
-              <button
-                type="button"
-                class="inline-flex w-32 items-center justify-center rounded-lg border border-blue-800 bg-transparent px-3 py-1 text-center text-xs font-medium text-blue-900 hover:bg-blue-900 hover:text-white focus:outline-none focus:ring-1 focus:ring-blue-200 dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"
-                @click="handleBack(row.volume_id, row)"
-              >
-                {{ row.status === "LENDING" ? "返却する" : "キャンセルする" }}
-              </button>
+            <div
+              :class="`leading-sm mr-3 inline-flex items-center rounded-2xl  px-3 py-1 text-xs font-bold uppercase
+                ${row.owner_id ? 'bg-blue-200 text-blue-700' : 'bg-gray-200 text-gray-700'}`"
+            >
+              {{ row.owner_id ? "自分" : "不明" }}
             </div>
           </template>
         </VxeColumn>
@@ -61,7 +80,7 @@
             class="border-t border-b border-yellow-500 bg-yellow-100 px-4 py-3 text-yellow-700"
             role="alert"
           >
-            <p class="font-bold">本を借りましょう！</p>
+            <p class="font-bold">眠っている本はありませんか？寄贈しましょう！</p>
           </div>
         </template>
       </VxeTable>
@@ -93,14 +112,13 @@
 <script lang="ts">
 import Vue from "vue";
 import { $dialog } from "~/components/Dialog.vue";
-import { trpc, Volume, VolumesQuery } from "~/libs/trpc";
+import { trpc, Volume } from "~/libs/trpc";
 import LibraryNavVue from "~/pages/library/components/LibraryNav.vue";
 
 export default Vue.extend({
   components: { LibraryNavVue },
   data() {
     return {
-      search: {} as VolumesQuery,
       volumes: [] as Volume[],
       loading: true,
       pager: {
@@ -108,14 +126,6 @@ export default Vue.extend({
         pageSize: 10,
       },
       total: 0,
-      fields: Object.entries({
-        ONLY_DRAFTS: "すべて",
-        ONLY_PUBLISHED: "在庫あり",
-      }),
-      sortKeys: Object.entries({
-        book_title: "本のタイトル",
-        created_at: "作成日時",
-      }),
     };
   },
   created() {
@@ -134,7 +144,7 @@ export default Vue.extend({
       this.loading = true;
       return trpc
         .query("volumes.list", {
-          borrower: "IAM",
+          created_by: "IAM",
           sort: ["bookshelf", "book_title"],
           limit: this.pager.pageSize,
           offset: this.pager.pageSize * (this.pager.currentPage - 1),
@@ -144,30 +154,6 @@ export default Vue.extend({
           this.volumes = data.volumes;
         })
         .finally(() => (this.loading = false));
-    },
-    handleBack(volume_id: number, volume: Volume) {
-      trpc
-        .mutation("volumes.back", {
-          volume_id,
-        })
-        .then(() => {
-          this.volumes = this.volumes.filter((volume) => volume.volume_id !== volume_id);
-
-          // 返却の場合、投稿を書くか？
-          if (volume.status === "LENDING") {
-            $dialog
-              .open({
-                colorset: "info",
-                icon: "bx:info-circle",
-                message: "このまま投稿を書きますか？",
-                confirmText: "YES",
-                cancelText: "NO",
-              })
-              .then(() => {
-                this.$router.push({ path: `/drafts/new`, query: { book_id: volume.book_id } });
-              });
-          }
-        });
     },
   },
 });

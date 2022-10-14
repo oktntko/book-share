@@ -8,7 +8,7 @@
             :class="`leading-sm text inline-flex items-center rounded-2xl px-3 py-1 font-bold uppercase
               ${
                 bookVolume.status === '予約中'
-                  ? 'bg-blue-200 text-blue-700'
+                  ? 'bg-blue-100 text-blue-500'
                   : bookVolume.status === '借用中'
                   ? 'bg-blue-200 text-blue-700'
                   : bookVolume.status === '在庫あり'
@@ -35,13 +35,13 @@
               <!-- RESERVE -->
               <template v-if="row.status === 'RESERVE'">
                 <div
-                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-200 px-3 py-1 text-xs font-bold uppercase text-blue-700"
+                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-100 px-3 py-1 text-xs font-bold uppercase text-blue-500"
                 >
                   予約中
-                  <div class="flex flex-col">
-                    <span class="-my-2 text-[0.5rem]">予約日</span>
-                    <span>{{ row.reserve_date }}</span>
-                  </div>
+                </div>
+                <div class="flex flex-col">
+                  <span class="-my-2 text-[0.5rem]">予約日</span>
+                  <span>{{ row.reserve_date }}</span>
                 </div>
               </template>
               <!-- LENDING -->

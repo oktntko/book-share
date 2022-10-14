@@ -73,7 +73,7 @@
                   :class="`leading-sm text inline-flex items-center rounded-2xl px-3 py-1 font-bold uppercase
                     ${
                       bookVolume.status === '予約中'
-                        ? 'bg-blue-200 text-blue-700'
+                        ? 'bg-blue-100 text-blue-500'
                         : bookVolume.status === '借用中'
                         ? 'bg-blue-200 text-blue-700'
                         : bookVolume.status === '在庫あり'
@@ -146,8 +146,12 @@ import ShowVolumesVue from "~/pages/library/components/ShowVolumes.vue";
 export default Vue.extend({
   components: { LibraryNavVue, BookVue },
   data() {
+    const book_id = typeof this.$route.query.book_id === "string" ? this.$route.query.book_id : "";
+
     return {
-      search: {} as VolumesQuery,
+      search: {
+        book_id,
+      } as VolumesQuery,
       bookVolumes: [] as BookVolume[],
       loading: true,
       pager: {
@@ -177,6 +181,7 @@ export default Vue.extend({
       const loading = $loading.open();
       return trpc
         .query("volumes.search", {
+          ...this.search,
           limit: this.pager.pageSize,
           offset: this.pager.pageSize * (this.pager.currentPage - 1),
         })
@@ -195,7 +200,7 @@ export default Vue.extend({
         });
       }
 
-      Promise.all(
+      await Promise.all(
         bookVolume.volumes
           .filter((volume) => volume.borrower_id)
           .map((volume) => {
@@ -203,9 +208,27 @@ export default Vue.extend({
               volume_id: volume.volume_id,
             });
           })
-      ).then(() => {
+      );
+
+      if (bookVolume.status === "借用中") {
+        await $dialog
+          .open({
+            colorset: "info",
+            icon: "bx:info-circle",
+            message: "このまま投稿を書きますか？",
+            confirmText: "YES",
+            cancelText: "NO",
+          })
+          .then(() => {
+            this.$router.push({
+              path: `/drafts/new`,
+              query: { book_id: bookVolume.book_id },
+            });
+          })
+          .catch(this.searchVolumes);
+      } else {
         this.searchVolumes();
-      });
+      }
     },
     showVolumes(bookVolume: BookVolume) {
       $sidemenu.open({
