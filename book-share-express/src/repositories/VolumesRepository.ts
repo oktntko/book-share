@@ -81,7 +81,7 @@ FROM
   volumes
 WHERE
   1 = 1
-  ${where.book_title ? Prisma.sql`AND book_id = ${where.book_id}` : Prisma.empty}
+  ${where.book_id ? Prisma.sql`AND book_id = ${where.book_id}` : Prisma.empty}
   ${
     where.book_title
       ? Prisma.sql`AND book_title LIKE CONCAT('%', ${where.book_title}, '%')`

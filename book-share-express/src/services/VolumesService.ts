@@ -61,17 +61,19 @@ async function searchVolumes(
 }
 
 // # GET /volumes
-async function listVolumes(input: {
-  volume_id?: number[] | undefined;
-  book_id?: string;
-  keyword?: string;
-  owner_id?: number | undefined;
-  borrower_id?: number | undefined;
-  created_by?: number | undefined;
-  sort: ("created_at" | "updated_at" | "book_title" | "bookshelf")[];
-  limit?: number | undefined;
-  offset?: number | undefined;
-}) {
+async function listVolumes(
+  input: {
+    volume_id?: number[] | undefined;
+    book_id?: string;
+    keyword?: string;
+    borrower?: "IAM" | "OTHER";
+    created_by?: "IAM" | "OTHER";
+    sort: ("created_at" | "updated_at" | "book_title" | "bookshelf")[];
+    limit?: number | undefined;
+    offset?: number | undefined;
+  },
+  operator_id: number
+) {
   log.debug("listVolumes", input);
 
   const where: Prisma.VolumeWhereInput = {};
@@ -100,16 +102,12 @@ async function listVolumes(input: {
     ];
   }
 
-  if (input.owner_id) {
-    where.owner_id = input.owner_id;
+  if (input.borrower === "IAM") {
+    where.borrower_id = operator_id;
   }
 
-  if (input.borrower_id) {
-    where.borrower_id = input.borrower_id;
-  }
-
-  if (input.created_by) {
-    where.created_by = input.created_by;
+  if (input.created_by === "IAM") {
+    where.created_by = operator_id;
   }
 
   log.debug("where", where);

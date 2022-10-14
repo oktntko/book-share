@@ -33,15 +33,14 @@ export const volumes = createAuthorizedRouter()
       volume_id: z.number().positive().array().optional(),
       book_id: z.string().trim().max(255).optional(),
       keyword: z.string().trim().max(255).optional(),
-      owner_id: z.number().positive().optional(),
-      borrower_id: z.number().positive().optional(),
-      created_by: z.number().positive().optional(),
+      borrower: z.enum(["IAM", "OTHER"]).optional(),
+      created_by: z.enum(["IAM", "OTHER"]).optional(),
       sort: z.enum(["created_at", "updated_at", "book_title", "bookshelf"]).array(),
       limit: z.number().max(100).optional(),
       offset: z.number().optional(),
     }),
-    resolve: async ({ input }) => {
-      return VolumesService.listVolumes(input);
+    resolve: async ({ input, ctx }) => {
+      return VolumesService.listVolumes(input, ctx.user.user_id);
     },
   })
   // # POST /volumes
