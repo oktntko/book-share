@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto p-4">
-    <BooksSearchVue :on-dialog="false" :book_id="book_id" @selected="handleSelect">
-    </BooksSearchVue>
+    <SearchBooksVue :on-dialog="false" :book_id="book_id" @selected="handleSelect">
+    </SearchBooksVue>
     <div
       v-click-outside="handleClear"
       class="absolute"
@@ -24,7 +24,10 @@
         >
           <div class="py-1" role="none">
             <RouterLink
-              to="/posts"
+              :to="{
+                path: `/posts`,
+                query: { book_id },
+              }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact
               active-class="text-blue-600 border-l-gray-200"
@@ -33,7 +36,10 @@
               <p class="text-xs text-gray-400">いい本にはいい投稿があります！</p>
             </RouterLink>
             <RouterLink
-              to="/library"
+              :to="{
+                path: `/library`,
+                query: { book_id },
+              }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact
               active-class="text-blue-600 border-l-gray-200"
@@ -42,7 +48,10 @@
               <p class="text-xs text-gray-400">本を読みましょう！</p>
             </RouterLink>
             <RouterLink
-              to="/drafts/new"
+              :to="{
+                path: `/drafts/new`,
+                query: { book_id },
+              }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact
               active-class="text-blue-600 border-l-gray-200"
@@ -60,7 +69,7 @@
 <script lang="ts">
 import Vue from "vue";
 import ClickOutside from "vue-click-outside";
-import BooksSearchVue from "~/components/BooksSearch.vue";
+import SearchBooksVue from "~/components/SearchBooks.vue";
 import { Book } from "~/libs/trpc";
 
 export default Vue.extend({
@@ -68,7 +77,7 @@ export default Vue.extend({
     ClickOutside,
   },
   components: {
-    BooksSearchVue,
+    SearchBooksVue,
   },
   data() {
     return {
@@ -84,10 +93,20 @@ export default Vue.extend({
       this.book_id = "";
     },
     handleSelect(book: Book, e: PointerEvent) {
-      this.book_id = book.book_id;
-      this.book = book;
-      this.pageX = e.pageX;
-      this.pageY = e.pageY;
+      if (this.book === undefined) {
+        this.book_id = book.book_id;
+        this.book = book;
+        this.pageX = e.pageX;
+        this.pageY = e.pageY;
+      } else {
+        this.handleClear();
+        setTimeout(() => {
+          this.book_id = book.book_id;
+          this.book = book;
+          this.pageX = e.pageX;
+          this.pageY = e.pageY;
+        }, 100);
+      }
     },
   },
 });

@@ -1,3 +1,4 @@
+import { VolumeStatus } from "@prisma/client";
 import { z } from "zod";
 import { createAuthorizedRouter } from "~/context";
 import ORM from "~/libs/ORM";
@@ -14,19 +15,32 @@ const VolumeSchema = z.object({
 
 export const volumes = createAuthorizedRouter()
   // # GET /volumes
-  .query("list", {
+  .query("search", {
     input: z.object({
       book_id: z.string().trim().max(255).optional(),
-      keyword: z.string().trim().max(255).optional(),
-      owner_id: z.number().positive().optional(),
-      borrower_id: z.number().positive().optional(),
-      created_by: z.number().positive().optional(),
-      sort: z.enum(["created_at", "updated_at", "book_title", "bookshelf"]).array(),
+      book_title: z.string().trim().max(255).optional(),
+      status: z.enum(["ALL", "HAS_STOCK"]).default("ALL"),
       limit: z.number().max(100).optional().default(10),
       offset: z.number().optional().default(0),
     }),
-    resolve: async ({ input }) => {
-      return VolumesService.listVolumes(input);
+    resolve: async ({ input, ctx }) => {
+      return VolumesService.searchVolumes(input, ctx.user.user_id);
+    },
+  })
+  // # GET /volumes
+  .query("list", {
+    input: z.object({
+      volume_id: z.number().positive().array().optional(),
+      book_id: z.string().trim().max(255).optional(),
+      keyword: z.string().trim().max(255).optional(),
+      borrower: z.enum(["IAM", "OTHER"]).optional(),
+      created_by: z.enum(["IAM", "OTHER"]).optional(),
+      sort: z.enum(["created_at", "updated_at", "book_title", "bookshelf"]).array(),
+      limit: z.number().max(100).optional(),
+      offset: z.number().optional(),
+    }),
+    resolve: async ({ input, ctx }) => {
+      return VolumesService.listVolumes(input, ctx.user.user_id);
     },
   })
   // # POST /volumes
@@ -67,15 +81,35 @@ export const volumes = createAuthorizedRouter()
       );
     },
   })
+  // # PATCH /volumes/:volume_id/reserve
+  .mutation("reserve", {
+    input: VolumeSchema.pick({
+      volume_id: true,
+    }),
+    resolve: ({ input, ctx }) => {
+      return ORM.$transaction(async (prisma) =>
+        VolumesService.updateStatusVolume(
+          prisma,
+          ctx.user.user_id,
+          input.volume_id,
+          VolumeStatus.RESERVE
+        )
+      );
+    },
+  })
   // # PATCH /volumes/:volume_id/borrow
   .mutation("borrow", {
     input: VolumeSchema.pick({
       volume_id: true,
-      borrower_id: true,
     }),
     resolve: ({ input, ctx }) => {
       return ORM.$transaction(async (prisma) =>
-        VolumesService.borrowVolume(prisma, ctx.user.user_id, input)
+        VolumesService.updateStatusVolume(
+          prisma,
+          ctx.user.user_id,
+          input.volume_id,
+          VolumeStatus.LENDING
+        )
       );
     },
   })
@@ -86,7 +120,12 @@ export const volumes = createAuthorizedRouter()
     }),
     resolve: ({ input, ctx }) => {
       return ORM.$transaction(async (prisma) =>
-        VolumesService.backVolume(prisma, ctx.user.user_id, input)
+        VolumesService.updateStatusVolume(
+          prisma,
+          ctx.user.user_id,
+          input.volume_id,
+          VolumeStatus.STOCK
+        )
       );
     },
   })

@@ -1,47 +1,9 @@
 <template>
-  <div class="container mx-auto p-4">
-    <nav class="mb-8 flex" aria-label="Breadcrumb ">
-      <ol class="inline-flex items-center space-x-1 md:space-x-5">
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="game-icons:bookshelf" class="mr-1 h-5 w-5"></Icon>
-            図書館の本
-          </RouterLink>
-        </li>
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library/borrowed"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="icon-park:return" class="mr-1 h-5 w-5"></Icon>
-            借りている本を返す
-          </RouterLink>
-        </li>
-        <li class="inline-flex items-center">
-          <RouterLink
-            to="/library/new"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400"
-            exact
-            active-class="text-blue-600 font-bold"
-          >
-            <Icon icon="bx:donate-heart" class="mr-1 h-5 w-5"></Icon>
-            新しく本を寄贈する
-          </RouterLink>
-        </li>
-      </ol>
-    </nav>
-
+  <div>
     <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
       <!-- 選択した本 -->
       <div v-show="book" class="relative">
-        <BookVue :book="book"> </BookVue>
+        <BookVue class="rounded border bg-gray-100" :book="book" :hoverable="false"> </BookVue>
         <div class="absolute top-4 right-4">
           <div class="flex gap-4">
             <button
@@ -135,14 +97,22 @@
       </div>
 
       <!-- フッター -->
-      <footer class="flex justify-end">
+      <footer class="flex justify-start gap-4">
         <button
-          type="button"
+          type="submit"
           class="inline-flex min-w-[120px] justify-center rounded-lg border border-green-800 bg-green-100 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-green-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
-          @click="handleSubmit"
         >
           <Icon icon="entypo:save" class="mr-2 -ml-1 h-5 w-5"> </Icon>
           保存する
+        </button>
+        <button
+          v-if="volume_id"
+          type="button"
+          class="inline-flex min-w-[120px] justify-center rounded-lg border border-yellow-800 bg-yellow-100 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-yellow-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
+          @click="handleDelete"
+        >
+          <Icon icon="fa6-solid:trash" class="mr-2 -ml-1 h-5 w-5"> </Icon>
+          削除する
         </button>
       </footer>
     </form>
@@ -152,10 +122,10 @@
 <script lang="ts">
 import Vue from "vue";
 import BookVue from "~/components/Book.vue";
-import BooksSearchVue from "~/components/BooksSearch.vue";
 import { $dialog } from "~/components/Dialog.vue";
 import { $loading } from "~/components/Loading.vue";
 import { $modal } from "~/components/Modal.vue";
+import SearchBooksVue from "~/components/SearchBooks.vue";
 import { $toast } from "~/components/Toast.vue";
 import { Book, trpc, VolumeInput } from "~/libs/trpc";
 
@@ -241,6 +211,25 @@ export default Vue.extend({
       this.form.book_title = book.book_title;
       this.book = book;
     },
+    handleDelete() {
+      $dialog
+        .open({
+          colorset: "danger",
+          icon: "bx:error",
+          message: `本を削除します。よろしいですか？`,
+        })
+        .then(() => {
+          const loading = $loading.open();
+          trpc
+            .mutation("volumes.delete", {
+              volume_id: this.volume_id,
+            })
+            .then(() => {
+              this.$router.replace(`/library`);
+            })
+            .finally(loading.close);
+        });
+    },
     getVolume(volume_id: number) {
       const loading = $loading.open();
       return trpc
@@ -283,7 +272,7 @@ export default Vue.extend({
     },
     openVolumesSearchVue(close: () => void = () => ({})) {
       $modal.open({
-        component: BooksSearchVue,
+        component: SearchBooksVue,
         container: true,
         componentEvents: {
           selected: (book: Book) => {

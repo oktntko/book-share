@@ -31,7 +31,7 @@
         </nav>
         <RouterLink
           to="/"
-          class="title-font order-first mb-4 flex items-center font-medium text-gray-900 md:mb-0 lg:order-none lg:w-1/5 lg:items-center lg:justify-center"
+          class="order-first mb-4 flex items-center font-medium text-gray-900 md:mb-0 lg:order-none lg:w-1/5 lg:items-center lg:justify-center"
         >
           <Icon icon="noto-v1:books" class="h-10 w-10 rounded-full p-2 text-white"> </Icon>
           <span class="ml-3 text-xl">Book Share</span>
@@ -106,32 +106,6 @@
                   >
                     ストックした投稿
                     <p class="text-xs text-gray-400">参考になった投稿を確認する</p>
-                  </RouterLink>
-                </div>
-                <div class="py-1" role="none">
-                  <RouterLink
-                    to="/library"
-                    class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                    exact
-                    active-class="text-blue-600 border-l-gray-200"
-                  >
-                    図書館から本を借りる
-                  </RouterLink>
-                  <RouterLink
-                    to="/library/borrowed"
-                    class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                    exact
-                    active-class="text-blue-600 border-l-gray-200"
-                  >
-                    借りている本を返す
-                  </RouterLink>
-                  <RouterLink
-                    to="/library/new"
-                    class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                    exact
-                    active-class="text-blue-600 border-l-gray-200"
-                  >
-                    新しく本を寄贈する
                   </RouterLink>
                 </div>
                 <div class="py-1" role="none">

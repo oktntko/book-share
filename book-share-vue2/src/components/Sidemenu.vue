@@ -17,27 +17,25 @@
     </transition>
 
     <!-- Modal -->
-    <div class="fixed inset-0 z-10 overflow-y-auto" @click="handleOutsideClicked">
-      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+    <div class="fixed inset-0 z-10 overflow-y-auto overflow-x-hidden" @click="handleOutsideClicked">
+      <div class="relative">
         <!-- Dialog -->
         <transition
-          enter-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          enter-class="opacity-0 translate-x-16"
           enter-active-class="ease-out duration-200"
-          enter-to-class="opacity-100 translate-y-0 sm:scale-100"
-          leave-class="opacity-100 translate-y-0 sm:scale-100"
+          enter-to-class="opacity-100 translate-x-0"
+          leave-class="opacity-100 translate-x-0"
           :leave-active-class="`ease-in duration-${dissmissDuration}`"
-          leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          leave-to-class="opacity-0 translate-x-16"
         >
           <div
             v-show="open"
-            :class="`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8
-              ${container ? 'container' : 'sm:w-full sm:max-w-lg'}`"
+            class="absolute right-0 h-screen w-screen min-w-[640px] transform overflow-hidden bg-gray-50 shadow-xl transition-all lg:w-1/3"
             @click.stop
           >
             <component
               :is="component"
               v-if="component"
-              class="p-4"
               v-bind="componentProps"
               v-on="componentEvents"
               @close="close"
@@ -56,7 +54,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 
-type ModalProps = Partial<{
+type SidemenuProps = Partial<{
   component: unknown;
   componentProps: unknown;
   componentEvents: unknown;
@@ -65,10 +63,9 @@ type ModalProps = Partial<{
     escape: boolean;
     outside: boolean;
   };
-  container: boolean;
 }>;
 
-const Modal = Vue.extend({
+const Sidemenu = Vue.extend({
   props: {
     component: {
       type: [Object, Function, String],
@@ -100,11 +97,6 @@ const Modal = Vue.extend({
         escape: true,
         outside: true,
       }),
-    },
-    container: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
   },
   data() {
@@ -150,11 +142,11 @@ const Modal = Vue.extend({
   },
 });
 
-export default Modal;
+export default Sidemenu;
 
-export const $modal = {
-  open<T>(propsData: ModalProps) {
-    const instance = new Modal({ propsData }).$mount();
+export const $sidemenu = {
+  open<T>(propsData: SidemenuProps) {
+    const instance = new Sidemenu({ propsData }).$mount();
     const parent = document.createElement("div");
 
     parent.appendChild(instance.$el);

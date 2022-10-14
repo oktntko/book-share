@@ -1,15 +1,6 @@
 <template>
   <div class="container mx-auto p-4">
-    <nav class="mb-4 flex" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <a class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-400">
-            <Icon icon="fluent:drafts-16-regular" class="h-5 w-5"></Icon>
-            投稿一覧
-          </a>
-        </li>
-      </ol>
-    </nav>
+    <DraftsNavVue> </DraftsNavVue>
 
     <template v-if="firstView"></template>
     <template v-else-if="posts.length">
@@ -96,7 +87,11 @@
 
               <div class="flex grow flex-col gap-2">
                 <div class="flex flex-row items-end justify-between">
-                  <p class="-mb-2 text-xs text-gray-400">投稿タイトル</p>
+                  <p class="-mb-2 text-xs text-gray-400">
+                    {{
+                      `${post.book && post.book.book_title ? post.book.book_title : "(本未選択)"}`
+                    }}
+                  </p>
                   <div class="flex flex-row gap-2">
                     <div
                       v-if="post.published"
@@ -241,9 +236,11 @@ import Vue from "vue";
 import { $dialog } from "~/components/Dialog.vue";
 import { $loading } from "~/components/Loading.vue";
 import { Post, trpc } from "~/libs/trpc";
+import DraftsNavVue from "~/pages/drafts/components/DraftsNav.vue";
 
 export default Vue.extend({
   components: {
+    DraftsNavVue,
     Editor,
   },
   data() {
