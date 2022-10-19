@@ -69,8 +69,8 @@
 <script lang="ts">
 import Vue from "vue";
 import ClickOutside from "vue-click-outside";
-import SearchBooksVue from "~/components/SearchBooks.vue";
 import { Book } from "~/libs/trpc";
+import SearchBooksVue from "~/pages/books/components/SearchBooks.vue";
 
 export default Vue.extend({
   directives: {

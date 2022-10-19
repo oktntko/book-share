@@ -51,7 +51,7 @@
         </div>
       </div>
       <!-- 右側 -->
-      <div class="flex flex-col gap-1 text-gray-900">
+      <div v-if="book.volumeInfo" class="flex flex-col gap-1 text-gray-900">
         <h3 v-if="book.volumeInfo.authors" class="text-xs text-blue-500 transition-colors">
           {{ book.volumeInfo.authors.join(", ") }}
         </h3>
@@ -94,7 +94,7 @@
 
     <!-- 詳細 -->
     <p
-      v-if="showDescription && book.volumeInfo.description"
+      v-if="showDescription && book.volumeInfo && book.volumeInfo.description"
       class="line-clamp line-clamp-4 text-base leading-relaxed"
     >
       {{ book.volumeInfo.description }}

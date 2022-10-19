@@ -135,11 +135,11 @@
 
 <script lang="ts">
 import Vue from "vue";
-import BookVue from "~/components/Book.vue";
 import { $dialog } from "~/components/Dialog.vue";
 import { $loading } from "~/components/Loading.vue";
 import { $sidemenu } from "~/components/Sidemenu.vue";
 import { BookVolume, trpc, VolumesQuery } from "~/libs/trpc";
+import BookVue from "~/pages/books/components/Book.vue";
 import LibraryNavVue from "~/pages/library/components/LibraryNav.vue";
 import ShowVolumesVue from "~/pages/library/components/ShowVolumes.vue";
 

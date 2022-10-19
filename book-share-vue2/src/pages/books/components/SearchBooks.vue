@@ -132,8 +132,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { $loading } from "~/components/Loading.vue";
-import BookVue from "~/components/Book.vue";
 import { Book, trpc } from "~/libs/trpc";
+import BookVue from "~/pages/books/components/Book.vue";
 
 const KEY_BOOK_SEARCH = "KEY_BOOK_SEARCH";
 
