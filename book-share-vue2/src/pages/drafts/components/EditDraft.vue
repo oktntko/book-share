@@ -69,48 +69,7 @@
         </label>
       </div>
       <!-- エディタ -->
-      <Editor
-        v-model="form.content"
-        class="h-full"
-        api-key="no-api-key"
-        :disabled="false"
-        :init="{
-          height: 792,
-          max_height: 792,
-          resize: true,
-          menubar: false,
-        }"
-        :plugins="[
-          'a11ychecker',
-          'advlist',
-          'advcode',
-          'advtable',
-          'autolink',
-          'checklist',
-          'export',
-          'lists',
-          'link',
-          'image',
-          'charmap',
-          'preview',
-          'anchor',
-          'searchreplace',
-          'visualblocks',
-          'powerpaste',
-          'fullscreen',
-          'formatpainter',
-          'insertdatetime',
-          'media',
-          'table',
-          'help',
-          'wordcount',
-        ]"
-        toolbar="undo redo | casechange blocks | bold italic backcolor |
-          alignleft aligncenter alignright alignjustify |
-          bullist numlst checklist outdent indent | removeformat | a11ycheck code table help"
-        output-format="html"
-      >
-      </Editor>
+      <Editor v-model="form.content"></Editor>
       <!-- フッター -->
       <footer class="flex justify-start gap-4">
         <button
@@ -127,19 +86,19 @@
 </template>
 
 <script lang="ts">
-import Editor from "@tinymce/tinymce-vue";
 import Vue from "vue";
-import BookVue from "~/components/Book.vue";
+import Editor from "~/components/Editor.vue";
 import { $loading } from "~/components/Loading.vue";
 import { $modal } from "~/components/Modal.vue";
-import SearchBooksVue from "~/components/SearchBooks.vue";
 import { $toast } from "~/components/Toast.vue";
 import { Book, trpc } from "~/libs/trpc";
+import BookVue from "~/pages/books/components/Book.vue";
+import SearchBooksVue from "~/pages/books/components/SearchBooks.vue";
 
 export default Vue.extend({
   components: {
-    Editor,
     BookVue,
+    Editor,
   },
   props: {
     post_id: {
@@ -249,10 +208,3 @@ export default Vue.extend({
   },
 });
 </script>
-
-<style>
-/* TODO 開発中のみ tinymce ダイアログを消す */
-.tox.tox-silver-sink.tox-tinymce-aux {
-  position: unset !important;
-}
-</style>

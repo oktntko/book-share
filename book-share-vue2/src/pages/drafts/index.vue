@@ -50,7 +50,7 @@
       </form>
 
       <section class="mb-4 flex flex-row gap-4">
-        <div class="flex w-1/2 grow flex-col justify-between gap-4">
+        <div class="flex w-1/2 grow flex-col justify-start gap-4">
           <div class="flex flex-col gap-4">
             <!-- 投稿のタイトルリスト -->
             <div
@@ -92,7 +92,7 @@
                       `${post.book && post.book.book_title ? post.book.book_title : "(本未選択)"}`
                     }}
                   </p>
-                  <div class="flex flex-row gap-2">
+                  <div class="flex shrink-0 flex-row gap-2">
                     <div
                       v-if="post.published"
                       class="leading-sm inline-flex items-center rounded-full bg-blue-200 px-3 py-1 text-xs font-bold uppercase text-blue-700"
@@ -187,21 +187,7 @@
         </div>
         <!-- プレビュー -->
         <div class="w-1/2 grow">
-          <Editor
-            v-show="currentPost"
-            v-model="currentPost.content"
-            class="h-full"
-            api-key="no-api-key"
-            :disabled="true"
-            :init="{
-              height: 792,
-              max_height: 792,
-              menubar: false,
-              statusbar: false,
-              toolbar: false,
-            }"
-          >
-          </Editor>
+          <Editor v-show="currentPost" v-model="currentPost.content" :editable="false"> </Editor>
         </div>
       </section>
     </template>
@@ -231,9 +217,9 @@
 </template>
 
 <script lang="ts">
-import Editor from "@tinymce/tinymce-vue";
 import Vue from "vue";
 import { $dialog } from "~/components/Dialog.vue";
+import Editor from "~/components/Editor.vue";
 import { $loading } from "~/components/Loading.vue";
 import { Post, trpc } from "~/libs/trpc";
 import DraftsNavVue from "~/pages/drafts/components/DraftsNav.vue";
@@ -329,10 +315,3 @@ export default Vue.extend({
   },
 });
 </script>
-
-<style>
-/* TODO 開発中のみ tinymce ダイアログを消す */
-.tox.tox-silver-sink.tox-tinymce-aux {
-  position: unset !important;
-}
-</style>

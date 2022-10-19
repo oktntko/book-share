@@ -121,13 +121,13 @@
 
 <script lang="ts">
 import Vue from "vue";
-import BookVue from "~/components/Book.vue";
 import { $dialog } from "~/components/Dialog.vue";
 import { $loading } from "~/components/Loading.vue";
 import { $modal } from "~/components/Modal.vue";
-import SearchBooksVue from "~/components/SearchBooks.vue";
 import { $toast } from "~/components/Toast.vue";
 import { Book, trpc, VolumeInput } from "~/libs/trpc";
+import BookVue from "~/pages/books/components/Book.vue";
+import SearchBooksVue from "~/pages/books/components/SearchBooks.vue";
 
 export default Vue.extend({
   components: {

@@ -120,9 +120,9 @@
 
 <script lang="ts">
 import Vue, { PropType } from "vue";
-import { BookVolume, trpc } from "~/libs/trpc";
-import BookVue from "~/components/Book.vue";
 import { $dialog } from "~/components/Dialog.vue";
+import { BookVolume, trpc } from "~/libs/trpc";
+import BookVue from "~/pages/books/components/Book.vue";
 
 export default Vue.extend({
   components: {
