@@ -9,10 +9,7 @@
       :leave-active-class="`ease-in duration-${dissmissDuration}`"
       leave-to-class="opacity-0"
     >
-      <div
-        v-show="open"
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-[1px] transition-opacity"
-      ></div>
+      <div v-show="open" class="fixed inset-0 bg-gray-400/50 transition-opacity"></div>
     </transition>
 
     <!-- Modal -->

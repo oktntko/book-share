@@ -153,7 +153,6 @@ export default Vue.extend({
         book_id,
       } as VolumesQuery,
       bookVolumes: [] as BookVolume[],
-      loading: true,
       pager: {
         currentPage: 1,
         pageSize: 10,

@@ -3,7 +3,7 @@
     class="flex min-h-screen flex-col bg-gray-50 text-gray-600 antialiased dark:bg-gray-700 dark:text-white"
   >
     <!-- Header -->
-    <header class="body-font">
+    <header class="">
       <div class="container mx-auto flex flex-col flex-wrap items-center px-4 pt-5 md:flex-row">
         <nav class="flex flex-wrap items-center gap-5 text-base md:ml-auto lg:w-2/5">
           <RouterLink
