@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import dayjs from "~/libs/dayjs";
 import log from "~/libs/log";
 import ORM from "~/libs/ORM";
 import { trpc } from "~/libs/trpc";
@@ -14,6 +15,7 @@ async function listPosts(input: {
   sort: ("hearts" | "created_at" | "updated_at" | "book_title" | "post_title")[];
   limit: number;
   offset: number;
+  published: "PUBLISHED" | "UNPUBLISHED" | "ALL";
 }) {
   log.debug("listPosts", input);
 
@@ -44,6 +46,12 @@ async function listPosts(input: {
 
   if (input.contributor_id) {
     where.contributor_id = input.contributor_id;
+  }
+
+  if (input.published === "PUBLISHED") {
+    where.published = true;
+  } else if (input.published === "UNPUBLISHED") {
+    where.published = false;
   }
 
   log.debug("where", where);
@@ -86,6 +94,41 @@ async function listPosts(input: {
         return {
           ...post,
           book,
+        };
+      })
+    ),
+  };
+}
+
+// # GET /posts/ranking
+async function rankingPosts(input: { span: "WEEK" | "MONTH" | "ALL" }) {
+  log.debug("rankingPosts", input);
+
+  const where: Prisma.PostWhereInput = {};
+
+  where.book_id = {
+    not: "",
+  };
+
+  if (input.span === "WEEK") {
+    where.created_at = {
+      gte: dayjs().subtract(1, "week").startOf("day").toDate(),
+    };
+  } else if (input.span === "MONTH") {
+    where.created_at = {
+      gte: dayjs().subtract(1, "month").startOf("day").toDate(),
+    };
+  }
+
+  const book_id_list = await PostsRepository.groupByBookId(ORM, where);
+
+  return {
+    books: await Promise.all(
+      book_id_list.map(async (data) => {
+        const book = await BooksRepository.getBook(data.book_id);
+        return {
+          count: data._count,
+          ...book,
         };
       })
     ),
@@ -210,4 +253,5 @@ export const PostsService = {
   updatePost,
   publishPost,
   deletePost,
+  rankingPosts,
 };

@@ -80,17 +80,34 @@
           <Icon icon="entypo:save" class="mr-2 -ml-1 h-5 w-5"> </Icon>
           保存する
         </button>
+        <button
+          v-if="post_id"
+          type="button"
+          class="inline-flex min-w-[120px] justify-center rounded-lg border border-blue-800 bg-blue-100 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-blue-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
+          @click="handlePublish"
+        >
+          <Icon
+            :icon="`${form.published ? 'bxs:lock' : 'bxs:lock-open-alt'}`"
+            class="mr-2 -ml-1 h-5 w-5"
+          >
+          </Icon>
+          {{ form.published ? "非公開にする" : "公開する" }}
+        </button>
       </footer>
     </form>
   </div>
 </template>
 
 <script lang="ts">
+import equal from "fast-deep-equal";
 import Vue from "vue";
+import { $dialog } from "~/components/Dialog.vue";
+import { $dialogThreeButton } from "~/components/DialogThreeButton.vue";
 import Editor from "~/components/Editor.vue";
 import { $loading } from "~/components/Loading.vue";
 import { $modal } from "~/components/Modal.vue";
 import { $toast } from "~/components/Toast.vue";
+import { clone } from "~/libs/just/collection-clone";
 import { Book, trpc } from "~/libs/trpc";
 import BookVue from "~/pages/books/components/Book.vue";
 import SearchBooksVue from "~/pages/books/components/SearchBooks.vue";
@@ -117,23 +134,36 @@ export default Vue.extend({
         book_title: "",
         post_title: "",
         content: "",
+        published: false,
+      },
+      orig: {
+        book_id,
+        book_title: "",
+        post_title: "",
+        content: "",
+        published: false,
       },
     };
   },
   created() {
-    if (this.post_id) {
-      // 編集の時
-      this.getDraft(this.post_id);
-    } else if (this.form.book_id) {
-      // 本を選んでから投稿を書くとき
-      this.getBook(this.form.book_id);
-    }
+    const promise = this.post_id
+      ? // 編集の時
+        this.getDraft(this.post_id)
+      : this.form.book_id
+      ? // 本を選んでから投稿を書くとき
+        this.getBook(this.form.book_id)
+      : Promise.resolve();
     // 登録の時は何もしない
+
+    // 表示のデータを保存しておく
+    promise.then(() => {
+      this.orig = clone(this.form);
+    });
   },
   methods: {
     handleSubmit() {
       const promise = this.post_id ? this.updateDraft(this.post_id) : this.createDraft();
-      promise.then(() => {
+      promise.then((data) => {
         // TODO:
         // 更新時のローディンク作成
         // 更新時のローディンク破棄
@@ -145,8 +175,22 @@ export default Vue.extend({
           type: "success",
           message: "保存に成功しました。",
         });
-
-        this.$router.push("/drafts");
+        // 登録の時
+        if (!this.post_id) {
+          $dialog
+            .open({
+              colorset: "info",
+              icon: "bx:info-circle",
+              message: "このまま投稿を公開しますか？",
+              confirmText: "YES",
+              cancelText: "NO",
+            })
+            .then(() => {
+              this.poublishDraft(data.post_id, true);
+            });
+        } else {
+          this.$router.push("/drafts");
+        }
       });
     },
     handleClear() {
@@ -169,6 +213,7 @@ export default Vue.extend({
             book_title: data.book?.book_title ?? "",
             post_title: data.post_title,
             content: data.content,
+            published: data.published,
           };
 
           this.book = data.book;
@@ -182,6 +227,15 @@ export default Vue.extend({
     updateDraft(post_id: number) {
       const loading = $loading.open();
       return trpc.mutation("drafts.update", { post_id, ...this.form }).finally(loading.close);
+    },
+    poublishDraft(post_id: number, publish: boolean) {
+      return trpc.mutation("drafts.publish", { post_id, publish }).then(() => {
+        $toast.open({
+          type: "success",
+          message: `投稿を${publish ? "公開" : "非公開に"}しました。`,
+        });
+        this.$router.push("/drafts");
+      });
     },
     getBook(book_id: string) {
       const loading = $loading.open();
@@ -204,6 +258,25 @@ export default Vue.extend({
           },
         },
       });
+    },
+    handlePublish() {
+      if (!equal(this.form, this.orig)) {
+        $dialogThreeButton.open({
+          message: "変更があります。変更を保存しますか？",
+          confirmText: `変更を保存して${this.orig.published ? "非公開" : "公開"}`,
+          confirm: () => {
+            this.updateDraft(this.post_id).then(() => {
+              this.poublishDraft(this.post_id, !this.orig.published);
+            });
+          },
+          cancelConfirmText: `変更を破棄して${this.orig.published ? "非公開" : "公開"}`,
+          cancelConfirm: () => {
+            this.poublishDraft(this.post_id, !this.orig.published);
+          },
+        });
+      } else {
+        this.poublishDraft(this.post_id, !this.orig.published);
+      }
     },
   },
 });

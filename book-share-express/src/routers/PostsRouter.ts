@@ -23,7 +23,7 @@ export const posts = createAuthorizedRouter()
       offset: z.number().optional().default(0),
     }),
     resolve: async ({ input }) => {
-      return PostsService.listPosts(input);
+      return PostsService.listPosts({ ...input, published: "PUBLISHED" });
     },
   })
   // # GET /posts/:post_id
@@ -33,5 +33,14 @@ export const posts = createAuthorizedRouter()
     }),
     resolve: async ({ input }) => {
       return PostsService.findUniquePost(input.post_id);
+    },
+  })
+  // # GET /posts/ranking
+  .query("ranking", {
+    input: z.object({
+      span: z.enum(["WEEK", "MONTH", "ALL"]).default("MONTH"),
+    }),
+    resolve: async ({ input }) => {
+      return PostsService.rankingPosts(input);
     },
   });

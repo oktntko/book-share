@@ -140,7 +140,7 @@
                 </div>
                 <div class="py-1" role="none">
                   <a
-                    class="block px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-300 hover:text-blue-600"
+                    class="block cursor-pointer px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-300 hover:text-blue-600"
                     @click="logout"
                   >
                     ログアウト

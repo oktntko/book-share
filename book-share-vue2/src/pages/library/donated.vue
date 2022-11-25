@@ -111,7 +111,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { $dialog } from "~/components/Dialog.vue";
 import { trpc, Volume } from "~/libs/trpc";
 import LibraryNavVue from "~/pages/library/components/LibraryNav.vue";
 

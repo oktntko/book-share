@@ -15,7 +15,11 @@ export const drafts = createAuthorizedRouter()
       offset: z.number().optional().default(0),
     }),
     resolve: async ({ input, ctx }) => {
-      return PostsService.listPosts({ ...input, contributor_id: ctx.user.user_id });
+      return PostsService.listPosts({
+        ...input,
+        contributor_id: ctx.user.user_id,
+        published: "ALL",
+      });
     },
   })
   // # POST /drafts

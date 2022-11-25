@@ -227,6 +227,22 @@ async function publishPost(
   });
 }
 
+async function groupByBookId(prisma: PrismaClient, where: Prisma.PostWhereInput) {
+  log.debug("countPosts");
+
+  return prisma.post.groupBy({
+    by: ["book_id"],
+    _count: true,
+    where,
+    orderBy: {
+      _count: {
+        book_id: "desc",
+      },
+    },
+    take: 10,
+  });
+}
+
 export const PostsRepository = {
   countPosts,
   findManyPosts,
@@ -236,4 +252,5 @@ export const PostsRepository = {
   deletePost,
   //
   publishPost,
+  groupByBookId,
 };
