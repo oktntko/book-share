@@ -50,7 +50,6 @@ async function searchVolumes(
               status: bookVolume.status_list[i],
               borrower_id: bookVolume.borrower_id_list[i],
               borrow_date: bookVolume.borrow_date_list[i],
-              reserve_date: bookVolume.reserve_date_list[i],
               updated_at: bookVolume.updated_at_list[i],
             };
           }),
@@ -277,18 +276,10 @@ function convertBookStatus(
     BookVolumeResult,
     "iam_borrower" | "borrower_id_list" | "status_list" | "stock_count"
   >
-): "予約中" | "借用中" | "在庫あり" | "在庫なし" {
+): "借用中" | "在庫あり" | "在庫なし" {
   // 借りている場合
   if (bookVolume.iam_borrower) {
-    if (
-      bookVolume.borrower_id_list.some((borrower_id, i) => {
-        return borrower_id && bookVolume.status_list[i] === "RESERVE";
-      })
-    ) {
-      return "予約中";
-    } else {
-      return "借用中";
-    }
+    return "借用中";
 
     // 借りていない場合
   } else {

@@ -5,13 +5,35 @@
         <header class="flex items-center justify-between">
           <p>今、読まれています</p>
           <div class="flex justify-end gap-2 text-xs">
-            <div>週刊</div>
-            <div>月間</div>
-            <div>累計</div>
+            <a
+              :class="`cursor-pointer text-blue-900 transition-colors hover:text-blue-500 hover:underline
+                ${span === 'WEEK' ? 'font-bold' : ''}`"
+              @click="handleRankingSpanClicked('WEEK')"
+            >
+              週刊
+            </a>
+            <a
+              :class="`cursor-pointer text-blue-900 transition-colors hover:text-blue-500 hover:underline
+                ${span === 'MONTH' ? 'font-bold' : ''}`"
+              @click="handleRankingSpanClicked('MONTH')"
+            >
+              月間
+            </a>
+            <a
+              :class="`cursor-pointer text-blue-900 transition-colors hover:text-blue-500 hover:underline
+                ${span === 'ALL' ? 'font-bold' : ''}`"
+              @click="handleRankingSpanClicked('ALL')"
+            >
+              累計
+            </a>
           </div>
         </header>
         <div class="flex flex-col gap-2 py-4">
-          <div v-for="(book, i) of books" :key="book.book_id" class="flex gap-4 rounded border p-4">
+          <div
+            v-for="(book, i) of books"
+            :key="book.book_id"
+            class="flex gap-4 rounded border bg-white p-4"
+          >
             <!-- ランキング -->
             <div class="flex items-center">
               {{ i + 1 }}
@@ -74,7 +96,7 @@
             v-for="post of posts"
             :key="post.post_id"
             :class="`flex cursor-pointer flex-row gap-2 rounded border-b border-r bg-gray-100 p-4 transition-all hover:bg-white hover:drop-shadow`"
-            @click.prevent="handleSelect(post)"
+            @click.prevent="handleSelect(post.post_id)"
           >
             <!-- サムネイル -->
             <img
@@ -201,6 +223,10 @@ export default Vue.extend({
         })
         .finally(loading.close);
     },
+    handleRankingSpanClicked(span: "ALL" | "WEEK" | "MONTH") {
+      this.span = span;
+      this.rankingPosts();
+    },
     rankingPosts() {
       return trpc
         .query("posts.ranking", {
@@ -209,6 +235,9 @@ export default Vue.extend({
         .then((data) => {
           this.books = data.books;
         });
+    },
+    handleSelect(post_id: number) {
+      this.$router.push(`/posts/${post_id}`);
     },
     handlePageChange({ currentPage, pageSize }: { currentPage: number; pageSize: number }) {
       this.pager.currentPage = currentPage;

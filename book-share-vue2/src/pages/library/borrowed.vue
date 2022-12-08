@@ -14,30 +14,15 @@
         <VxeColumn field="status" width="200" title="状態" sortable>
           <template #default="{ row }">
             <div class="inline-flex">
-              <!-- RESERVE -->
-              <template v-if="row.status === 'RESERVE'">
-                <div
-                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-100 px-3 py-1 text-xs font-bold uppercase text-blue-500"
-                >
-                  予約中
-                </div>
-                <div class="flex flex-col">
-                  <span class="-my-2 text-[0.5rem]">予約日</span>
-                  <span>{{ row.reserve_date }}</span>
-                </div>
-              </template>
-              <!-- LENDING -->
-              <template v-else>
-                <div
-                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-200 px-3 py-1 text-xs font-bold uppercase text-blue-700"
-                >
-                  借用中
-                </div>
-                <div class="flex flex-col">
-                  <span class="-my-2 text-[0.5rem]">借用日</span>
-                  <span>{{ row.borrow_date }}</span>
-                </div>
-              </template>
+              <div
+                class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-200 px-3 py-1 text-xs font-bold uppercase text-blue-700"
+              >
+                借用中
+              </div>
+              <div class="flex flex-col">
+                <span class="-my-2 text-[0.5rem]">借用日</span>
+                <span>{{ row.borrow_date }}</span>
+              </div>
             </div>
           </template>
         </VxeColumn>

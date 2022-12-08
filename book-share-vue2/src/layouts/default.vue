@@ -96,7 +96,7 @@
                     active-class="text-blue-600 border-l-gray-200"
                   >
                     マイ本棚
-                    <p class="text-xs text-gray-400">読書の記録、予約の確認はここから</p>
+                    <p class="text-xs text-gray-400">読書の記録の確認はここから</p>
                   </RouterLink>
                   <RouterLink
                     to="/"

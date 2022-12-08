@@ -47,7 +47,6 @@ export type BookVolumeResult = {
   status_list: VolumeStatus[];
   borrower_id_list: (true | null)[];
   borrow_date_list: string[];
-  reserve_date_list: string[];
   updated_at_list: Date[];
 };
 
@@ -75,7 +74,6 @@ SELECT
   , ARRAY_AGG(status ORDER BY volume_id)                                     AS status_list
   , ARRAY_AGG(borrower_id = ${where.operator_id} OR NULL ORDER BY volume_id) AS borrower_id_list
   , ARRAY_AGG(borrow_date ORDER BY volume_id)                                AS borrow_date_list
-  , ARRAY_AGG(reserve_date ORDER BY volume_id)                               AS reserve_date_list
   , ARRAY_AGG(updated_at ORDER BY volume_id)                                 AS updated_at_list
 FROM
   volumes
@@ -145,7 +143,6 @@ async function findManyVolumes(
         },
       },
       borrow_date: true,
-      reserve_date: true,
       created_at: true,
       updated_at: true,
     },
@@ -233,7 +230,6 @@ async function findUniqueVolume(prisma: PrismaClient, volume_id: number) {
         },
       },
       borrow_date: true,
-      reserve_date: true,
       created_at: true,
       updated_at: true,
     },
@@ -280,7 +276,6 @@ async function updateVolume(
         },
       },
       borrow_date: true,
-      reserve_date: true,
       created_at: true,
       updated_at: true,
     },
@@ -325,7 +320,6 @@ async function deleteVolume(prisma: PrismaClient, operator_id: number, volume_id
         },
       },
       borrow_date: true,
-      reserve_date: true,
       created_at: true,
       updated_at: true,
     },
@@ -365,7 +359,6 @@ async function borrowOrBackVolume(
         },
       },
       borrow_date: true,
-      reserve_date: true,
       created_at: true,
       updated_at: true,
     },
@@ -373,7 +366,6 @@ async function borrowOrBackVolume(
       borrower_id: status !== VolumeStatus.STOCK ? operator_id : null,
       status,
       borrow_date: status !== VolumeStatus.LENDING ? "" : dayjs().format("YYYY-MM-DD"),
-      reserve_date: status !== VolumeStatus.RESERVE ? "" : dayjs().format("YYYY-MM-DD"),
       updated_by: operator_id,
     },
     where: {

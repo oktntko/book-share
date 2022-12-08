@@ -35,10 +35,10 @@
         <div class="flex items-center">
           <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-blue-900"></Icon>
           <span class="sr-only">Info</span>
-          <h3 class="text-lg font-medium text-blue-900">あなたの本を見つけましょう！</h3>
+          <h3 class="text-lg font-medium text-blue-900">寄贈する本を探してください。</h3>
         </div>
         <div class="mt-2 mb-4 text-sm text-blue-900">
-          本が見つからない？何としても見つけてください。
+          本が見つからない？タイトル、著者で絞ってみましょう。
         </div>
         <div class="flex">
           <button
@@ -112,7 +112,7 @@
           @click="handleDelete"
         >
           <Icon icon="fa6-solid:trash" class="mr-2 -ml-1 h-5 w-5"> </Icon>
-          削除する
+          寄贈を取り消す
         </button>
       </footer>
     </form>
@@ -197,7 +197,7 @@ export default Vue.extend({
             message: "保存に成功しました。",
           });
 
-          this.$router.push("/library");
+          this.$router.push("/library/donated");
         });
       }
     },
@@ -225,7 +225,7 @@ export default Vue.extend({
               volume_id: this.volume_id,
             })
             .then(() => {
-              this.$router.replace(`/library`);
+              this.$router.replace(`/library/donated`);
             })
             .finally(loading.close);
         });
@@ -287,7 +287,7 @@ export default Vue.extend({
       $dialog.open({
         icon: "ant-design:warning-twotone",
         colorset: "warning",
-        message: "本が選択されていませんよ？冗談を言っている場合じゃないでしょう。",
+        message: "本が選択されていません。寄贈する本を選択してください。",
         canCancel: {
           escape: true,
           button: false,

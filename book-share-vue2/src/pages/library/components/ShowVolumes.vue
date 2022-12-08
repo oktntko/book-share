@@ -7,9 +7,7 @@
           <div
             :class="`leading-sm text inline-flex items-center rounded-2xl px-3 py-1 font-bold uppercase
               ${
-                bookVolume.status === '予約中'
-                  ? 'bg-blue-100 text-blue-500'
-                  : bookVolume.status === '借用中'
+                bookVolume.status === '借用中'
                   ? 'bg-blue-200 text-blue-700'
                   : bookVolume.status === '在庫あり'
                   ? 'bg-green-200 text-green-700'
@@ -32,30 +30,15 @@
           <template #default="{ row }">
             <!-- 自分が借りている -->
             <template v-if="row.borrower_id">
-              <!-- RESERVE -->
-              <template v-if="row.status === 'RESERVE'">
-                <div
-                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-100 px-3 py-1 text-xs font-bold uppercase text-blue-500"
-                >
-                  予約中
-                </div>
-                <div class="flex flex-col">
-                  <span class="-my-2 text-[0.5rem]">予約日</span>
-                  <span>{{ row.reserve_date }}</span>
-                </div>
-              </template>
-              <!-- LENDING -->
-              <template v-else>
-                <div
-                  class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-200 px-3 py-1 text-xs font-bold uppercase text-blue-700"
-                >
-                  借用中
-                </div>
-                <div class="flex flex-col">
-                  <span class="-my-2 text-[0.5rem]">借用日</span>
-                  <span>{{ row.borrow_date }}</span>
-                </div>
-              </template>
+              <div
+                class="leading-sm mr-3 inline-flex items-center rounded-2xl bg-blue-200 px-3 py-1 text-xs font-bold uppercase text-blue-700"
+              >
+                借用中
+              </div>
+              <div class="flex flex-col">
+                <span class="-my-2 text-[0.5rem]">借用日</span>
+                <span>{{ row.borrow_date }}</span>
+              </div>
             </template>
             <!-- 自分が借りていない -->
             <template v-else>
@@ -73,10 +56,8 @@
                   在庫なし
                 </div>
                 <div class="flex flex-col">
-                  <span class="-my-2 text-[0.5rem]">{{
-                    row.status === "RESERVE" ? "予約日" : "貸出日"
-                  }}</span>
-                  <span>{{ row.status === "RESERVE" ? row.reserve_date : row.borrow_date }}</span>
+                  <span class="-my-2 text-[0.5rem]">貸出日</span>
+                  <span>{{ row.borrow_date }}</span>
                 </div>
               </div>
             </template>
@@ -93,13 +74,6 @@
                   @click="handleBorrow(row.volume_id)"
                 >
                   借りる
-                </button>
-                <button
-                  type="button"
-                  class="inline-flex w-20 items-center justify-center rounded-lg border border-blue-800 bg-transparent px-3 py-1 text-center text-xs font-medium text-blue-900 hover:bg-blue-900 hover:text-white focus:outline-none focus:ring-1 focus:ring-blue-200 dark:border-gray-800 dark:text-gray-800 dark:hover:text-white"
-                  @click="handleReserve(row.volume_id)"
-                >
-                  予約する
                 </button>
               </div>
             </template>
@@ -149,24 +123,6 @@ export default Vue.extend({
             })
             .then(() => {
               this.$emit("borrow");
-              this.$emit("close");
-            });
-        });
-    },
-    handleReserve(volume_id: number) {
-      $dialog
-        .open({
-          colorset: "info",
-          icon: "bx:info-circle",
-          message: "本を予約します。１週間以内に本を取りに来てください。",
-        })
-        .then(() => {
-          trpc
-            .mutation("volumes.reserve", {
-              volume_id,
-            })
-            .then(() => {
-              this.$emit("reserve");
               this.$emit("close");
             });
         });

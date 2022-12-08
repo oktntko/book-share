@@ -72,9 +72,7 @@
                 <div
                   :class="`leading-sm text inline-flex items-center rounded-2xl px-3 py-1 font-bold uppercase
                     ${
-                      bookVolume.status === '予約中'
-                        ? 'bg-blue-100 text-blue-500'
-                        : bookVolume.status === '借用中'
+                      bookVolume.status === '借用中'
                         ? 'bg-blue-200 text-blue-700'
                         : bookVolume.status === '在庫あり'
                         ? 'bg-green-200 text-green-700'
@@ -93,12 +91,12 @@
             <template #footer>
               <footer class="mt-6">
                 <button
-                  v-if="bookVolume.status === '予約中' || bookVolume.status === '借用中'"
+                  v-if="bookVolume.status === '借用中'"
                   type="button"
                   class="inline-flex justify-center rounded-lg border border-blue-800 bg-blue-100 px-4 py-2 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-blue-600 hover:text-white"
                   @click="handleBack(bookVolume)"
                 >
-                  {{ bookVolume.status === "予約中" ? "予約を取り消す" : "借りている本を返す" }}
+                  借りている本を返す
                 </button>
                 <button
                   v-else
@@ -111,7 +109,7 @@
                     }`"
                   @click.stop="showVolumes(bookVolume)"
                 >
-                  借りる・予約する
+                  借りる
                 </button>
               </footer>
             </template>
@@ -237,9 +235,6 @@ export default Vue.extend({
         },
         componentEvents: {
           borrow: () => {
-            this.searchVolumes();
-          },
-          reserve: () => {
             this.searchVolumes();
           },
         },

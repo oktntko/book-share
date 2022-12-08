@@ -81,22 +81,6 @@ export const volumes = createAuthorizedRouter()
       );
     },
   })
-  // # PATCH /volumes/:volume_id/reserve
-  .mutation("reserve", {
-    input: VolumeSchema.pick({
-      volume_id: true,
-    }),
-    resolve: ({ input, ctx }) => {
-      return ORM.$transaction(async (prisma) =>
-        VolumesService.updateStatusVolume(
-          prisma,
-          ctx.user.user_id,
-          input.volume_id,
-          VolumeStatus.RESERVE
-        )
-      );
-    },
-  })
   // # PATCH /volumes/:volume_id/borrow
   .mutation("borrow", {
     input: VolumeSchema.pick({
