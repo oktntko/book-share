@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator zod {
+  provider                         = "zod-prisma-types"
+  output                           = "../src/schema/zod"
+  useMultipleFiles                 = true
+  createInputTypes                 = false
+  createOptionalDefaultValuesTypes = true
+  createRelationValuesTypes        = true
+}
+
+generator erd {
+  provider                  = "prisma-erd-generator"
+  output                    = "./scheme.md"
+  includeRelationFromFields = true
+}
+
+////////////////////////////////
+// ユーザ関連
+////////////////////////////////
+
+/// ユーザ
+model User {
+  user_id Int @id @default(autoincrement())
+
+  /// @zod.string.trim().min(1).max(255).email()
+  email    String @unique @db.VarChar(255)
+  /// @zod.string.trim().min(1).max(100)
+  username String @db.VarChar(100)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by Int
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+  updated_by Int
+
+  session_list Session[]
+
+  @@index([username], name: "index_username")
+  @@map("user")
+}
+
+////////////////////////////////
+// 汎用機能
+////////////////////////////////
+
+model Session {
+  session_id Int @id @default(autoincrement())
+
+  session_key    String    @unique @db.VarChar(255)
+  /// express-session
+  originalMaxAge Int?
+  maxAge         Int?
+  signed         Boolean?
+  expires        DateTime? @default(now()) @db.Timestamptz(3)
+  httpOnly       Boolean?
+  path           String    @default("")
+  domain         String    @default("")
+  secure         Boolean?
+  sameSite       Boolean?
+  /// custom
+  user_id        Int?
+
+  user User? @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("session")
+}
+
+model File {
+  file_id      String @id @default(uuid()) @db.Uuid
+  /// @zod.string.trim().min(1).max(255)
+  originalname String @db.VarChar(255)
+  /// @zod.string.trim().min(1).max(100)
+  mimetype     String @db.VarChar(100)
+  size         Int
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by Int
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+  updated_by Int
+
+  @@map("file")
+}
