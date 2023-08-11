@@ -8,8 +8,8 @@ export const NotFoundHandler: RequestHandler = (req, res, next) => {
   }
 
   res.status(404).send({
-    json: {
-      error: {
+    error: {
+      json: {
         code: -32004,
         message: 'アクセス先が見つかりません。',
         data: {
@@ -29,8 +29,8 @@ export const UnexpectedErrorHandler: ErrorRequestHandler = (err, req, res, next)
   }
 
   res.status(500).send({
-    json: {
-      error: {
+    error: {
+      json: {
         code: -32700,
         message: 'システムエラーが発生しました。',
         data: {
