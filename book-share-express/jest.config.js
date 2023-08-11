@@ -26,7 +26,7 @@ module.exports = {
   coverageDirectory: '.report/coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['/node_modules/', '<rootDir>/tests/'],
+  coveragePathIgnorePatterns: ['/node_modules/', '<rootDir>/test/'],
 
   // Indicates which provider should be used to instrument code for coverage
   // coverageProvider: "babel",
@@ -57,7 +57,7 @@ module.exports = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  globalSetup: '<rootDir>/tests/helpers/globalSetup.ts',
+  globalSetup: '<rootDir>/test/helper/globalSetup.ts',
 
   // A path to a module which exports an async function that is triggered once after all test suites
   // globalTeardown: undefined,
@@ -157,10 +157,10 @@ module.exports = {
   // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-  testMatch: ['<rootDir>/tests/**/*.[jt]s?(x)', '<rootDir>/src/?(*.)+(spec|test).[tj]s?(x)'],
+  testMatch: ['<rootDir>/test/**/*.[jt]s?(x)', '<rootDir>/src/?(*.)+(spec|test).[tj]s?(x)'],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/tests/helpers/'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/test/helper/'],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
