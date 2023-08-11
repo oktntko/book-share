@@ -18,7 +18,7 @@ generator zod {
 
 generator erd {
   provider                  = "prisma-erd-generator"
-  output                    = "./scheme.md"
+  output                    = "./ERD.md"
   includeRelationFromFields = true
 }
 
