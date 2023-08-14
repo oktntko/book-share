@@ -1,35 +1,71 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  font-weight: normal;
+html {
+  /* スクロールバーの表示・非表示でずれるため、常にスクロールバーを表示 */
+  @apply overflow-y-scroll;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+body {
+  margin: 0;
+  font-family: 'Noto Sans JP', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+code {
+  font-family: 'Roboto', monospace;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+/* スクロールバー */
+::-webkit-scrollbar {
+  @apply h-2 w-2;
 }
+/* スクロールバーの背景色 */
+::-webkit-scrollbar-track {
+  border-radius: 32px;
+  background-color: #cecece;
+}
+/* スクロールバーの色 */
+::-webkit-scrollbar-thumb {
+  border-radius: 32px;
+  background: #a8a8a8;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator,
+input[type='month']::-webkit-calendar-picker-indicator {
+  @apply cursor-pointer;
+}
+
+/*
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+*/
+
+/* vxe-table */
+[class*='vxe-'],
+[class*='vxe-'] * {
+  font-family: 'Noto Sans JP', sans-serif !important;
+}
+
+.vxe-select .vxe-input--inner {
+  @apply !border-none;
+}
+
+.vxe-select-option {
+  @apply !max-w-full;
+}
+
+.vxe-table--render-default .vxe-table--empty-content {
+  @apply !w-full text-left;
+}
+
+.vxe-pager .vxe-pager--sizes {
+  @apply !w-32;
+}
+/* vxe-table */
