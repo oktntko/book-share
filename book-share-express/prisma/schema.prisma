@@ -46,6 +46,7 @@ model User {
   updated_by Int
 
   session_list Session[]
+  post_list    Post[]
 
   @@index([username], name: "index_username")
   @@map("user")
@@ -96,4 +97,32 @@ model File {
   user_list User[]
 
   @@map("file")
+}
+
+////////////////////////////////
+// 投稿
+////////////////////////////////
+
+model Post {
+  post_id Int @id @default(autoincrement())
+
+  toukousya_id Int /// 投稿者ID
+  toukousya    User @relation(fields: [toukousya_id], references: [user_id], onDelete: Cascade) /// 投稿者
+
+  /// @zod.string.trim().max(255)
+  book_id      String    @default("") @db.VarChar(255)
+  /// @zod.string.trim().max(400)
+  book_title   String    @default("") @db.VarChar(400)
+  /// @zod.string.trim().max(255)
+  post_title   String    @default("") @db.VarChar(255)
+  /// @zod.string.trim()
+  content      String    @default("") @db.Text()
+  published    Boolean   @default(false)
+  published_at DateTime? @db.Timestamptz(3)
+  hearts       Int       @default(0)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("post")
 }

@@ -1,7 +1,7 @@
 import { z } from '~/lib/zod';
 import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
-import { UserScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas/UserScalarFieldEnumSchema';
-import { UserSchema } from '~/schema/zod/modelSchema/UserSchema';
+import { PostScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas/PostScalarFieldEnumSchema';
+import { PostSchema } from '~/schema/zod/modelSchema/PostSchema';
 
 const listInput = z.object({
   where: z.object({
@@ -9,7 +9,7 @@ const listInput = z.object({
   }),
   sort: z
     .object({
-      field: UserScalarFieldEnumSchema,
+      field: PostScalarFieldEnumSchema,
       order: SortOrderSchema,
     })
     .array(),
@@ -17,33 +17,32 @@ const listInput = z.object({
   offset: z.number(),
 });
 
-export const OutputUserSchema = UserSchema;
+export const OutputPostSchema = PostSchema;
 
 const listOutput = z.object({
   total: z.number(),
-  user_list: z.array(OutputUserSchema),
+  post_list: z.array(OutputPostSchema),
 });
 
-const createInput = UserSchema.omit({
-  user_id: true,
-  created_at: true,
+const createInput = PostSchema.omit({
+  post_id: true,
+  toukousya_id: true,
   created_by: true,
-  updated_at: true,
   updated_by: true,
 });
 
-const getInput = UserSchema.pick({
-  user_id: true,
+const getInput = PostSchema.pick({
+  post_id: true,
 });
 
-const deleteInput = UserSchema.pick({
-  user_id: true,
+const deleteInput = PostSchema.pick({
+  post_id: true,
   updated_at: true,
 });
 
 const updateInput = createInput.merge(deleteInput);
 
-export const UserRouterSchema = {
+export const PostRouterSchema = {
   listInput,
   listOutput,
   createInput,
