@@ -2,7 +2,7 @@ import type { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import type { z } from 'zod';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/lib/prisma';
+import type { PrismaClient } from '~/middleware/prisma';
 import { PostRepository } from '~/repository/PostRepository';
 import { PREVIOUS_IS_NOT_FOUND_MESSAGE, checkPreviousVersion } from '~/repository/_';
 import type { PostRouterSchema } from '~/schema/PostRouterSchema';
@@ -11,13 +11,13 @@ import type { PostRouterSchema } from '~/schema/PostRouterSchema';
 async function listPost(
   reqid: string,
   prisma: PrismaClient,
-  operator_id: number,
+  operator_id: number | undefined,
   input: z.infer<typeof PostRouterSchema.listInput>,
 ) {
   log.trace(reqid, 'listPost', operator_id, input);
 
   const where: Prisma.PostWhereInput = {};
-  if (input.where) {
+  if (input.where.keyword) {
     where.OR = [
       { book_title: { contains: input.where.keyword } },
       { post_title: { contains: input.where.keyword } },
@@ -25,18 +25,23 @@ async function listPost(
     ];
   }
 
+  if (operator_id) {
+    // operator_id ありは、自分の投稿に対する検索なので、 投稿者ID＝操作者ID
+    where.toukousya_id = operator_id;
+
+    if (input.where.postStatus === '公開中') {
+      where.published = true;
+    } else if (input.where.postStatus === '下書き') {
+      where.published = false;
+    }
+  } else {
+    // operator_id なしは、公開中の投稿に対する検索なので、 公開中＝true 固定
+    where.published = true;
+  }
+
   log.debug('where', where);
 
-  const orderBy: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput> = input.sort.map(
-    ({ field, order }) => {
-      if (field.includes('.')) {
-        const [table, column] = field.split('.');
-        return { [table]: { [column]: order } };
-      } else {
-        return { [field]: order };
-      }
-    },
-  );
+  const orderBy: Prisma.PostOrderByWithRelationInput[] = input.sort;
 
   const [total, post_list] = await Promise.all([
     PostRepository.countPost(reqid, prisma, where),
@@ -65,12 +70,21 @@ async function createPost(
 async function getPost(
   reqid: string,
   prisma: PrismaClient,
-  operator_id: number,
+  operator_id: number | undefined,
   input: z.infer<typeof PostRouterSchema.getInput>,
 ) {
   log.trace(reqid, 'getPost', operator_id, input);
 
-  const post = await PostRepository.findUniquePost(reqid, prisma, input);
+  const where: Prisma.PostWhereUniqueInput = { post_id: input.post_id };
+  if (operator_id) {
+    // operator_id ありは、自分の投稿に対する検索なので、 投稿者ID＝操作者ID
+    where.toukousya_id = operator_id;
+  } else {
+    // operator_id なしは、公開中の投稿に対する検索なので、 公開中＝true 固定
+    where.published = true;
+  }
+
+  const post = await PostRepository.findUniquePost(reqid, prisma, where);
 
   if (!post) {
     throw new TRPCError({ code: 'NOT_FOUND', message: PREVIOUS_IS_NOT_FOUND_MESSAGE });
@@ -89,7 +103,10 @@ async function updatePost(
   log.trace(reqid, 'updatePost', operator_id, input);
 
   await checkPreviousVersion({
-    previous: PostRepository.findUniquePost(reqid, prisma, { post_id: input.post_id }),
+    previous: PostRepository.findUniquePost(reqid, prisma, {
+      post_id: input.post_id,
+      toukousya_id: operator_id,
+    }),
     updated_at: input.updated_at,
   });
 
@@ -106,7 +123,10 @@ async function deletePost(
   log.trace(reqid, 'deletePost', operator_id, input);
 
   await checkPreviousVersion({
-    previous: PostRepository.findUniquePost(reqid, prisma, { post_id: input.post_id }),
+    previous: PostRepository.findUniquePost(reqid, prisma, {
+      post_id: input.post_id,
+      toukousya_id: operator_id,
+    }),
     updated_at: input.updated_at,
   });
 

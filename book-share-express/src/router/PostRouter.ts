@@ -1,10 +1,20 @@
-import { prisma } from '~/lib/prisma';
-import { protectedProcedure, router } from '~/middleware/trpc';
-import { OutputPostSchema, PostRouterSchema } from '~/schema/PostRouterSchema';
+import { prisma } from '~/middleware/prisma';
+import { protectedProcedure, publicProcedure, router } from '~/middleware/trpc';
+import { PostRouterSchema, PostSchemaOutput } from '~/schema/PostRouterSchema';
+import { PostSchema } from '~/schema/zod';
 import { PostService } from '~/service/PostService';
 
 export const post = router({
-  list: protectedProcedure
+  list: publicProcedure
+    .input(PostRouterSchema.listInput)
+    .output(PostRouterSchema.listOutput)
+    .query(async ({ ctx, input }) => {
+      return prisma.$transaction(async (prisma) =>
+        PostService.listPost(ctx.reqid, prisma, undefined, input),
+      );
+    }),
+
+  getMyPostList: protectedProcedure
     .input(PostRouterSchema.listInput)
     .output(PostRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
@@ -15,16 +25,25 @@ export const post = router({
 
   create: protectedProcedure
     .input(PostRouterSchema.createInput)
-    .output(OutputPostSchema)
+    .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         PostService.createPost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
 
-  get: protectedProcedure
+  get: publicProcedure
     .input(PostRouterSchema.getInput)
-    .output(OutputPostSchema)
+    .output(PostSchemaOutput)
+    .query(async ({ ctx, input }) => {
+      return prisma.$transaction(async (prisma) =>
+        PostService.getPost(ctx.reqid, prisma, undefined, input),
+      );
+    }),
+
+  getMyPost: protectedProcedure
+    .input(PostRouterSchema.getInput)
+    .output(PostSchemaOutput)
     .query(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         PostService.getPost(ctx.reqid, prisma, ctx.operator_id, input),
@@ -33,7 +52,7 @@ export const post = router({
 
   update: protectedProcedure
     .input(PostRouterSchema.updateInput)
-    .output(OutputPostSchema)
+    .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         PostService.updatePost(ctx.reqid, prisma, ctx.operator_id, input),
@@ -42,7 +61,16 @@ export const post = router({
 
   delete: protectedProcedure
     .input(PostRouterSchema.deleteInput)
-    .output(OutputPostSchema)
+    .output(PostSchema)
+    .mutation(async ({ ctx, input }) => {
+      return prisma.$transaction(async (prisma) =>
+        PostService.deletePost(ctx.reqid, prisma, ctx.operator_id, input),
+      );
+    }),
+
+  publish: protectedProcedure
+    .input(PostRouterSchema.deleteInput)
+    .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         PostService.deletePost(ctx.reqid, prisma, ctx.operator_id, input),

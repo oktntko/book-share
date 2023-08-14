@@ -1,6 +1,8 @@
 import type { Post, Prisma } from '@prisma/client';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/lib/prisma';
+import type { PrismaClient } from '~/middleware/prisma';
+import { BookRepository } from './BookRepository';
+import { books_v1 } from '@googleapis/books';
 
 type ParamPost = Omit<Post, 'post_id' | 'toukousya_id' | CommonColumn>;
 
@@ -16,18 +18,27 @@ async function findManyPost(
   reqid: string,
   prisma: PrismaClient,
   where?: Prisma.PostWhereInput,
-  orderBy?: Prisma.Enumerable<Prisma.PostOrderByWithRelationInput>,
+  orderBy?: Prisma.PostOrderByWithRelationInput | Prisma.PostOrderByWithRelationInput[],
   take?: number,
   skip?: number,
 ) {
   log.trace(reqid, 'findManyPost');
 
-  return prisma.post.findMany({
+  const post_list = await prisma.post.findMany({
     where,
     orderBy,
     take,
     skip,
   });
+
+  // Array.prototype.map() を使うと overload function の効果が消えて戻り値が Nullable になるため、
+  // for of を使っている。
+  const computedList = [];
+  for (const post of post_list) {
+    computedList.push(await mergeVolume(post));
+  }
+
+  return computedList;
 }
 
 async function createPost(
@@ -42,7 +53,7 @@ async function createPost(
     include: {},
     data: {
       toukousya_id: operator_id,
-      book_id: post.book_id,
+      volume_id: post.volume_id,
       book_title: post.book_title,
       content: post.content,
       hearts: post.hearts,
@@ -56,13 +67,15 @@ async function createPost(
 async function findUniquePost(
   reqid: string,
   prisma: PrismaClient,
-  where: RequireOne<Prisma.PostWhereUniqueInput>,
+  where: Prisma.PostWhereUniqueInput,
 ) {
   log.trace(reqid, 'findUniquePost');
 
-  return prisma.post.findUnique({
-    where: { post_id: where.post_id },
-  });
+  return prisma.post
+    .findUnique({
+      where,
+    })
+    .then(mergeVolume);
 }
 
 async function updatePost(
@@ -77,7 +90,7 @@ async function updatePost(
   return prisma.post.update({
     data: {
       toukousya_id: operator_id,
-      book_id: post.book_id,
+      volume_id: post.volume_id,
       book_title: post.book_title,
       content: post.content,
       hearts: post.hearts,
@@ -105,3 +118,27 @@ export const PostRepository = {
   updatePost,
   deletePost,
 };
+
+// Volume (GoogleAPI) の情報とマージする
+// Conditional Types がうまく使えなかったため、 オーバーロード関数 (overload function) を使った。
+// 引数が Post | null のときは Nullable 、 引数が Post のときは NonNullable にしたかった。
+async function mergeVolume(
+  post: Post,
+): Promise<Post & { volume: books_v1.Schema$Volume | undefined }>;
+async function mergeVolume(
+  post: Post | null,
+): Promise<(Post & { volume: books_v1.Schema$Volume | undefined }) | null>;
+async function mergeVolume(post: Post | null) {
+  if (post === null) {
+    return null;
+  }
+
+  const volume = post.volume_id
+    ? await BookRepository.getVolume(post.volume_id).catch(() => undefined)
+    : undefined;
+
+  return {
+    ...post,
+    volume,
+  };
+}

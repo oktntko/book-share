@@ -14,7 +14,7 @@ export const PostSchema = z.object({
    * 投稿者ID
    */
   toukousya_id: z.number().int(),
-  book_id: z.string().trim().max(255),
+  volume_id: z.string().trim().max(255),
   book_title: z.string().trim().max(400),
   post_title: z.string().trim().max(255),
   content: z.string().trim(),
@@ -34,7 +34,7 @@ export type Post = z.infer<typeof PostSchema>;
 export const PostOptionalDefaultsSchema = PostSchema.merge(
   z.object({
     post_id: z.number().int().optional(),
-    book_id: z.string().trim().max(255).optional(),
+    volume_id: z.string().trim().max(255).optional(),
     book_title: z.string().trim().max(400).optional(),
     post_title: z.string().trim().max(255).optional(),
     content: z.string().trim().optional(),

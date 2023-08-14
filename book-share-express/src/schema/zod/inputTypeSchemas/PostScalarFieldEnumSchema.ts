@@ -3,7 +3,7 @@ import { z } from '~/lib/zod';
 export const PostScalarFieldEnumSchema = z.enum([
   'post_id',
   'toukousya_id',
-  'book_id',
+  'volume_id',
   'book_title',
   'post_title',
   'content',

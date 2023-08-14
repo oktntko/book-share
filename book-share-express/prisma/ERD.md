@@ -46,7 +46,7 @@ erDiagram
   "post" {
     Int post_id "🗝️"
     Int toukousya_id 
-    String book_id 
+    String volume_id 
     String book_title 
     String post_title 
     String content 

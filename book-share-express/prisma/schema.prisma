@@ -110,7 +110,7 @@ model Post {
   toukousya    User @relation(fields: [toukousya_id], references: [user_id], onDelete: Cascade) /// 投稿者
 
   /// @zod.string.trim().max(255)
-  book_id      String    @default("") @db.VarChar(255)
+  volume_id    String    @default("") @db.VarChar(255)
   /// @zod.string.trim().max(400)
   book_title   String    @default("") @db.VarChar(400)
   /// @zod.string.trim().max(255)

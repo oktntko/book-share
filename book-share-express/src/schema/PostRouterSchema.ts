@@ -1,34 +1,39 @@
 import { z } from '~/lib/zod';
-import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
+import { VolumeSchema } from '~/schema/BookRouterSchema';
+import { SearchParamPostStatusEnum } from '~/schema/option/PostStatusSchema';
 import { PostScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas/PostScalarFieldEnumSchema';
+import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
 import { PostSchema } from '~/schema/zod/modelSchema/PostSchema';
 
 const listInput = z.object({
   where: z.object({
     keyword: z.string().trim().max(255),
+    postStatus: SearchParamPostStatusEnum.or(z.literal('')).default(''),
   }),
-  sort: z
-    .object({
-      field: PostScalarFieldEnumSchema,
-      order: SortOrderSchema,
-    })
-    .array(),
+  sort: z.record(PostScalarFieldEnumSchema, SortOrderSchema).array(),
   limit: z.number().max(100),
   offset: z.number(),
 });
 
-export const OutputPostSchema = PostSchema;
+export const PostSchemaOutput = PostSchema.merge(
+  z.object({
+    volume: VolumeSchema.optional(),
+  }),
+);
 
 const listOutput = z.object({
   total: z.number(),
-  post_list: z.array(OutputPostSchema),
+  post_list: z.array(PostSchemaOutput),
 });
 
 const createInput = PostSchema.omit({
   post_id: true,
   toukousya_id: true,
-  created_by: true,
-  updated_by: true,
+  published: true,
+  published_at: true,
+  hearts: true,
+  created_at: true,
+  updated_at: true,
 });
 
 const getInput = PostSchema.pick({
