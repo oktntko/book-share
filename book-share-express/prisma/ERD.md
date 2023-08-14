@@ -3,6 +3,7 @@ erDiagram
 
   "user" {
     Int user_id "🗝️"
+    String avatar_file_id "❓"
     String email 
     String username 
     DateTime created_at 
@@ -41,6 +42,8 @@ erDiagram
     Int updated_by 
     }
   
+    "user" o|--|o "file" : "avatar_image"
     "user" o{--}o "session" : "session_list"
     "session" o|--|o "user" : "user"
+    "file" o{--}o "user" : "user_list"
 ```

@@ -2,6 +2,7 @@ import { z } from '~/lib/zod';
 
 export const UserScalarFieldEnumSchema = z.enum([
   'user_id',
+  'avatar_file_id',
   'email',
   'username',
   'created_at',

@@ -43,6 +43,7 @@ async function createUser(
     data: {
       email: user.email,
       username: user.username,
+      avatar_file_id: user.avatar_file_id,
       created_by: operator_id,
       updated_by: operator_id,
     },
@@ -74,6 +75,7 @@ async function updateUser(
     data: {
       email: user.email,
       username: user.username,
+      avatar_file_id: user.avatar_file_id,
       updated_by: operator_id,
     },
     where: { user_id },

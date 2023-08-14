@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 import type { z } from 'zod';
 import { log } from '~/lib/log4js';
 import type { PrismaClient } from '~/lib/prisma';
+import { FileRepository } from '~/repository/FileRepository';
 import { UserRepository } from '~/repository/UserRepository';
 import {
   PREVIOUS_IS_NOT_FOUND_MESSAGE,
@@ -61,6 +62,8 @@ async function createUser(
 ) {
   log.trace(reqid, 'createUser', operator_id, input);
 
+  await checkRelations(reqid, prisma, input);
+
   await checkDuplicate({
     duplicate: UserRepository.findUniqueUser(reqid, prisma, { email: input.email }),
   });
@@ -94,6 +97,8 @@ async function updateUser(
   input: z.infer<typeof UserRouterSchema.updateInput>,
 ) {
   log.trace(reqid, 'updateUser', operator_id, input);
+
+  await checkRelations(reqid, prisma, input);
 
   await checkPreviousVersion({
     previous: UserRepository.findUniqueUser(reqid, prisma, { user_id: input.user_id }),
@@ -132,3 +137,26 @@ export const UserService = {
   updateUser,
   deleteUser,
 };
+
+async function checkRelations(
+  reqid: string,
+  prisma: PrismaClient,
+  {
+    avatar_file_id,
+  }: {
+    avatar_file_id: string | null;
+  },
+) {
+  if (avatar_file_id != null) {
+    const count = await FileRepository.countFile(reqid, prisma, {
+      file_id: avatar_file_id,
+    });
+
+    if (count === 0) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: '対象のファイルは既に削除されています。',
+      });
+    }
+  }
+}

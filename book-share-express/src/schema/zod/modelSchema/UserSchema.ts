@@ -1,6 +1,10 @@
 import { z } from '~/lib/zod';
+import type { FileWithRelations } from './FileSchema';
+import type { FileOptionalDefaultsWithRelations } from './FileSchema';
 import type { SessionWithRelations } from './SessionSchema';
 import type { SessionOptionalDefaultsWithRelations } from './SessionSchema';
+import { FileWithRelationsSchema } from './FileSchema';
+import { FileOptionalDefaultsWithRelationsSchema } from './FileSchema';
 import { SessionWithRelationsSchema } from './SessionSchema';
 import { SessionOptionalDefaultsWithRelationsSchema } from './SessionSchema';
 
@@ -13,6 +17,10 @@ import { SessionOptionalDefaultsWithRelationsSchema } from './SessionSchema';
  */
 export const UserSchema = z.object({
   user_id: z.number().int(),
+  /**
+   * アバターファイルID
+   */
+  avatar_file_id: z.string().nullable(),
   email: z.string().trim().min(1).max(255).email(),
   username: z.string().trim().min(1).max(100),
   created_at: z.coerce.date(),
@@ -42,6 +50,7 @@ export type UserOptionalDefaults = z.infer<typeof UserOptionalDefaultsSchema>;
 /////////////////////////////////////////
 
 export type UserRelations = {
+  avatar_image?: FileWithRelations | null;
   session_list: SessionWithRelations[];
 };
 
@@ -49,6 +58,7 @@ export type UserWithRelations = z.infer<typeof UserSchema> & UserRelations;
 
 export const UserWithRelationsSchema: z.ZodType<UserWithRelations> = UserSchema.merge(
   z.object({
+    avatar_image: z.lazy(() => FileWithRelationsSchema).nullable(),
     session_list: z.lazy(() => SessionWithRelationsSchema).array(),
   }),
 );
@@ -58,6 +68,7 @@ export const UserWithRelationsSchema: z.ZodType<UserWithRelations> = UserSchema.
 /////////////////////////////////////////
 
 export type UserOptionalDefaultsRelations = {
+  avatar_image?: FileOptionalDefaultsWithRelations | null;
   session_list: SessionOptionalDefaultsWithRelations[];
 };
 
@@ -67,6 +78,7 @@ export type UserOptionalDefaultsWithRelations = z.infer<typeof UserOptionalDefau
 export const UserOptionalDefaultsWithRelationsSchema: z.ZodType<UserOptionalDefaultsWithRelations> =
   UserOptionalDefaultsSchema.merge(
     z.object({
+      avatar_image: z.lazy(() => FileOptionalDefaultsWithRelationsSchema).nullable(),
       session_list: z.lazy(() => SessionOptionalDefaultsWithRelationsSchema).array(),
     }),
   );
