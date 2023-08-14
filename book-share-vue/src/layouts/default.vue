@@ -132,12 +132,12 @@ async function logout() {
                 </div>
                 <div class="py-1" role="none">
                   <RouterLink
-                    to="/"
+                    to="/system/user"
                     class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
                     exact
                     active-class="text-blue-600 border-l-gray-200"
                   >
-                    設定
+                    ユーザ管理
                   </RouterLink>
                 </div>
                 <div class="py-1" role="none">

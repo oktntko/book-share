@@ -112,7 +112,7 @@ onMounted(() => {
               <MyImage
                 :src-base="
                   row.avatar_file_id
-                    ? `api/files/download/${row.avatar_file_id}`
+                    ? `api/file/download/${row.avatar_file_id}`
                     : `https://dummyimage.com/256x256`
                 "
                 width="32"

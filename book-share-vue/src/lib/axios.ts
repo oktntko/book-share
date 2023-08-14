@@ -36,7 +36,7 @@ async function blobToJson(blob: Blob): Promise<unknown> {
 export async function uploadSingleFile(file: File) {
   const multipartFormData = new FormData();
   multipartFormData.append('file', file, encodeURIComponent(`${file.name}`));
-  return axios.post<{ file_id: string }>('/api/files/upload/single', multipartFormData);
+  return axios.post<{ file_id: string }>('/api/file/upload/single', multipartFormData);
 }
 
 export async function uploadArrayFiles(fileList: FileList | File[]) {
@@ -46,5 +46,5 @@ export async function uploadArrayFiles(fileList: FileList | File[]) {
   files.forEach((file) =>
     multipartFormData.append('files', file, encodeURIComponent(`${file.name}`)),
   );
-  return axios.post<{ file_id: string }[]>('/api/files/upload/array', multipartFormData);
+  return axios.post<{ file_id: string }[]>('/api/file/upload/array', multipartFormData);
 }

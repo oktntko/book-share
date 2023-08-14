@@ -104,7 +104,7 @@ const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : u
               preview
                 ? preview
                 : modelValue.avatar_file_id
-                ? `api/files/download/${modelValue.avatar_file_id}`
+                ? `api/file/download/${modelValue.avatar_file_id}`
                 : `https://dummyimage.com/256x256`
             "
             width="256"
