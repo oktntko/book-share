@@ -1,5 +1,5 @@
 import type { Session, SessionData } from 'express-session';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/middleware/prisma';
 import { protectedProcedure, publicProcedure, router } from '~/middleware/trpc';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
 import { OkSchema } from '~/schema/_';

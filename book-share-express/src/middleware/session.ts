@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { SessionData, Store } from 'express-session';
 import { log } from '~/lib/log4js';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/middleware/prisma';
 import { UserRepository } from '~/repository/UserRepository';
 import { SessionService } from '~/service/SessionService';
 

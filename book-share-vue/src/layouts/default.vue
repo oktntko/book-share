@@ -70,7 +70,12 @@ async function logout() {
               class="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-100 dark:bg-gray-600"
               @trigger="() => (showMenu = false)"
             >
-              <MyButton classset="icon" colorset="white" @click="showMenu = !showMenu">
+              <MyButton
+                type="button"
+                classset="icon"
+                colorset="white"
+                @click="showMenu = !showMenu"
+              >
                 <span class="font-medium text-gray-600 dark:text-gray-300">⚙️</span>
               </MyButton>
             </OnClickOutside>
@@ -152,12 +157,11 @@ async function logout() {
             </Transition>
           </div>
           <!-- 投稿を書く -->
-          <RouterLink
-            to="/my-post/add"
-            class="flex rounded-lg border bg-white border-gray-800 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
-          >
-            <Icon icon="line-md:edit-twotone" class="mr-2 -ml-1 h-5 w-5"> </Icon>
-            投稿を書く
+          <RouterLink to="/my-post/add">
+            <MyButton type="button" classset="text" colorset="blue" secondary>
+              <Icon icon="line-md:edit-twotone" class="mr-2 -ml-1 h-4 w-4"> </Icon>
+              投稿を書く
+            </MyButton>
           </RouterLink>
         </nav>
       </div>

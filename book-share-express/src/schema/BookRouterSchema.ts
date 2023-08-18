@@ -311,22 +311,33 @@ export const VolumeSchema = z.object({
     .nullable(),
 });
 
+export const BookVolumeQueryfieldList = [
+  '',
+  'intitle',
+  'inauthor',
+  'inpublisher',
+  'subject',
+  'isbn',
+  'lccn',
+  'oclc',
+] as const;
+export const BookVolumeQueryfieldSchema = z.enum(BookVolumeQueryfieldList);
+export const BookVolumeQueryfield: Record<z.infer<typeof BookVolumeQueryfieldSchema>, string> = {
+  '': 'すべて',
+  intitle: 'タイトル',
+  inauthor: '著者',
+  inpublisher: '発行元',
+  subject: 'カテゴリ',
+  isbn: 'ISBN',
+  lccn: 'Library of Congress Control Number',
+  oclc: 'Online Computer Library Center number',
+} as const;
+
 const listInput = z.object({
-  q: z.string(),
-  queryfield: z
-    .union([
-      z.literal(''),
-      z.literal('intitle'),
-      z.literal('inauthor'),
-      z.literal('inpublisher'),
-      z.literal('subject'),
-      z.literal('isbn'),
-      z.literal('lccn'),
-      z.literal('oclc'),
-    ])
-    .optional(),
-  startIndex: z.number().optional(),
-  maxResults: z.number().optional(),
+  q: z.string().min(1),
+  queryfield: BookVolumeQueryfieldSchema.optional(),
+  limit: z.number().int().max(100),
+  offset: z.number().int(),
   orderBy: z.union([z.literal('newest'), z.literal('relevance')]).optional(),
   printType: z.union([z.literal('all'), z.literal('books'), z.literal('magazines')]).optional(),
   projection: z.union([z.literal('full'), z.literal('lite')]).optional(),

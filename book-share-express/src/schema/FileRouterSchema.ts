@@ -13,8 +13,8 @@ const listInput = z.object({
       order: SortOrderSchema,
     })
     .array(),
-  limit: z.number().max(100),
-  offset: z.number(),
+  limit: z.number().int().max(100),
+  offset: z.number().int(),
 });
 
 const listOutput = z.object({

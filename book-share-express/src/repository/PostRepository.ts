@@ -35,7 +35,7 @@ async function findManyPost(
   // for of を使っている。
   const computedList = [];
   for (const post of post_list) {
-    computedList.push(await mergeVolume(post));
+    computedList.push(await mergeVolume(reqid, post));
   }
 
   return computedList;
@@ -55,9 +55,9 @@ async function createPost(
       toukousya_id: operator_id,
       volume_id: post.volume_id,
       book_title: post.book_title,
+      post_title: post.post_title,
       content: post.content,
       hearts: post.hearts,
-      post_title: post.post_title,
       published: post.published,
       published_at: post.published_at,
     },
@@ -75,7 +75,7 @@ async function findUniquePost(
     .findUnique({
       where,
     })
-    .then(mergeVolume);
+    .then((post) => mergeVolume(reqid, post));
 }
 
 async function updatePost(
@@ -92,9 +92,9 @@ async function updatePost(
       toukousya_id: operator_id,
       volume_id: post.volume_id,
       book_title: post.book_title,
+      post_title: post.post_title,
       content: post.content,
       hearts: post.hearts,
-      post_title: post.post_title,
       published: post.published,
       published_at: post.published_at,
     },
@@ -123,18 +123,20 @@ export const PostRepository = {
 // Conditional Types がうまく使えなかったため、 オーバーロード関数 (overload function) を使った。
 // 引数が Post | null のときは Nullable 、 引数が Post のときは NonNullable にしたかった。
 async function mergeVolume(
+  reqid: string,
   post: Post,
 ): Promise<Post & { volume: books_v1.Schema$Volume | undefined }>;
 async function mergeVolume(
+  reqid: string,
   post: Post | null,
 ): Promise<(Post & { volume: books_v1.Schema$Volume | undefined }) | null>;
-async function mergeVolume(post: Post | null) {
+async function mergeVolume(reqid: string, post: Post | null) {
   if (post === null) {
     return null;
   }
 
   const volume = post.volume_id
-    ? await BookRepository.getVolume(post.volume_id).catch(() => undefined)
+    ? await BookRepository.getVolume(reqid, post.volume_id).catch(() => undefined)
     : undefined;
 
   return {

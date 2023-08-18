@@ -1,4 +1,4 @@
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import { OutputUserSchema, UserRouterSchema } from '~/schema/UserRouterSchema';
 import { UserService } from '~/service/UserService';

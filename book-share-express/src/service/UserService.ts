@@ -2,7 +2,7 @@ import type { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import type { z } from 'zod';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/lib/prisma';
+import type { PrismaClient } from '~/middleware/prisma';
 import { FileRepository } from '~/repository/FileRepository';
 import { UserRepository } from '~/repository/UserRepository';
 import {

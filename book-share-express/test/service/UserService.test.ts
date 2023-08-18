@@ -2,7 +2,7 @@ import { rollback, truncate } from '@/helper/prisma';
 import { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/middleware/prisma';
 import {
   DUPLICATE_IS_EXISTING_MESSAGE,
   PREVIOUS_IS_NOT_FOUND_MESSAGE,

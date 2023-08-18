@@ -58,13 +58,14 @@ const open = ref(false);
           <OnClickOutside v-show="open" as="div" class="relative" @trigger="close">
             <component
               :is="component"
-              class="my-8 max-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] overflow-y-auto rounded-lg bg-white px-8 py-8 text-left shadow-xl laptop:min-w-[48rem] laptop:max-w-3xl desktop:min-w-[64rem] desktop:max-w-5xl"
+              class="my-8 max-h-[calc(100vh-4rem)] w-[calc(100vw-4rem)] overflow-y-auto rounded-lg bg-neutral-50 px-8 py-8 text-left shadow-xl laptop:min-w-[48rem] laptop:max-w-3xl desktop:min-w-[64rem] desktop:max-w-5xl"
               v-bind="componentProps"
               v-on="componentEvents"
               @close="close"
               @success="success"
             />
             <MyButton
+              type="button"
               classset="icon"
               colorset="white"
               class="absolute -right-2 top-6"

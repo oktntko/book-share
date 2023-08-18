@@ -1,14 +1,14 @@
-import { Prisma, PrismaClient as PrismaOriginClient } from '@prisma/client';
+import { PrismaClient as PrismaOriginClient } from '@prisma/client';
 import log4js from 'log4js';
 import { env } from '~/lib/env';
 
 const log = log4js.getLogger('database');
 
-export const prisma = new PrismaOriginClient({
+export const originPrisma = new PrismaOriginClient({
   log: ['info', 'warn', 'error', { emit: 'event', level: 'query' }],
 });
 
-prisma.$use(async (params, next) => {
+originPrisma.$use(async (params, next) => {
   const before = Date.now();
   log.info(`${params.action}.${params.model} BEGIN`);
   const result = await next(params);
@@ -22,8 +22,6 @@ prisma.$use(async (params, next) => {
   return result;
 });
 
-prisma.$on('query', (event) => {
+originPrisma.$on('query', (event) => {
   log.info('QUERY::', event.query, env.PROD ? '' : 'PARAMS::', env.PROD ? '' : event.params);
 });
-
-export type PrismaClient = Prisma.TransactionClient | PrismaOriginClient;

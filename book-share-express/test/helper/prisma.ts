@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { PrismaClient } from '~/lib/prisma';
+import { PrismaClient } from '~/middleware/prisma';
 
 export async function truncate(prisma: PrismaClient, ...tablenames: string[]) {
   const existsTablenames = await prisma.$queryRaw<{ tablename: string }[]>`

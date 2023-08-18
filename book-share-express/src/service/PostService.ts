@@ -63,7 +63,12 @@ async function createPost(
 ) {
   log.trace(reqid, 'createPost', operator_id, input);
 
-  return PostRepository.createPost(reqid, prisma, operator_id, input);
+  return PostRepository.createPost(reqid, prisma, operator_id, {
+    ...input,
+    hearts: 0,
+    published: false,
+    published_at: null,
+  });
 }
 
 // # post.get
@@ -102,7 +107,7 @@ async function updatePost(
 ) {
   log.trace(reqid, 'updatePost', operator_id, input);
 
-  await checkPreviousVersion({
+  const previous = await checkPreviousVersion({
     previous: PostRepository.findUniquePost(reqid, prisma, {
       post_id: input.post_id,
       toukousya_id: operator_id,
@@ -110,7 +115,18 @@ async function updatePost(
     updated_at: input.updated_at,
   });
 
-  return PostRepository.updatePost(reqid, prisma, operator_id, input, input.post_id);
+  return PostRepository.updatePost(
+    reqid,
+    prisma,
+    operator_id,
+    {
+      ...input,
+      hearts: previous.hearts,
+      published: previous.published,
+      published_at: previous.published_at,
+    },
+    input.post_id,
+  );
 }
 
 // # post.delete

@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/lib/prisma';
+import type { PrismaClient } from '~/middleware/prisma';
 
 async function findUniqueSession(
   prisma: PrismaClient,

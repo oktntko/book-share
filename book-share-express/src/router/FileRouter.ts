@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import express from 'express';
 import multer from 'multer';
-import { prisma } from '~/lib/prisma';
+import { prisma } from '~/middleware/prisma';
 import { getUserFromSession } from '~/middleware/session';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import { FileRouterSchema } from '~/schema/FileRouterSchema';

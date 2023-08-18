@@ -17,8 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
   <button
     class="inline-flex items-center justify-center shadow-sm transition-all focus:outline-none focus:ring"
     :class="{
-      'min-w-[120px] rounded-md border px-4 py-2 text-base font-medium sm:text-sm':
-        props.classset === 'text',
+      'min-w-[120px] rounded-md border px-4 py-2 font-medium text-sm': props.classset === 'text',
       'rounded-3xl border p-1': props.classset === 'icon',
       'border-green-700 bg-green-600 text-white hover:bg-green-800':
         props.colorset === 'green' && !secondary,

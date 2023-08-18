@@ -11,8 +11,8 @@ const listInput = z.object({
     postStatus: SearchParamPostStatusEnum.or(z.literal('')).default(''),
   }),
   sort: z.record(PostScalarFieldEnumSchema, SortOrderSchema).array(),
-  limit: z.number().max(100),
-  offset: z.number(),
+  limit: z.number().int().max(100),
+  offset: z.number().int(),
 });
 
 export const PostSchemaOutput = PostSchema.merge(
@@ -29,9 +29,9 @@ const listOutput = z.object({
 const createInput = PostSchema.omit({
   post_id: true,
   toukousya_id: true,
+  hearts: true,
   published: true,
   published_at: true,
-  hearts: true,
   created_at: true,
   updated_at: true,
 });

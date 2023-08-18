@@ -29,9 +29,9 @@ watch(
   () => props.modelValue,
   (value: string) => {
     // if value is updated
-    if (editor.value?.getHTML() !== props.modelValue) {
+    if (editor.value && editor.value?.getHTML() !== props.modelValue) {
       // update value
-      editor.value?.commands.setContent(value, false);
+      editor.value.commands.setContent(value, false);
     }
   },
 );

@@ -1,24 +1,46 @@
 <script setup lang="ts">
 import type { z } from 'zod';
 import { useValidate } from '~/composables/useValidate';
+import type { RouterOutput } from '~/lib/trpc';
 import Editor from '~/pages/components/Editor.vue';
+import SearchBook from '~/pages/components/SearchBook.vue';
+import ViewBook from '~/pages/components/ViewBook.vue';
 import { PostRouterSchema } from '~/schema/PostRouterSchema';
+import { openModal } from '~/utils/ProgrammaticComponentHelper';
 
 export type ModelPost = z.infer<typeof PostRouterSchema.createInput>;
 export type ResetPost = typeof reset;
 
 const emit = defineEmits<{
-  submit: [reset: ResetPost];
+  submit: [value: ModelPost, reset: ResetPost];
 }>();
 
 const modelValue = defineModel<ModelPost>({ required: true });
+const volume = defineModel<RouterOutput['book']['getVolume'] | undefined>('volume', {
+  required: true,
+});
 
+// TODO
 const { formId, validateSubmit, isDirty, reset } = useValidate(
   PostRouterSchema.createInput,
   modelValue,
 );
 
-const handleSubmit = validateSubmit(() => emit('submit', reset));
+const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset));
+
+async function openModalSearchBook() {
+  const selectedVolume = await openModal<RouterOutput['book']['getVolume'] | undefined>({
+    component: SearchBook,
+    componentProps: {},
+    componentEvents: {},
+  });
+
+  if (selectedVolume) {
+    volume.value = selectedVolume;
+    modelValue.value.volume_id = selectedVolume.id ?? '';
+    modelValue.value.book_title = selectedVolume.volumeInfo?.title ?? '';
+  }
+}
 </script>
 
 <template>
@@ -28,6 +50,68 @@ const handleSubmit = validateSubmit(() => emit('submit', reset));
     @submit.prevent="handleSubmit"
   >
     <section class="flex flex-col gap-4">
+      <!-- 選択した本 -->
+      <div v-show="volume" class="relative">
+        <ViewBook class="rounded border bg-gray-100" :volume="volume" :hoverable="false">
+        </ViewBook>
+        <div class="absolute top-2 right-4">
+          <div class="flex gap-4">
+            <MyButton
+              type="button"
+              classset="text"
+              colorset="blue"
+              secondary
+              @click="openModalSearchBook"
+            >
+              <Icon icon="flat-color-icons:search" class="mr-2 -ml-1 h-4 w-4"></Icon>
+              本を探す
+            </MyButton>
+            <MyButton
+              type="button"
+              classset="text"
+              colorset="white"
+              @click="
+                () => {
+                  volume = undefined;
+                  modelValue.volume_id = '';
+                  modelValue.book_title = '';
+                }
+              "
+            >
+              <Icon icon="bi:x" class="mr-2 -ml-1 h-4 w-4"></Icon>
+              リセット
+            </MyButton>
+          </div>
+        </div>
+      </div>
+      <!-- 本が選択されなかったときは、本を探してほしいメッセージ -->
+      <div
+        v-show="!volume"
+        class="mb-4 border-t-2 border-blue-300 bg-blue-50 p-4 dark:bg-blue-300"
+        role="alert"
+      >
+        <div class="flex items-center">
+          <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-blue-900"></Icon>
+          <span class="sr-only">Info</span>
+          <h3 class="text-lg font-medium text-blue-900">投稿を書く本を見つけましょう！</h3>
+        </div>
+        <div class="mt-2 mb-4 text-sm text-blue-900">
+          本を選ぶと、あなたの投稿を見つけやすくなります。
+        </div>
+        <div class="flex">
+          <MyButton
+            type="button"
+            classset="text"
+            colorset="blue"
+            secondary
+            @click="openModalSearchBook"
+          >
+            <Icon icon="flat-color-icons:search" class="mr-2 -ml-1 h-4 w-4"></Icon>
+            本を探す
+          </MyButton>
+        </div>
+      </div>
+
       <!-- タイトル -->
       <div class="relative">
         <input

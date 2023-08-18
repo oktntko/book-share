@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import type { SessionData } from 'express-session';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/lib/prisma';
+import type { PrismaClient } from '~/middleware/prisma';
 import { SessionRepository } from '~/repository/SessionRepository';
 
 // # session.get

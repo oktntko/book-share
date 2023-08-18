@@ -7,8 +7,8 @@ import { user } from '~/router/UserRouter';
 
 export const TrpcRouter = router({
   auth,
-  file,
   book,
+  file,
   post,
   user,
 });

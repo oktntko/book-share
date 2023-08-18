@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
 import FormPost, { type ModelPost } from '~/pages/my-post/components/FormPost.vue';
 import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
@@ -11,6 +12,7 @@ const modelValue = ref<ModelPost>({
   post_title: '',
   volume_id: '',
 });
+const volume = ref<RouterOutput['book']['getVolume']>();
 
 async function handleSubmit() {
   const loading = openLoading();
@@ -44,6 +46,11 @@ async function handleSubmit() {
     >
     </MyBreadcrumb>
 
-    <FormPost v-model="modelValue" class="container mx-auto my-4" @submit="handleSubmit"></FormPost>
+    <FormPost
+      v-model="modelValue"
+      v-model:volume="volume"
+      class="container mx-auto my-4"
+      @submit="handleSubmit"
+    ></FormPost>
   </div>
 </template>

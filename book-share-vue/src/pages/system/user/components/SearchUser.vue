@@ -72,7 +72,9 @@ onMounted(() => {
         <template #buttons>
           <div class="ml-4 flex gap-2">
             <RouterLink to="/system/user/add">
-              <MyButton classset="text" colorset="blue" secondary>ユーザを追加する</MyButton>
+              <MyButton type="button" classset="text" colorset="blue" secondary>
+                ユーザを追加する
+              </MyButton>
             </RouterLink>
           </div>
         </template>
