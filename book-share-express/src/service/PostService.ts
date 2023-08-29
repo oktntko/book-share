@@ -41,7 +41,7 @@ async function listPost(
 
   log.debug('where', where);
 
-  const orderBy: Prisma.PostOrderByWithRelationInput[] = input.sort;
+  const orderBy: Prisma.PostOrderByWithRelationInput = input.sort;
 
   const [total, post_list] = await Promise.all([
     PostRepository.countPost(reqid, prisma, where),

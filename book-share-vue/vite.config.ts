@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
 import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
+import { VueUseComponentsResolver, HeadlessUiResolver } from 'unplugin-vue-components/resolvers';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -34,6 +35,8 @@ export default defineConfig({
             if (name === 'Icon') return { name, from: '@iconify/vue' };
           },
         },
+        VueUseComponentsResolver(),
+        HeadlessUiResolver(),
       ],
     }),
     Unfonts({

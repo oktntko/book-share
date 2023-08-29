@@ -10,7 +10,7 @@ const listInput = z.object({
     keyword: z.string().trim().max(255),
     postStatus: SearchParamPostStatusEnum.or(z.literal('')).default(''),
   }),
-  sort: z.record(PostScalarFieldEnumSchema, SortOrderSchema).array(),
+  sort: z.record(PostScalarFieldEnumSchema, SortOrderSchema),
   limit: z.number().int().max(100),
   offset: z.number().int(),
 });

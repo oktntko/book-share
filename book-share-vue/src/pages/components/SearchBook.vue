@@ -47,10 +47,12 @@ onMounted(() => {
   const json = restoreSession();
   if (json) {
     modelValue.value = JSON.parse(json);
+  }
 
-    if (modelValue.value.q) {
-      handleSubmit();
-    }
+  if (modelValue.value.q) {
+    handleSubmit();
+  } else {
+    data.value = { total: 0, volume_list: [] };
   }
 });
 
@@ -67,33 +69,29 @@ function restoreSession() {
 </script>
 
 <template>
-  <div v-if="data" class="flex flex-col gap-8 overflow-y-auto !max-w-none">
+  <div v-if="data" class="flex !max-w-none flex-col gap-8 overflow-y-auto">
     <header>
       <form class="mb-4 flex flex-col gap-4" @submit.prevent="handleSubmit">
         <!-- 一段目 -->
         <div class="flex justify-between">
           <!-- ラジオボタン -->
-          <div class="flex">
-            <div
+          <div class="flex gap-2">
+            <label
               v-for="[key, label] of Object.entries(BookVolumeQueryfield)"
               :key="key"
-              class="mr-4 flex items-center"
+              :for="`queryfield-${key}`"
+              class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
             >
               <input
-                :id="`inline-radio-${key}`"
+                :id="`queryfield-${key}`"
                 v-model="modelValue.queryfield"
                 type="radio"
                 :value="key"
-                name="inline-radio-group"
-                class="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
               />
-              <label
-                :for="`inline-radio-${key}`"
-                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                {{ label }}
-              </label>
-            </div>
+              {{ label }}
+            </label>
+            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="queryfield" />
           </div>
         </div>
         <!-- 検索フォーム -->
@@ -121,7 +119,7 @@ function restoreSession() {
       </form>
     </header>
 
-    <main class="shrink grow relative overflow-y-auto">
+    <main class="relative shrink grow overflow-y-auto">
       <!-- 件数あり 検索結果 -->
       <div v-if="data.total">
         <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
@@ -151,7 +149,7 @@ function restoreSession() {
             一致する書籍が見つかりませんでした。
           </h3>
         </div>
-        <ul class="mt-4 mb-2 text-sm text-yellow-700 dark:text-yellow-800">
+        <ul class="mb-2 mt-4 text-sm text-yellow-700 dark:text-yellow-800">
           <li>キーワードに誤字・脱字がないか確認します。</li>
           <li>別のキーワードを試してみます。</li>
           <li>もっと一般的なキーワードに変えてみます。</li>
@@ -168,13 +166,13 @@ function restoreSession() {
         leave-active-class="transition ease-in duration-200"
         leave-to-class="transform opacity-0"
       >
-        <MyPulseLoading v-show="loading" class="fixed z-20 inset-0 bg-gray-200/50"></MyPulseLoading>
+        <MyPulseLoading v-show="loading" class="fixed inset-0 z-20 bg-gray-200/50"></MyPulseLoading>
       </Transition>
     </main>
 
     <footer>
       <VxePager
-        class="!bg-transparent !border-none"
+        class="!border-none !bg-transparent"
         background
         size="small"
         :current-page="modelValue.offset / modelValue.limit + 1"
@@ -195,7 +193,7 @@ function restoreSession() {
   </div>
 
   <!-- 初期表示 ローディング -->
-  <div v-else class="flex gap-8 !min-w-[unset] !w-full">
+  <div v-else class="flex !w-full !min-w-[unset] gap-8">
     <MyPulseLoading></MyPulseLoading>
     <div>
       <div class="flex items-center">
@@ -203,7 +201,7 @@ function restoreSession() {
         <span class="sr-only">Info</span>
         <h3 class="text-lg font-medium text-blue-900">検索のコツ</h3>
       </div>
-      <ul class="mt-4 mb-2 text-sm text-blue-700 dark:text-blue-800">
+      <ul class="mb-2 mt-4 text-sm text-blue-700 dark:text-blue-800">
         <li>ヒント 1. まずはシンプルに</li>
         <li>ヒント 2. 音声で検索する</li>
         <li>ヒント 3. 検索語句を工夫する</li>

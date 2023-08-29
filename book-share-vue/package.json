@@ -21,6 +21,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.16",
     "@tiptap/extension-color": "^2.0.4",
     "@tiptap/extension-focus": "^2.0.4",
     "@tiptap/extension-highlight": "^2.0.4",

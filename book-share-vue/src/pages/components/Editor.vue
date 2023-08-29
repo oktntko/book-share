@@ -448,9 +448,7 @@ function openHelp() {
     <!-- WYSIWYG 本体 -->
     <EditorContent
       :editor="editor"
-      :class="`peer appearance-none ${
-        editable ? 'border' : 'rounded shadow'
-      }  border-gray-300 bg-white py-1`"
+      class="peer appearance-none rounded border border-gray-300 bg-white py-1"
     />
     <!-- テーブル用のメニュー -->
     <BubbleMenu
