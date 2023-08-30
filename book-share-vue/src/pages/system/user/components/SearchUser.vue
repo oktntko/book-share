@@ -16,10 +16,7 @@ const modelValue = ref<z.infer<typeof UserRouterSchema.listInput>>({
   offset: 0,
 });
 
-const { formId, validateSubmit } = useValidate<typeof UserRouterSchema.listInput.shape>(
-  UserRouterSchema.listInput,
-  modelValue,
-);
+const { formId, validateSubmit } = useValidate(UserRouterSchema.listInput, modelValue);
 
 const data = ref<RouterOutput['user']['list']>({
   total: 0,
@@ -43,31 +40,49 @@ onMounted(() => {
 <template>
   <div class="flex flex-col gap-8 overflow-y-auto">
     <header>
-      <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
+      <form
+        class="flex flex-col gap-4"
+        @submit.prevent="
+          () => {
+            modelValue.offset = 0;
+            handleSubmit();
+          }
+        "
+      >
         <section class="flex flex-col gap-2">
-          <div class="flex flex-col gap-1">
-            <label for="keyword" class="text-sm font-medium text-gray-900"> キーワード </label>
-            <input
-              id="keyword"
-              v-model.lazy="modelValue.where.keyword"
-              name="keyword"
-              type="search"
-              class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
-            />
-            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="keyword" />
+          <div>
+            <label for="where.keyword" class="sr-only"> キーワード </label>
+            <div class="relative">
+              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <Icon icon="flat-color-icons:search" class="h-5 w-5"> </Icon>
+              </div>
+              <input
+                id="where.keyword"
+                v-model.lazy="modelValue.where.keyword"
+                type="search"
+                class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                maxlength="255"
+              />
+            </div>
+            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="where.keyword" />
           </div>
         </section>
 
         <section>
           <MyButton type="submit" classset="text" colorset="green">
-            <Icon icon="line-md:search-filled" class="mr-2 h-4 w-4"></Icon>
+            <Icon
+              :horizontal-flip="true"
+              inline
+              icon="line-md:search-twotone"
+              class="-ml-4 mr-2 h-4 w-4"
+            ></Icon>
             検索
           </MyButton>
         </section>
       </form>
     </header>
 
-    <main class="shrink grow overflow-y-auto">
+    <main class="shrink grow overflow-y-auto shadow-inner">
       <VxeToolbar perfect>
         <template #buttons>
           <div class="ml-4 flex gap-2">

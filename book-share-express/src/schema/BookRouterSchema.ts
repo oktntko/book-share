@@ -333,6 +333,13 @@ export const BookVolumeQueryfield: Record<z.infer<typeof BookVolumeQueryfieldSch
   oclc: 'Online Computer Library Center number',
 } as const;
 
+export const BookVolumeOrderByList = ['newest', 'relevance'] as const;
+export const BookVolumeOrderBySchema = z.enum(BookVolumeOrderByList);
+export const BookVolumeOrderBy: Record<z.infer<typeof BookVolumeOrderBySchema>, string> = {
+  relevance: '関連度順',
+  newest: '発行日順',
+} as const;
+
 const listInput = z.object({
   q: z.string().min(1),
   queryfield: BookVolumeQueryfieldSchema.optional(),

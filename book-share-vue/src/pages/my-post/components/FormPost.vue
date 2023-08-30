@@ -54,7 +54,7 @@ async function openModalSearchBook() {
       <div v-show="volume" class="relative">
         <ViewBook class="rounded border bg-gray-100" :volume="volume" :hoverable="false">
         </ViewBook>
-        <div class="absolute top-2 right-4">
+        <div class="absolute right-4 top-2">
           <div class="flex gap-4">
             <MyButton
               type="button"
@@ -63,7 +63,7 @@ async function openModalSearchBook() {
               secondary
               @click="openModalSearchBook"
             >
-              <Icon icon="flat-color-icons:search" class="mr-2 -ml-1 h-4 w-4"></Icon>
+              <Icon icon="flat-color-icons:search" class="-ml-1 mr-2 h-4 w-4"></Icon>
               本を探す
             </MyButton>
             <MyButton
@@ -78,7 +78,7 @@ async function openModalSearchBook() {
                 }
               "
             >
-              <Icon icon="bi:x" class="mr-2 -ml-1 h-4 w-4"></Icon>
+              <Icon icon="bi:x" class="-ml-1 mr-2 h-4 w-4"></Icon>
               リセット
             </MyButton>
           </div>
@@ -95,7 +95,7 @@ async function openModalSearchBook() {
           <span class="sr-only">Info</span>
           <h3 class="text-lg font-medium text-blue-900">投稿を書く本を見つけましょう！</h3>
         </div>
-        <div class="mt-2 mb-4 text-sm text-blue-900">
+        <div class="mb-4 mt-2 text-sm text-blue-900">
           本を選ぶと、あなたの投稿を見つけやすくなります。
         </div>
         <div class="flex">
@@ -106,7 +106,7 @@ async function openModalSearchBook() {
             secondary
             @click="openModalSearchBook"
           >
-            <Icon icon="flat-color-icons:search" class="mr-2 -ml-1 h-4 w-4"></Icon>
+            <Icon icon="flat-color-icons:search" class="-ml-1 mr-2 h-4 w-4"></Icon>
             本を探す
           </MyButton>
         </div>
@@ -123,7 +123,7 @@ async function openModalSearchBook() {
         />
         <label
           for="floating_outlined"
-          class="absolute top-2 left-1 z-10 origin-[0] -translate-y-4 scale-75 transform bg-white px-2 text-sm text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-blue-600 dark:bg-gray-900 dark:text-gray-400 peer-focus:dark:text-blue-500"
+          class="absolute left-1 top-2 z-10 origin-[0] -translate-y-4 scale-75 transform bg-white px-2 text-sm text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-blue-600 dark:bg-gray-900 dark:text-gray-400 peer-focus:dark:text-blue-500"
         >
           タイトル
         </label>
@@ -134,7 +134,7 @@ async function openModalSearchBook() {
 
     <section class="flex gap-4">
       <MyButton type="submit" classset="text" colorset="green" :disabled="!isDirty">
-        <Icon icon="entypo:save" class="mr-2 -ml-1 h-5 w-5"> </Icon>
+        <Icon icon="entypo:save" class="-ml-1 mr-2 h-5 w-5"> </Icon>
         保存する
       </MyButton>
       <slot name="sub-button"></slot>

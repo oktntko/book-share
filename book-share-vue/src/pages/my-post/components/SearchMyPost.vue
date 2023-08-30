@@ -19,20 +19,20 @@ const router = useRouter();
 const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
   where: {
     keyword: '',
-    postStatus: '下書き',
+    postStatus: 'すべて',
   },
   sort: { created_at: 'desc' },
   limit: 30,
   offset: 0,
 });
 
-const { formId, validateSubmit } = useValidate(PostRouterSchema.listInput, modelValue);
+const { formId, validateSubmit, revert } = useValidate(PostRouterSchema.listInput, modelValue);
 
 const data = ref<RouterOutput['post']['getMyPostList']>({
   total: 0,
   post_list: [],
 });
-const loading = ref(false);
+const loading = ref(true);
 
 const handleSubmit = validateSubmit(async () => {
   loading.value = true;
@@ -80,132 +80,154 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
 <template>
   <div class="flex flex-col gap-8 overflow-y-auto">
     <header>
-      <form class="mb-4 flex flex-col gap-4" @submit.prevent="handleSubmit">
-        <!-- 一段目 -->
-        <div class="flex items-center gap-4">
-          <!-- フィルター -->
-          <div class="flex shrink-0 items-center">
-            <Icon icon="bx:filter-alt" class="mr-2 h-5 w-5"></Icon>
-            <div class="flex gap-2">
-              <label
-                v-for="option of SearchParamPostStatusList"
-                :key="option"
-                :for="`postStatus-${option}`"
-                class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                <input
-                  :id="`postStatus-${option}`"
-                  v-model="modelValue.where.postStatus"
-                  type="radio"
-                  :value="option"
-                  class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-                />
-                {{ option }}
-              </label>
-            </div>
-            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="postStatus" />
-          </div>
-
-          <!-- ソート -->
-          <div class="flex shrink-0 items-center">
-            <Listbox
-              as="div"
-              :model-value="modelValue.sort"
-              :by="(currentSort: object, sortOption: any) => sortOption.value in currentSort"
-              @update:model-value="
-                (sortOption) => {
-                  const currentSortValue = R.pathOr(modelValue.sort, [sortOption.value], undefined);
-
-                  modelValue.sort = {
-                    [sortOption.value]: currentSortValue === 'desc' ? 'asc' : 'desc',
-                  };
-                }
-              "
-            >
-              <ListboxButton
-                class="flex w-40 items-center gap-2 rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              >
-                <Icon
-                  :icon="R.values(modelValue.sort).at(0) === 'desc' ? 'bx:sort-down' : 'bx:sort-up'"
-                  class="h-5 w-5"
-                ></Icon>
-                {{ sortOptions.find((sortOption) => sortOption.value in modelValue.sort)?.label }}
-              </ListboxButton>
-
-              <Transition
-                enter-from-class="transform scale-95 opacity-0"
-                enter-active-class="transition duration-100 ease-out"
-                enter-to-class="transform scale-100 opacity-100"
-                leave-from-class="transform scale-100 opacity-100"
-                leave-active-class="transition duration-75 ease-out"
-                leave-to-class="transform scale-95 opacity-0"
-              >
-                <ListboxOptions
-                  class="absolute z-10 w-40 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+      <form
+        class="flex flex-col gap-4"
+        @submit.prevent="
+          () => {
+            modelValue.offset = 0;
+            handleSubmit();
+          }
+        "
+      >
+        <section class="flex flex-col gap-2">
+          <!-- 一段目 -->
+          <div class="flex items-center gap-4">
+            <!-- フィルター -->
+            <div class="flex shrink-0 items-center">
+              <Icon icon="bx:filter-alt" class="mr-2 h-5 w-5"></Icon>
+              <div class="flex gap-2">
+                <label
+                  v-for="option of SearchParamPostStatusList"
+                  :key="option"
+                  :for="`postStatus-${option}`"
+                  class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
                 >
-                  <ListboxOption
-                    v-for="sortOption of sortOptions"
-                    v-slot="{ active, selected }"
-                    :key="sortOption.value"
-                    :value="sortOption"
-                    as="template"
+                  <input
+                    :id="`postStatus-${option}`"
+                    v-model="modelValue.where.postStatus"
+                    type="radio"
+                    :value="option"
+                    class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                  />
+                  {{ option }}
+                </label>
+              </div>
+              <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="postStatus" />
+            </div>
+
+            <!-- ソート -->
+            <div class="flex shrink-0 items-center">
+              <Listbox
+                as="div"
+                :model-value="modelValue.sort"
+                :by="(currentSort: object, sortOption: any) => sortOption.value in currentSort"
+                @update:model-value="
+                  (sortOption) => {
+                    const currentSortValue = R.pathOr(
+                      modelValue.sort,
+                      [sortOption.value],
+                      undefined,
+                    );
+
+                    modelValue.sort = {
+                      [sortOption.value]: currentSortValue === 'desc' ? 'asc' : 'desc',
+                    };
+                  }
+                "
+              >
+                <ListboxButton
+                  class="relative flex w-48 items-center gap-2 rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <Icon
+                    :icon="
+                      R.values(modelValue.sort).at(0) === 'desc' ? 'bx:sort-down' : 'bx:sort-up'
+                    "
+                    class="h-5 w-5"
+                  ></Icon>
+                  <span>
+                    {{
+                      sortOptions.find((sortOption) => sortOption.value in modelValue.sort)?.label
+                    }}
+                  </span>
+                  <Icon icon="mingcute:down-fill" class="absolute right-2 h-5 w-5"></Icon>
+                </ListboxButton>
+
+                <Transition
+                  enter-from-class="transform opacity-0 scale-95 -translate-y-4"
+                  enter-active-class="transition ease-out duration-150"
+                  enter-to-class="transform opacity-100 scale-100 translate-y-0"
+                  leave-from-class="transform opacity-100 scale-100 translate-y-0"
+                  leave-active-class="transition ease-in duration-100"
+                  leave-to-class="transform opacity-0 scale-95 -translate-y-4"
+                >
+                  <ListboxOptions
+                    class="absolute z-10 w-48 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                   >
-                    <li
-                      :class="[
-                        selected ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                        active ? 'bg-blue-100 text-blue-900' : 'text-gray-900',
-                        'relative flex cursor-pointer select-none items-center gap-2 px-4 py-2',
-                      ]"
+                    <ListboxOption
+                      v-for="sortOption of sortOptions"
+                      v-slot="{ active, selected }"
+                      :key="sortOption.value"
+                      :value="sortOption"
+                      as="template"
                     >
-                      <Icon
-                        :icon="
-                          !selected
-                            ? ''
-                            : R.values(modelValue.sort).at(0) === 'desc'
-                            ? 'bx:sort-down'
-                            : 'bx:sort-up'
-                        "
-                        class="h-5 w-5"
-                      ></Icon>
-                      <span :class="[selected ? 'font-bold' : 'font-normal', 'block truncate']">
-                        {{ sortOption.label }}
-                      </span>
-                    </li>
-                  </ListboxOption>
-                </ListboxOptions>
-              </Transition>
-            </Listbox>
+                      <li
+                        :class="[
+                          selected ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
+                          active ? 'bg-blue-100 text-blue-900' : 'text-gray-900',
+                          'relative flex cursor-pointer select-none items-center gap-2 px-4 py-2',
+                        ]"
+                      >
+                        <Icon
+                          :icon="
+                            !selected
+                              ? ''
+                              : R.values(modelValue.sort).at(0) === 'desc'
+                              ? 'bx:sort-down'
+                              : 'bx:sort-up'
+                          "
+                          class="h-5 w-5"
+                        ></Icon>
+                        <span :class="[selected ? 'font-bold' : 'font-normal', 'block truncate']">
+                          {{ sortOption.label }}
+                        </span>
+                      </li>
+                    </ListboxOption>
+                  </ListboxOptions>
+                </Transition>
+              </Listbox>
+            </div>
           </div>
 
-          <!-- キーワード -->
-          <div class="flex grow items-center">
-            <label
-              for="keyword"
-              class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-            >
-              Search
-            </label>
-            <div class="relative w-full">
+          <!-- 二段目 -->
+          <div>
+            <label for="where.keyword" class="sr-only"> キーワード </label>
+            <div class="relative">
               <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <Icon icon="flat-color-icons:search" class="h-5 w-5"> </Icon>
               </div>
               <input
-                id="keyword"
-                v-model="modelValue.where.keyword"
+                id="where.keyword"
+                v-model.lazy="modelValue.where.keyword"
                 type="search"
-                class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 maxlength="255"
               />
             </div>
+            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="where.keyword" />
           </div>
+        </section>
 
-          <MyButton type="submit" classset="text" colorset="green" class="mr-1">
-            <Icon icon="line-md:search-filled" class="mr-2 h-4 w-4"></Icon>
+        <section>
+          <MyButton type="submit" classset="text" colorset="green">
+            <Icon
+              :horizontal-flip="true"
+              inline
+              icon="line-md:search-twotone"
+              class="-ml-4 mr-2 h-4 w-4"
+            ></Icon>
             検索
           </MyButton>
-        </div>
-
-        <!-- 二段目 -->
+        </section>
       </form>
     </header>
 
@@ -345,6 +367,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
             <!-- ページング -->
             <!--  -->
             <VxePager
+              v-if="data.post_list.length"
               class="!border-none !bg-transparent"
               background
               size="small"
@@ -363,6 +386,37 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                 }
               "
             ></VxePager>
+            <div v-else>
+              <div
+                class="border-l-4 border-yellow-500 bg-yellow-100 p-4 text-yellow-700"
+                role="alert"
+              >
+                <div class="flex">
+                  <div class="py-1">
+                    <Icon
+                      class="mr-4 h-8 w-8 fill-current text-yellow-500"
+                      icon="fa6-regular:face-dizzy"
+                    >
+                    </Icon>
+                  </div>
+                  <div>
+                    <p class="font-bold">条件に該当する記事は見つかりませんでした。</p>
+                    <p class="text-sm">
+                      <a
+                        class="cursor-pointer text-sm text-blue-700 underline"
+                        @click="
+                          () => {
+                            revert();
+                            handleSubmit();
+                          }
+                        "
+                        >条件をリセットしてトライ</a
+                      >
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </OnClickOutside>
           <!-- プレビュー -->
           <section class="w-1/2 grow">

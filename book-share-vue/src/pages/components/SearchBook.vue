@@ -4,7 +4,11 @@ import { type RouterOutput } from '~/lib/trpc';
 import type { z } from '~/lib/zod';
 import { trpc } from '~/middleware/trpc';
 import ViewBook from '~/pages/components/ViewBook.vue';
-import { BookRouterSchema, BookVolumeQueryfield } from '~/schema/BookRouterSchema';
+import {
+  BookRouterSchema,
+  BookVolumeOrderBy,
+  BookVolumeQueryfield,
+} from '~/schema/BookRouterSchema';
 
 const KEY_BOOK_SEARCH = 'KEY_BOOK_SEARCH';
 
@@ -20,12 +24,11 @@ const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
   queryfield: '',
   offset: 0,
   limit: 30,
-  orderBy: 'relevance', // TODO
-  printType: 'all', // TODO
-  projection: 'lite', // TODO
+  orderBy: 'relevance',
+  printType: 'all',
+  projection: 'lite',
 });
-// TODO
-const { formId, validateSubmit } = useValidate(BookRouterSchema.listInput, modelValue);
+const { formId, validateSubmit, revert } = useValidate(BookRouterSchema.listInput, modelValue);
 
 const data = ref<RouterOutput['book']['listVolume']>();
 const loading = ref(false);
@@ -59,8 +62,7 @@ onMounted(() => {
 function saveSession() {
   sessionStorage.setItem(KEY_BOOK_SEARCH, JSON.stringify(modelValue.value));
 }
-// TODO
-function crearSession() {
+function clearSession() {
   sessionStorage.removeItem(KEY_BOOK_SEARCH);
 }
 function restoreSession() {
@@ -69,57 +71,115 @@ function restoreSession() {
 </script>
 
 <template>
-  <div v-if="data" class="flex !max-w-none flex-col gap-8 overflow-y-auto">
+  <div v-if="data" class="flex !max-w-none flex-col gap-4 overflow-y-auto">
     <header>
-      <form class="mb-4 flex flex-col gap-4" @submit.prevent="handleSubmit">
-        <!-- 一段目 -->
-        <div class="flex justify-between">
-          <!-- ラジオボタン -->
-          <div class="flex gap-2">
-            <label
-              v-for="[key, label] of Object.entries(BookVolumeQueryfield)"
-              :key="key"
-              :for="`queryfield-${key}`"
-              class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
-            >
-              <input
-                :id="`queryfield-${key}`"
-                v-model="modelValue.queryfield"
-                type="radio"
-                :value="key"
-                class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-              />
-              {{ label }}
-            </label>
-            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="queryfield" />
-          </div>
-        </div>
-        <!-- 検索フォーム -->
-        <div>
-          <label
-            for="default-search"
-            class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-          >
-            Search
-          </label>
-          <div class="relative">
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Icon icon="flat-color-icons:search" class="h-5 w-5"> </Icon>
+      <form
+        class="flex flex-col gap-4"
+        @submit.prevent="
+          () => {
+            modelValue.offset = 0;
+            handleSubmit();
+          }
+        "
+      >
+        <section class="flex flex-col gap-2">
+          <!-- 一段目 -->
+          <div class="flex items-center gap-4">
+            <!-- フィルター -->
+            <div class="flex shrink-0 items-center">
+              <Icon icon="bx:filter-alt" class="mr-2 h-5 w-5"></Icon>
+              <div class="flex gap-2">
+                <label
+                  v-for="[key, label] of Object.entries(BookVolumeQueryfield)"
+                  :key="key"
+                  :for="`queryfield-${key}`"
+                  class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
+                >
+                  <input
+                    :id="`queryfield-${key}`"
+                    v-model="modelValue.queryfield"
+                    type="radio"
+                    :value="key"
+                    class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                  />
+                  {{ label }}
+                </label>
+                <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="queryfield" />
+              </div>
             </div>
-            <input
-              id="default-search"
-              v-model="modelValue.q"
-              type="search"
-              class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-              placeholder="検索ワード"
-              required
-            />
+
+            <!-- ソート -->
+            <div class="flex shrink-0 items-center">
+              <Icon icon="bx:sort-down" class="mr-2 h-5 w-5"></Icon>
+              <div class="flex gap-2">
+                <label
+                  v-for="[key, label] of Object.entries(BookVolumeOrderBy)"
+                  :key="key"
+                  :for="`orderBy-${key}`"
+                  class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
+                >
+                  <input
+                    :id="`orderBy-${key}`"
+                    v-model="modelValue.orderBy"
+                    type="radio"
+                    :value="key"
+                    class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                  />
+                  {{ label }}
+                </label>
+                <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="orderBy" />
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- 二段目 -->
+          <div>
+            <label for="q" class="sr-only"> キーワード </label>
+            <div class="relative">
+              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <Icon icon="flat-color-icons:search" class="h-5 w-5"> </Icon>
+              </div>
+              <input
+                id="q"
+                v-model="modelValue.q"
+                type="search"
+                class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <section class="flex gap-4">
+          <MyButton type="submit" classset="text" colorset="green">
+            <Icon
+              :horizontal-flip="true"
+              inline
+              icon="line-md:search-twotone"
+              class="-ml-4 mr-2 h-4 w-4"
+            ></Icon>
+            検索
+          </MyButton>
+
+          <MyButton
+            type="button"
+            classset="text"
+            colorset="white"
+            @click="
+              () => {
+                revert();
+                clearSession();
+              }
+            "
+          >
+            <Icon icon="bi:x" class="-ml-4 mr-2 h-4 w-4"></Icon>
+            リセット
+          </MyButton>
+        </section>
       </form>
     </header>
 
-    <main class="relative shrink grow overflow-y-auto">
+    <main class="relative shrink grow overflow-y-auto border-b border-t">
       <!-- 件数あり 検索結果 -->
       <div v-if="data.total">
         <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
