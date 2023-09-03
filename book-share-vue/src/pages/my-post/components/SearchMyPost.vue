@@ -251,7 +251,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
             @trigger="currentPost = undefined"
           >
             <!-- 投稿のタイトルリスト -->
-            <button
+            <a
               v-for="post of data.post_list"
               :key="post.post_id"
               class="relative flex cursor-pointer flex-row gap-2 rounded border border-gray-300 p-4 transition-colors hover:bg-blue-100"
@@ -280,7 +280,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
               <div class="flex grow flex-col gap-2">
                 <div class="flex flex-row items-end justify-between">
                   <p class="text-xs text-gray-400">
-                    {{ `${post.volume?.volumeInfo?.title ?? '(本未選択)'}` }}
+                    {{ post.volume?.volumeInfo?.title ?? '(本未選択)' }}
                   </p>
                   <div class="flex shrink-0 flex-row gap-2">
                     <div
@@ -311,7 +311,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                         "
                       >
                       </Icon>
-                      {{ `${post.hearts}` }}
+                      {{ post.hearts }}
                     </div>
                   </div>
                 </div>
@@ -362,10 +362,9 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                   </MyButton>
                 </div>
               </Transition>
-            </button>
+            </a>
 
             <!-- ページング -->
-            <!--  -->
             <VxePager
               v-if="data.post_list.length"
               class="!border-none !bg-transparent"

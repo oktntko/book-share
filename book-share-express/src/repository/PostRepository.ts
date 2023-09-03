@@ -110,6 +110,22 @@ async function deletePost(reqid: string, prisma: PrismaClient, post_id: number) 
   });
 }
 
+async function countPostGroupByVolumeId(
+  reqid: string,
+  prisma: PrismaClient,
+  where: Prisma.PostWhereInput,
+) {
+  log.debug(reqid, 'countPostGroupByVolumeId');
+
+  return prisma.post.groupBy({
+    by: ['volume_id'],
+    _count: true,
+    where,
+    orderBy: [{ _count: { volume_id: 'desc' } }, { volume_id: 'asc' }],
+    take: 10,
+  });
+}
+
 export const PostRepository = {
   countPost,
   findManyPost,
@@ -117,6 +133,7 @@ export const PostRepository = {
   findUniquePost,
   updatePost,
   deletePost,
+  countPostGroupByVolumeId,
 };
 
 // Volume (GoogleAPI) の情報とマージする

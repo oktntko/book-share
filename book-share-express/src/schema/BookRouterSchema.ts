@@ -12,6 +12,7 @@
 //
 
 import { z } from 'zod';
+import { SearchParamPostSpanEnum } from '~/schema/option/PostSpanSchema';
 
 export const DownloadAccessRestrictionSchema = z.object({
   deviceAllowed: z.boolean().optional().nullable(),
@@ -359,8 +360,18 @@ const getInput = z.object({
   volume_id: z.string().trim().min(1).max(100),
 });
 
+const rankingInput = z.object({
+  span: SearchParamPostSpanEnum,
+});
+
+const rankingOutput = z.object({
+  volume_list: z.array(VolumeSchema.merge(z.object({ count: z.number() }))),
+});
+
 export const BookRouterSchema = {
   listInput,
   listOutput,
   getInput,
+  rankingInput,
+  rankingOutput,
 };

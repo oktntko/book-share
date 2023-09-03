@@ -24,7 +24,7 @@ async function logout() {
       <div class="container mx-auto flex flex-col flex-wrap items-center px-4 py-4 md:flex-row">
         <nav class="flex flex-wrap items-center gap-5 text-base md:ml-auto lg:w-2/5">
           <RouterLink
-            to="/posts"
+            to="/"
             class="border-b-4 border-b-transparent hover:text-blue-600"
             active-class="text-blue-600 border-b-gray-200"
           >
@@ -159,7 +159,7 @@ async function logout() {
           <!-- 投稿を書く -->
           <RouterLink to="/my-post/add">
             <MyButton type="button" classset="text" colorset="blue" secondary>
-              <Icon icon="line-md:edit-twotone" class="mr-2 -ml-1 h-4 w-4"> </Icon>
+              <Icon icon="line-md:edit-twotone" class="-ml-1 mr-2 h-4 w-4"> </Icon>
               投稿を書く
             </MyButton>
           </RouterLink>
