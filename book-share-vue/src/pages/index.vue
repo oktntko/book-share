@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as R from 'remeda';
 import { useValidate } from '~/composables/useValidate';
 import type { RouterOutput } from '~/lib/trpc';
 import type { z } from '~/lib/zod';
@@ -86,7 +87,61 @@ watch(
         leave-active-class="transition ease-in duration-200"
         leave-to-class="transform opacity-0"
       >
-        <MyPulseLoading v-if="loadingRanking" class="py-4"></MyPulseLoading>
+        <div v-if="loadingRanking" class="flex flex-col gap-2 py-4">
+          <div
+            v-for="(volume, i) of R.range(0, 8).reverse()"
+            :key="volume"
+            class="rounded border bg-white p-4"
+          >
+            <div class="flex gap-4">
+              <!-- ランキング -->
+              <div class="flex flex-col items-center">
+                <span>{{ i + 1 }}</span>
+              </div>
+              <!-- サムネイル -->
+              <div class="flex shrink-0 flex-col">
+                <div class="relative mx-auto inline">
+                  <img
+                    title="skeleton"
+                    alt="skeleton"
+                    class="relative z-10 h-[94px] w-[64px] rounded object-cover object-center"
+                    src="https://dummyimage.com/64x94"
+                    height="94"
+                    width="64"
+                    decoding="async"
+                  />
+                  <img
+                    title="skeleton"
+                    alt="skeleton"
+                    class="absolute -bottom-1 left-1 z-[9] h-[94px] w-[64px] object-cover object-center opacity-80 blur"
+                    src="https://dummyimage.com/64x94"
+                    height="94"
+                    width="64"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+              <!-- 右側 -->
+              <div class="flex flex-col gap-1 text-gray-900">
+                <h3 class="text-xs text-blue-500 transition-colors">
+                  <span class="block h-4 w-24 rounded-full bg-gray-200"></span>
+                </h3>
+                <h2 class="line-clamp line-clamp-2 text-lg font-bold">
+                  <span class="block h-7 w-40 animate-pulse rounded-full bg-gray-200"></span>
+                </h2>
+                <h2 class="text-sm text-gray-600">
+                  <span class="block h-5 w-36 rounded-full bg-gray-200"></span>
+                </h2>
+                <span class="text-xs text-gray-600">
+                  <span class="block h-2 w-12 rounded-full bg-gray-200"></span>
+                </span>
+                <span class="text-xs text-gray-600">
+                  <span class="block h-2 w-12 rounded-full bg-gray-200"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div v-else class="flex flex-col gap-2 py-4">
           <div
             v-for="(volume, i) of ranking.volume_list"
@@ -173,14 +228,14 @@ watch(
           <div class="flex flex-col gap-4">
             <!-- 投稿のタイトルリスト -->
             <a
-              v-for="post of ['1', '2', '3', '4', '5']"
+              v-for="post of R.range(0, 8)"
               :key="post"
-              class="relative flex cursor-pointer flex-row gap-2 rounded border border-gray-300 bg-white p-4 transition-colors hover:bg-blue-100"
+              class="relative flex flex-row gap-2 rounded border border-gray-300 bg-white p-4 transition-colors hover:bg-blue-100"
             >
               <!-- サムネイル -->
               <img
-                :title="post"
-                :alt="post"
+                title="skeleton"
+                alt="skeleton"
                 class="h-[91px] w-[64px] rounded object-cover object-center"
                 src="https://dummyimage.com/128x182"
                 height="91"
@@ -208,10 +263,10 @@ watch(
                 <div class="flex justify-between">
                   <div class="flex flex-row gap-2 py-2">
                     <p class="text-xs">
-                      <span class="block h-4 w-32 rounded-full bg-gray-200 dark:bg-gray-700"></span>
+                      <span class="block h-4 w-32 rounded-full bg-gray-200"></span>
                     </p>
                     <p class="text-xs">
-                      <span class="block h-4 w-32 rounded-full bg-gray-200 dark:bg-gray-700"></span>
+                      <span class="block h-4 w-32 rounded-full bg-gray-200"></span>
                     </p>
                   </div>
                 </div>
