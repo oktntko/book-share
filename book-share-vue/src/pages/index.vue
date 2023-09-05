@@ -9,15 +9,29 @@ import {
   SearchParamPostSpanList,
   type SearchParamPostSpanEnum,
 } from '~/schema/option/PostSpanSchema';
+import { onBeforeRouteUpdate } from 'vue-router';
+
+const route = useRoute();
+const keyword = typeof route.query.keyword === 'string' ? route.query.keyword : '';
 
 const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
+  // TODO INPUTを分ける
   where: {
-    keyword: '',
-    postStatus: 'すべて',
+    keyword,
+    postStatus: '',
   },
   sort: { created_at: 'desc' },
   limit: 30,
   offset: 0,
+});
+
+onBeforeRouteUpdate((to) => {
+  if (typeof to.query.keyword === 'string') {
+    modelValue.value.where.keyword = to.query.keyword;
+  } else {
+    modelValue.value.where.keyword = '';
+  }
+  handleSubmit();
 });
 
 const { validateSubmit } = useValidate(PostRouterSchema.listInput, modelValue);

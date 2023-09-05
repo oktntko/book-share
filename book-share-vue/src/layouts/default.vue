@@ -3,16 +3,7 @@ import { OnClickOutside } from '@vueuse/components';
 import { trpc } from '~/middleware/trpc';
 
 const showMenu = ref(false);
-
-const router = useRouter();
-
-async function logout() {
-  try {
-    await trpc.auth.delete.mutate();
-  } finally {
-    router.replace('/login');
-  }
-}
+const keyword = ref('');
 </script>
 
 <template>
@@ -25,23 +16,22 @@ async function logout() {
         <nav class="flex flex-wrap items-center gap-5 text-base md:ml-auto lg:w-2/5">
           <RouterLink
             to="/"
-            class="border-b-4 border-b-transparent hover:text-blue-600"
+            class="hover:text-blue-600"
             active-class="text-blue-600 border-b-gray-200"
           >
             投稿を読む
           </RouterLink>
-        </nav>
-        <RouterLink
-          to="/"
-          class="order-first mb-4 flex items-center font-medium text-gray-900 md:mb-0 lg:order-none lg:w-1/5 lg:items-center lg:justify-center"
-        >
-          <Icon icon="noto-v1:books" class="ml-[-16px] h-10 w-10 rounded-full p-2 text-white">
-          </Icon>
-          <span class="text-xl">Book Share</span>
-        </RouterLink>
-        <nav class="flex flex-wrap items-center gap-5 text-base lg:ml-0 lg:w-2/5 lg:justify-end">
           <!-- 検索 -->
-          <form>
+          <form
+            @submit.prevent="
+              $router.push({
+                path: '/',
+                query: {
+                  keyword,
+                },
+              })
+            "
+          >
             <label
               for="default-search"
               class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
@@ -54,13 +44,24 @@ async function logout() {
               </div>
               <input
                 id="default-search"
+                v-model="keyword"
                 type="search"
                 class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                placeholder="いろいろ検索"
+                placeholder="投稿を探す"
                 required
               />
             </div>
           </form>
+        </nav>
+        <RouterLink
+          to="/"
+          class="order-first mb-4 flex items-center font-medium text-gray-900 md:mb-0 lg:order-none lg:w-1/5 lg:items-center lg:justify-center"
+        >
+          <Icon icon="noto-v1:books" class="ml-[-16px] h-10 w-10 rounded-full p-2 text-white">
+          </Icon>
+          <span class="text-xl">Book Share</span>
+        </RouterLink>
+        <nav class="flex flex-wrap items-center gap-5 text-base lg:ml-0 lg:w-2/5 lg:justify-end">
           <!-- ベルマーク -->
           <button type="button">
             <Icon icon="mdi:bell" class="h-5 w-5"> </Icon>
@@ -148,7 +149,15 @@ async function logout() {
                 <div class="py-1" role="none">
                   <a
                     class="block cursor-pointer px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-300 hover:text-blue-600"
-                    @click="logout"
+                    @click="
+                      async () => {
+                        try {
+                          await trpc.auth.delete.mutate();
+                        } finally {
+                          $router.replace('/login');
+                        }
+                      }
+                    "
                   >
                     ログアウト
                   </a>
