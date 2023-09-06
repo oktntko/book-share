@@ -33,7 +33,7 @@ const keyword = ref('');
             "
           >
             <label
-              for="default-search"
+              for="keyword"
               class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
             >
               Search
@@ -43,7 +43,7 @@ const keyword = ref('');
                 <Icon icon="flat-color-icons:search" class="h-5 w-5"> </Icon>
               </div>
               <input
-                id="default-search"
+                id="keyword"
                 v-model="keyword"
                 type="search"
                 class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"

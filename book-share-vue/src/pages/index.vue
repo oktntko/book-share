@@ -12,10 +12,11 @@ import {
 import { onBeforeRouteUpdate } from 'vue-router';
 
 const route = useRoute();
+// TODO F5で更新すると、フォームに値がない状態でクエリから検索条件に指定されてしまう
 const keyword = typeof route.query.keyword === 'string' ? route.query.keyword : '';
 
 const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
-  // TODO INPUTを分ける
+  // TODO 個人用とINPUTを分ける
   where: {
     keyword,
     postStatus: '',

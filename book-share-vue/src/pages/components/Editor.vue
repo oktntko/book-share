@@ -200,7 +200,7 @@ function openHelp() {
         <ul class="flex items-center justify-center px-1">
           <li class="flex items-center justify-center">
             <label
-              for="Color"
+              for="color"
               title="Color"
               class="m-1 flex cursor-pointer items-center justify-center rounded transition-colors hover:bg-gray-200 hover:text-black"
             >
@@ -211,7 +211,7 @@ function openHelp() {
               ></Icon>
             </label>
             <input
-              id="Color"
+              id="color"
               type="color"
               class="m-1 cursor-pointer rounded"
               :value="editor.getAttributes('textStyle').color"
@@ -237,7 +237,7 @@ function openHelp() {
         <ul class="flex items-center justify-center px-1">
           <li class="flex items-center justify-center">
             <label
-              for="Highlight"
+              for="highlight"
               title="Highlight"
               class="m-1 flex cursor-pointer items-center justify-center rounded transition-colors hover:bg-gray-200 hover:text-black"
             >
@@ -248,7 +248,7 @@ function openHelp() {
               ></Icon>
             </label>
             <input
-              id="Highlight"
+              id="highlight"
               type="color"
               class="m-1 cursor-pointer rounded"
               :value="editor.getAttributes('highlight').color"

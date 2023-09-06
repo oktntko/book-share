@@ -14,8 +14,6 @@ import {
   openSuccessToast,
 } from '~/utils/ProgrammaticComponentHelper';
 
-const router = useRouter();
-
 const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
   where: {
     keyword: '',
@@ -49,25 +47,6 @@ onMounted(() => {
 
 const currentPost = ref<RouterOutput['post']['getMyPostList']['post_list'][number]>();
 
-async function handleDelete(post: RouterOutput['post']['getMyPostList']['post_list'][number]) {
-  if (
-    await openConfirmDialog(
-      `データを削除しますか？\nこの操作は取り消せません。\n投稿タイトル: ${post.post_title}`,
-    )
-  ) {
-    const loading = openLoading();
-    try {
-      await trpc.post.delete.mutate({ post_id: post.post_id, updated_at: post.updated_at });
-
-      router.replace(`/zinzi/hyouka_kanten`);
-
-      openSuccessToast('データを削除しました。');
-    } finally {
-      loading.close();
-    }
-  }
-}
-
 const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSchema> }[] = [
   { label: '更新日時', value: 'updated_at' },
   { label: '作成日時', value: 'created_at' },
@@ -99,11 +78,11 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                 <label
                   v-for="option of SearchParamPostStatusList"
                   :key="option"
-                  :for="`postStatus-${option}`"
+                  :for="`where.postStatus-${option}`"
                   class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
                 >
                   <input
-                    :id="`postStatus-${option}`"
+                    :id="`where.postStatus-${option}`"
                     v-model="modelValue.where.postStatus"
                     type="radio"
                     :value="option"
@@ -112,7 +91,11 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                   {{ option }}
                 </label>
               </div>
-              <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="postStatus" />
+              <MyErrorMessage
+                class="text-xs text-red-600"
+                :form-id="formId"
+                name="where.postStatus"
+              />
             </div>
 
             <!-- ソート -->
@@ -355,7 +338,31 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                     classset="text"
                     colorset="yellow"
                     secondary
-                    @click.prevent="handleDelete(post)"
+                    @click.prevent="
+                      async () => {
+                        if (
+                          await openConfirmDialog(
+                            `データを削除しますか？\nこの操作は取り消せません。\n投稿タイトル: ${post.post_title}`,
+                          )
+                        ) {
+                          const loading = openLoading();
+                          try {
+                            await trpc.post.delete.mutate({
+                              post_id: post.post_id,
+                              updated_at: post.updated_at,
+                            });
+
+                            data.post_list = data.post_list.filter(
+                              (inlist) => inlist.post_id !== post.post_id,
+                            );
+
+                            openSuccessToast('データを削除しました。');
+                          } finally {
+                            loading.close();
+                          }
+                        }
+                      }
+                    "
                   >
                     <Icon icon="fa6-solid:trash" class="-ml-1 mr-1 h-3 w-3"></Icon>
                     削除
