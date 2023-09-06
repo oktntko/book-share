@@ -47,6 +47,12 @@ const deleteInput = PostSchema.pick({
 
 const updateInput = createInput.merge(deleteInput);
 
+const publishInput = deleteInput.merge(
+  PostSchema.pick({
+    published: true,
+  }),
+);
+
 export const PostRouterSchema = {
   listInput,
   listOutput,
@@ -54,4 +60,5 @@ export const PostRouterSchema = {
   getInput,
   updateInput,
   deleteInput,
+  publishInput,
 };

@@ -21,7 +21,7 @@ const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
     keyword: '',
     postStatus: 'すべて',
   },
-  sort: { created_at: 'desc' },
+  sort: { updated_at: 'desc' },
   limit: 30,
   offset: 0,
 });
@@ -69,8 +69,8 @@ async function handleDelete(post: RouterOutput['post']['getMyPostList']['post_li
 }
 
 const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSchema> }[] = [
-  { label: '作成日時', value: 'created_at' },
   { label: '更新日時', value: 'updated_at' },
+  { label: '作成日時', value: 'created_at' },
   { label: '本のタイトル', value: 'book_title' },
   { label: '投稿のタイトル', value: 'post_title' },
   { label: 'ハートの数', value: 'hearts' },

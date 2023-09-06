@@ -16,12 +16,14 @@ let updated_at = new Date();
 
 const modelValue = ref<ModelPost>();
 const volume = ref<RouterOutput['book']['getVolume']>();
+const published = ref(false);
 
 onMounted(async () => {
   const post = await trpc.post.getMyPost.query({ post_id });
 
   modelValue.value = post;
   volume.value = post.volume;
+  published.value = post.published;
   updated_at = post.updated_at;
 });
 
@@ -39,21 +41,6 @@ async function handleSubmit(value: ModelPost) {
     openSuccessToast('データを保存しました。');
   } finally {
     loading.close();
-  }
-}
-
-async function handleDelete() {
-  if (await openConfirmDialog('データを削除しますか？\nこの操作は取り消せません。')) {
-    const loading = openLoading();
-    try {
-      await trpc.post.delete.mutate({ post_id, updated_at });
-
-      router.replace(`/my-post`);
-
-      openSuccessToast('データを削除しました。');
-    } finally {
-      loading.close();
-    }
   }
 }
 </script>
@@ -90,26 +77,68 @@ async function handleDelete() {
           @submit="handleSubmit"
         >
           <template #sub-button>
-            <!-- TODO -->
-            <!-- <button
-              v-if="post_id"
+            <MyButton
               type="button"
-              class="inline-flex min-w-[120px] justify-center rounded-lg border border-blue-800 bg-blue-100 px-5 py-2.5 text-center text-sm font-medium text-gray-900 transition-colors hover:bg-blue-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-800"
-              @click="handlePublish"
+              classset="text"
+              colorset="green"
+              secondary
+              @click="
+                async () => {
+                  if (
+                    await openConfirmDialog(`投稿を${published ? '非公開に' : '公開'}しますか？`)
+                  ) {
+                    const loading = openLoading();
+                    try {
+                      const post = await trpc.post.publish.mutate({
+                        post_id,
+                        updated_at,
+                        published: !published,
+                      });
+
+                      if (post.published) {
+                        router.push(`/post/${post.post_id}`);
+                        openSuccessToast('投稿を公開しました。');
+                      } else {
+                        router.push(`/my-post`);
+                        openSuccessToast('投稿を非公開にました。');
+                      }
+                    } finally {
+                      loading.close();
+                    }
+                  }
+                }
+              "
             >
               <Icon
-                :icon="`${form.published ? 'bxs:lock' : 'bxs:lock-open-alt'}`"
-                class="mr-2 -ml-1 h-5 w-5"
+                :icon="`${published ? 'bxs:lock' : 'bxs:lock-open-alt'}`"
+                class="-ml-1 mr-2 h-5 w-5"
               >
               </Icon>
-              {{ modelValue.published ? '非公開にする' : '公開する' }}
-            </button> -->
+              {{ published ? '非公開にする' : '公開する' }}
+            </MyButton>
             <MyButton
               type="button"
               classset="text"
               colorset="yellow"
               secondary
-              @click="handleDelete"
+              @click="
+                async () => {
+                  if (
+                    await openConfirmDialog('データを削除しますか？\nこの操作は取り消せません。')
+                  ) {
+                    const loading = openLoading();
+                    try {
+                      await trpc.post.delete.mutate({ post_id, updated_at });
+
+                      router.replace(`/my-post`);
+
+                      openSuccessToast('データを削除しました。');
+                    } finally {
+                      loading.close();
+                    }
+                  }
+                }
+              "
             >
               削除
             </MyButton>

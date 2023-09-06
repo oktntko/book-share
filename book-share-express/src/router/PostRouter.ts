@@ -69,11 +69,11 @@ export const post = router({
     }),
 
   publish: protectedProcedure
-    .input(PostRouterSchema.deleteInput)
+    .input(PostRouterSchema.publishInput)
     .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
-        PostService.deletePost(ctx.reqid, prisma, ctx.operator_id, input),
+        PostService.publishPost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
 });

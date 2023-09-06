@@ -149,10 +149,42 @@ async function deletePost(
   return PostRepository.deletePost(reqid, prisma, input.post_id);
 }
 
+// # post.publish
+async function publishPost(
+  reqid: string,
+  prisma: PrismaClient,
+  operator_id: number,
+  input: z.infer<typeof PostRouterSchema.publishInput>,
+) {
+  log.trace(reqid, 'deletePost', operator_id, input);
+
+  const previous = await checkPreviousVersion({
+    previous: PostRepository.findUniquePost(reqid, prisma, {
+      post_id: input.post_id,
+      toukousya_id: operator_id,
+    }),
+    updated_at: input.updated_at,
+  });
+
+  return PostRepository.updatePost(
+    reqid,
+    prisma,
+    operator_id,
+    {
+      ...previous,
+      hearts: previous.hearts,
+      published: input.published,
+      published_at: input ? new Date() : null,
+    },
+    input.post_id,
+  );
+}
+
 export const PostService = {
   listPost,
   createPost,
   getPost,
   updatePost,
   deletePost,
+  publishPost,
 };
