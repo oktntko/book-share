@@ -242,7 +242,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                 !currentPost || (currentPost && currentPost.post_id === post.post_id)
                   ? 'bg-white'
                   : currentPost.post_id !== post.post_id
-                  ? 'bg-neutral-200'
+                  ? 'bg-gray-200'
                   : ''
               "
               @click.prevent="currentPost = post"

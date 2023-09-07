@@ -82,7 +82,7 @@ onMounted(() => {
       </form>
     </header>
 
-    <main class="shrink grow overflow-y-auto shadow-inner">
+    <main class="shrink grow overflow-y-auto">
       <VxeToolbar perfect>
         <template #buttons>
           <div class="ml-4 flex gap-2">

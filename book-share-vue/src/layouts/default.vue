@@ -8,10 +8,10 @@ const keyword = ref('');
 
 <template>
   <div
-    class="flex min-h-screen flex-col bg-neutral-50 text-gray-800 antialiased dark:bg-gray-700 dark:text-white"
+    class="flex min-h-screen flex-col bg-gray-50 text-gray-800 antialiased dark:bg-gray-700 dark:text-white"
   >
     <!-- Header -->
-    <header class="border-b-2 bg-neutral-100">
+    <header class="border-b-2 bg-gray-100">
       <div class="container mx-auto flex flex-col flex-wrap items-center px-4 py-4 md:flex-row">
         <nav class="flex flex-wrap items-center gap-5 text-base md:ml-auto lg:w-2/5">
           <RouterLink
@@ -22,16 +22,7 @@ const keyword = ref('');
             投稿を読む
           </RouterLink>
           <!-- 検索 -->
-          <form
-            @submit.prevent="
-              $router.push({
-                path: '/',
-                query: {
-                  keyword,
-                },
-              })
-            "
-          >
+          <form @submit.prevent="$router.push({ path: '/', query: { keyword } })">
             <label
               for="keyword"
               class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
@@ -52,6 +43,14 @@ const keyword = ref('');
               />
             </div>
           </form>
+          <RouterLink
+            to="/book"
+            class="hover:text-blue-600"
+            active-class="text-blue-600 border-b-gray-200 "
+          >
+            本を探す
+            <!-- 投稿を書く・投稿を探す・記録をつける -->
+          </RouterLink>
         </nav>
         <RouterLink
           to="/"

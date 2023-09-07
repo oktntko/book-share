@@ -34,7 +34,7 @@ const handleSubmit = validateSubmit(async () => {
 </script>
 
 <template>
-  <div class="bg-neutral-50">
+  <div class="bg-gray-50">
     <div class="mx-auto flex h-screen flex-col items-center justify-center px-6 py-8 lg:py-0">
       <!-- タイトル -->
       <h1 class="mb-6 flex items-center text-2xl font-semibold text-gray-900">

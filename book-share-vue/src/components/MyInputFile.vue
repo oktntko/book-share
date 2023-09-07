@@ -49,8 +49,8 @@ const dragging = ref(false);
     <label
       for="file"
       :class="[
-        'flex h-64 w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 bg-neutral-100 transition-colors hover:bg-neutral-200',
-        dragging ? 'border-gray-500 bg-neutral-200 ' : '',
+        'flex h-64 w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 bg-gray-100 transition-colors hover:bg-gray-200',
+        dragging ? 'border-gray-500 bg-gray-200 ' : '',
       ]"
     >
       <Icon icon="material-symbols:upload-file" class="h-12 w-12"> </Icon>
