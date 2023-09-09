@@ -72,9 +72,9 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
           <!-- 一段目 -->
           <div class="flex items-center gap-4">
             <!-- フィルター -->
-            <div class="flex shrink-0 items-center">
+            <div class="flex shrink-0 items-start laptop:items-center">
               <Icon icon="bx:filter-alt" class="mr-2 h-5 w-5"></Icon>
-              <div class="flex gap-2">
+              <div class="flex flex-col gap-0 laptop:flex-row laptop:gap-2">
                 <label
                   v-for="option of SearchParamPostStatusList"
                   :key="option"
@@ -86,7 +86,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                     v-model="modelValue.where.postStatus"
                     type="radio"
                     :value="option"
-                    class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                    class="mr-1 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
                   />
                   {{ option }}
                 </label>

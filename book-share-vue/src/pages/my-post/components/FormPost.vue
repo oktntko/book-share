@@ -3,7 +3,7 @@ import type { z } from 'zod';
 import { useValidate } from '~/composables/useValidate';
 import type { RouterOutput } from '~/lib/trpc';
 import Editor from '~/pages/components/Editor.vue';
-import SearchBook from '~/pages/components/SearchBook.vue';
+import ModalSearchBook from '~/pages/my-post/components/ModalSearchBook.vue';
 import ViewBook from '~/pages/components/ViewBook.vue';
 import { PostRouterSchema } from '~/schema/PostRouterSchema';
 import { openModal } from '~/utils/ProgrammaticComponentHelper';
@@ -29,7 +29,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
 
 async function openModalSearchBook() {
   const selectedVolume = await openModal<RouterOutput['book']['getVolume'] | undefined>({
-    component: SearchBook,
+    component: ModalSearchBook,
     componentProps: {},
     componentEvents: {},
   });

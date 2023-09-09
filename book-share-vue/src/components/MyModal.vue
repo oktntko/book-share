@@ -45,7 +45,7 @@ const open = ref(false);
 
     <!-- Modal -->
     <div class="fixed inset-0 z-10">
-      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+      <div class="flex min-h-full items-end justify-center p-4 sm:items-center sm:p-0">
         <!-- Dialog -->
         <Transition
           enter-from-class="transform opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -58,7 +58,7 @@ const open = ref(false);
           <OnClickOutside v-show="open" as="div" class="relative" @trigger="close">
             <component
               :is="component"
-              class="my-8 max-h-[calc(100vh-4rem)] w-[calc(100vw-4rem)] overflow-y-auto rounded-lg bg-gray-50 px-8 py-8 text-left shadow-xl laptop:min-w-[48rem] laptop:max-w-3xl desktop:min-w-[64rem] desktop:max-w-5xl"
+              class="max-h-[calc(100vh-2rem)] overflow-y-auto rounded-xl bg-gray-50 p-4 shadow-xl"
               v-bind="componentProps"
               v-on="componentEvents"
               @close="close"
@@ -68,7 +68,7 @@ const open = ref(false);
               type="button"
               classset="icon"
               colorset="white"
-              class="absolute -right-2 top-6"
+              class="absolute right-2 top-2"
               @click="close"
             >
               <Icon class="h-4 w-4" icon="bi:x" />

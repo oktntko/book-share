@@ -30,7 +30,10 @@ const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
 });
 const { formId, validateSubmit, revert } = useValidate(BookRouterSchema.listInput, modelValue);
 
-const data = ref<RouterOutput['book']['listVolume']>();
+const data = ref<RouterOutput['book']['listVolume']>({
+  total: 0,
+  volume_list: [],
+});
 const loading = ref(false);
 
 const handleSubmit = validateSubmit(async () => {
@@ -71,7 +74,7 @@ function restoreSession() {
 </script>
 
 <template>
-  <div v-if="data" class="flex !max-w-none flex-col gap-4 overflow-y-auto">
+  <div class="flex flex-col gap-8 overflow-y-auto">
     <header>
       <form
         class="flex flex-col gap-4"
@@ -84,11 +87,11 @@ function restoreSession() {
       >
         <section class="flex flex-col gap-2">
           <!-- 一段目 -->
-          <div class="flex items-center gap-4">
+          <div class="flex items-start gap-4 laptop:items-center">
             <!-- フィルター -->
-            <div class="flex shrink-0 items-center">
+            <div class="flex shrink-0 items-start laptop:items-center">
               <Icon icon="bx:filter-alt" class="mr-2 h-5 w-5"></Icon>
-              <div class="flex gap-2">
+              <div class="flex flex-col gap-0 laptop:flex-row laptop:gap-2">
                 <label
                   v-for="[key, label] of Object.entries(BookVolumeQueryfield)"
                   :key="key"
@@ -100,7 +103,7 @@ function restoreSession() {
                     v-model="modelValue.queryfield"
                     type="radio"
                     :value="key"
-                    class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                    class="mr-1 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
                   />
                   {{ label }}
                 </label>
@@ -109,9 +112,9 @@ function restoreSession() {
             </div>
 
             <!-- ソート -->
-            <div class="flex shrink-0 items-center">
+            <div class="flex shrink-0 items-start laptop:items-center">
               <Icon icon="bx:sort-down" class="mr-2 h-5 w-5"></Icon>
-              <div class="flex gap-2">
+              <div class="flex flex-col gap-0 laptop:flex-row laptop:gap-2">
                 <label
                   v-for="[key, label] of Object.entries(BookVolumeOrderBy)"
                   :key="key"
@@ -123,7 +126,7 @@ function restoreSession() {
                     v-model="modelValue.orderBy"
                     type="radio"
                     :value="key"
-                    class="mr-2 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                    class="mr-1 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
                   />
                   {{ label }}
                 </label>
@@ -179,44 +182,7 @@ function restoreSession() {
       </form>
     </header>
 
-    <main class="relative shrink grow overflow-y-auto border-b border-t">
-      <!-- 件数あり 検索結果 -->
-      <div v-if="data.total">
-        <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
-        <div class="masonry-wrapper px-4">
-          <div
-            v-for="volume of data.volume_list"
-            :key="volume.id!"
-            class="masonry-item cursor-pointer py-2"
-            @click.stop="() => emit('success', volume)"
-          >
-            <ViewBook class="rounded" :volume="volume" :active="volume_id === volume.id">
-            </ViewBook>
-          </div>
-        </div>
-      </div>
-
-      <!-- 件数なし 該当なしメッセージ -->
-      <div
-        v-else
-        class="mb-4 border-t-2 border-yellow-300 bg-yellow-50 p-4 dark:bg-yellow-200"
-        role="alert"
-      >
-        <div class="flex items-center">
-          <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-yellow-700"></Icon>
-          <span class="sr-only">Info</span>
-          <h3 class="text-lg font-medium text-yellow-700 dark:text-yellow-800">
-            一致する書籍が見つかりませんでした。
-          </h3>
-        </div>
-        <ul class="mb-2 mt-4 text-sm text-yellow-700 dark:text-yellow-800">
-          <li>キーワードに誤字・脱字がないか確認します。</li>
-          <li>別のキーワードを試してみます。</li>
-          <li>もっと一般的なキーワードに変えてみます。</li>
-          <li>キーワードの数を減らしてみます。</li>
-        </ul>
-      </div>
-
+    <main class="shrink grow overflow-y-auto">
       <Transition
         mode="out-in"
         enter-from-class="transform opacity-0"
@@ -226,7 +192,60 @@ function restoreSession() {
         leave-active-class="transition ease-in duration-200"
         leave-to-class="transform opacity-0"
       >
-        <MyPulseLoading v-show="loading" class="fixed inset-0 z-20 bg-gray-200/50"></MyPulseLoading>
+        <!-- 初期表示 ローディング -->
+        <div v-if="loading" class="flex justify-center gap-8">
+          <MyPulseLoading></MyPulseLoading>
+          <div>
+            <div class="flex items-center">
+              <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-blue-900"></Icon>
+              <h3 class="text-lg font-medium text-blue-900">検索のコツ</h3>
+            </div>
+            <ul class="mb-2 mt-4 text-sm text-blue-700 dark:text-blue-800">
+              <li>ヒント 1. まずはシンプルに</li>
+              <li>ヒント 2. 音声で検索する</li>
+              <li>ヒント 3. 検索語句を工夫する</li>
+              <li>ヒント 4. 間違えてもだいじょうぶ</li>
+              <li>ヒント 5. 便利な機能を利用する</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 件数あり 検索結果 -->
+        <div v-else-if="data.total">
+          <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
+          <div class="masonry-wrapper px-4">
+            <div
+              v-for="volume of data.volume_list"
+              :key="volume.id!"
+              class="masonry-item cursor-pointer py-2"
+              @click.stop="() => emit('success', volume)"
+            >
+              <ViewBook class="rounded" :volume="volume" :active="volume_id === volume.id">
+              </ViewBook>
+            </div>
+          </div>
+        </div>
+
+        <!-- 件数なし 該当なしメッセージ -->
+        <div
+          v-else
+          class="mb-4 border-t-2 border-yellow-300 bg-yellow-50 p-4 dark:bg-yellow-200"
+          role="alert"
+        >
+          <div class="flex items-center">
+            <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-yellow-700"></Icon>
+            <span class="sr-only">Info</span>
+            <h3 class="text-lg font-medium text-yellow-700 dark:text-yellow-800">
+              一致する書籍が見つかりませんでした。
+            </h3>
+          </div>
+          <ul class="mb-2 mt-4 text-sm text-yellow-700 dark:text-yellow-800">
+            <li>キーワードに誤字・脱字がないか確認します。</li>
+            <li>別のキーワードを試してみます。</li>
+            <li>もっと一般的なキーワードに変えてみます。</li>
+            <li>キーワードの数を減らしてみます。</li>
+          </ul>
+        </div>
       </Transition>
     </main>
 
@@ -235,6 +254,7 @@ function restoreSession() {
         class="!border-none !bg-transparent"
         background
         size="small"
+        :loading="loading"
         :current-page="modelValue.offset / modelValue.limit + 1"
         :page-size="modelValue.limit"
         :total="data.total"
@@ -250,25 +270,6 @@ function restoreSession() {
         "
       ></VxePager>
     </footer>
-  </div>
-
-  <!-- 初期表示 ローディング -->
-  <div v-else class="flex !w-full !min-w-[unset] gap-8">
-    <MyPulseLoading></MyPulseLoading>
-    <div>
-      <div class="flex items-center">
-        <Icon icon="akar-icons:info-fill" class="mr-2 h-5 w-5 text-blue-900"></Icon>
-        <span class="sr-only">Info</span>
-        <h3 class="text-lg font-medium text-blue-900">検索のコツ</h3>
-      </div>
-      <ul class="mb-2 mt-4 text-sm text-blue-700 dark:text-blue-800">
-        <li>ヒント 1. まずはシンプルに</li>
-        <li>ヒント 2. 音声で検索する</li>
-        <li>ヒント 3. 検索語句を工夫する</li>
-        <li>ヒント 4. 間違えてもだいじょうぶ</li>
-        <li>ヒント 5. 便利な機能を利用する</li>
-      </ul>
-    </div>
   </div>
 </template>
 

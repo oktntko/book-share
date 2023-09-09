@@ -14,7 +14,7 @@ const dragging = ref(false);
 
 <template>
   <div
-    class="flex flex-col items-center justify-center px-4 py-4"
+    class="flex flex-col items-center justify-center"
     @dragenter="dragging = true"
     @dragleave="
       (e) => {
@@ -49,7 +49,7 @@ const dragging = ref(false);
     <label
       for="file"
       :class="[
-        'flex h-64 w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 bg-gray-100 transition-colors hover:bg-gray-200',
+        'flex h-64 w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 bg-gray-100 px-8 transition-colors hover:bg-gray-200',
         dragging ? 'border-gray-500 bg-gray-200 ' : '',
       ]"
     >
