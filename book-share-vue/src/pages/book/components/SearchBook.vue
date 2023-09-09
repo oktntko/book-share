@@ -14,9 +14,8 @@ const KEY_BOOK_SEARCH = 'KEY_BOOK_SEARCH';
 
 withDefaults(defineProps<{ volume_id?: string }>(), { volume_id: '' });
 
-const emit = defineEmits<{
-  success: [RouterOutput['book']['getVolume']];
-  close: [];
+defineEmits<{
+  selected: [RouterOutput['book']['getVolume'], PointerEvent];
 }>();
 
 const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
@@ -214,15 +213,15 @@ function restoreSession() {
         <div v-else-if="data.total">
           <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
           <div class="masonry-wrapper px-4">
-            <div
+            <a
               v-for="volume of data.volume_list"
               :key="volume.id!"
-              class="masonry-item cursor-pointer py-2"
-              @click.stop="() => emit('success', volume)"
+              class="masonry-item block cursor-pointer py-2"
+              @click.stop="(e) => $emit('selected', volume, e)"
             >
               <ViewBook class="rounded" :volume="volume" :active="volume_id === volume.id">
               </ViewBook>
-            </div>
+            </a>
           </div>
         </div>
 
