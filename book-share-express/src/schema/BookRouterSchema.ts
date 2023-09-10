@@ -11,7 +11,7 @@
  */
 //
 
-import { z } from 'zod';
+import { z } from '~/lib/zod';
 import { SearchParamPostSpanEnum } from '~/schema/option/PostSpanSchema';
 
 export const DownloadAccessRestrictionSchema = z.object({

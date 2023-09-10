@@ -3,6 +3,7 @@ export { UserScalarFieldEnumSchema } from './UserScalarFieldEnumSchema';
 export { SessionScalarFieldEnumSchema } from './SessionScalarFieldEnumSchema';
 export { FileScalarFieldEnumSchema } from './FileScalarFieldEnumSchema';
 export { PostScalarFieldEnumSchema } from './PostScalarFieldEnumSchema';
+export { ReadingrecordScalarFieldEnumSchema } from './ReadingrecordScalarFieldEnumSchema';
 export { SortOrderSchema } from './SortOrderSchema';
 export { QueryModeSchema } from './QueryModeSchema';
 export { NullsOrderSchema } from './NullsOrderSchema';

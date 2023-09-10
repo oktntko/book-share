@@ -57,10 +57,25 @@ erDiagram
     DateTime updated_at 
     }
   
+
+  "readingrecord" {
+    Int readingrecord_id "🗝️"
+    Int user_id 
+    String volume_id 
+    String book_title 
+    DateTime read_at 
+    Int star 
+    String hitokoto 
+    DateTime created_at 
+    DateTime updated_at 
+    }
+  
     "user" o|--|o "file" : "avatar_image"
     "user" o{--}o "session" : "session_list"
     "user" o{--}o "post" : "post_list"
+    "user" o{--}o "readingrecord" : "readingrecord_list"
     "session" o|--|o "user" : "user"
     "file" o{--}o "user" : "user_list"
     "post" o|--|| "user" : "toukousya"
+    "readingrecord" o|--|| "user" : "user"
 ```

@@ -5,12 +5,16 @@ import type { SessionWithRelations } from './SessionSchema';
 import type { SessionOptionalDefaultsWithRelations } from './SessionSchema';
 import type { PostWithRelations } from './PostSchema';
 import type { PostOptionalDefaultsWithRelations } from './PostSchema';
+import type { ReadingrecordWithRelations } from './ReadingrecordSchema';
+import type { ReadingrecordOptionalDefaultsWithRelations } from './ReadingrecordSchema';
 import { FileWithRelationsSchema } from './FileSchema';
 import { FileOptionalDefaultsWithRelationsSchema } from './FileSchema';
 import { SessionWithRelationsSchema } from './SessionSchema';
 import { SessionOptionalDefaultsWithRelationsSchema } from './SessionSchema';
 import { PostWithRelationsSchema } from './PostSchema';
 import { PostOptionalDefaultsWithRelationsSchema } from './PostSchema';
+import { ReadingrecordWithRelationsSchema } from './ReadingrecordSchema';
+import { ReadingrecordOptionalDefaultsWithRelationsSchema } from './ReadingrecordSchema';
 
 /////////////////////////////////////////
 // USER SCHEMA
@@ -57,6 +61,7 @@ export type UserRelations = {
   avatar_image?: FileWithRelations | null;
   session_list: SessionWithRelations[];
   post_list: PostWithRelations[];
+  readingrecord_list: ReadingrecordWithRelations[];
 };
 
 export type UserWithRelations = z.infer<typeof UserSchema> & UserRelations;
@@ -66,6 +71,7 @@ export const UserWithRelationsSchema: z.ZodType<UserWithRelations> = UserSchema.
     avatar_image: z.lazy(() => FileWithRelationsSchema).nullable(),
     session_list: z.lazy(() => SessionWithRelationsSchema).array(),
     post_list: z.lazy(() => PostWithRelationsSchema).array(),
+    readingrecord_list: z.lazy(() => ReadingrecordWithRelationsSchema).array(),
   }),
 );
 
@@ -77,6 +83,7 @@ export type UserOptionalDefaultsRelations = {
   avatar_image?: FileOptionalDefaultsWithRelations | null;
   session_list: SessionOptionalDefaultsWithRelations[];
   post_list: PostOptionalDefaultsWithRelations[];
+  readingrecord_list: ReadingrecordOptionalDefaultsWithRelations[];
 };
 
 export type UserOptionalDefaultsWithRelations = z.infer<typeof UserOptionalDefaultsSchema> &
@@ -88,6 +95,7 @@ export const UserOptionalDefaultsWithRelationsSchema: z.ZodType<UserOptionalDefa
       avatar_image: z.lazy(() => FileOptionalDefaultsWithRelationsSchema).nullable(),
       session_list: z.lazy(() => SessionOptionalDefaultsWithRelationsSchema).array(),
       post_list: z.lazy(() => PostOptionalDefaultsWithRelationsSchema).array(),
+      readingrecord_list: z.lazy(() => ReadingrecordOptionalDefaultsWithRelationsSchema).array(),
     }),
   );
 
