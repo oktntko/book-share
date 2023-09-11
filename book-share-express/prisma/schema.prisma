@@ -128,6 +128,7 @@ model Post {
   @@map("post")
 }
 
+/// @zod.import(["import { CoerceDateSchema } from '../../_';"])
 model Readingrecord {
   readingrecord_id Int @id @default(autoincrement())
 
@@ -135,13 +136,14 @@ model Readingrecord {
   user    User @relation(fields: [user_id], references: [user_id], onDelete: Cascade) /// 本を読んだ人
 
   /// @zod.string.trim().max(255)
-  volume_id  String   @default("") @db.VarChar(255)
+  volume_id  String @default("") @db.VarChar(255)
   /// @zod.string.trim().max(400)
-  book_title String   @default("") @db.VarChar(400)
-  read_at    DateTime @db.Date
-  star       Int      @default(0)
+  book_title String @default("") @db.VarChar(400)
+  /// @zod.custom.use(CoerceDateSchema)
+  read_date  String @default("") @db.VarChar(10)
+  star       Float  @default(0)
   /// @zod.string.trim().max(255)
-  hitokoto   String   @default("") @db.VarChar(255)
+  hitokoto   String @default("") @db.VarChar(255)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)

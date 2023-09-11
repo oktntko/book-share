@@ -1,4 +1,5 @@
 import { z } from '~/lib/zod';
+import { CoerceDateSchema } from '../../_';
 import type { UserWithRelations } from './UserSchema';
 import type { UserOptionalDefaultsWithRelations } from './UserSchema';
 import { UserWithRelationsSchema } from './UserSchema';
@@ -16,8 +17,8 @@ export const ReadingrecordSchema = z.object({
   user_id: z.number().int(),
   volume_id: z.string().trim().max(255),
   book_title: z.string().trim().max(400),
-  read_at: z.coerce.date(),
-  star: z.number().int(),
+  read_date: CoerceDateSchema,
+  star: z.number(),
   hitokoto: z.string().trim().max(255),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
@@ -34,7 +35,8 @@ export const ReadingrecordOptionalDefaultsSchema = ReadingrecordSchema.merge(
     readingrecord_id: z.number().int().optional(),
     volume_id: z.string().trim().max(255).optional(),
     book_title: z.string().trim().max(400).optional(),
-    star: z.number().int().optional(),
+    read_date: CoerceDateSchema.optional(),
+    star: z.number().optional(),
     hitokoto: z.string().trim().max(255).optional(),
     created_at: z.coerce.date().optional(),
     updated_at: z.coerce.date().optional(),

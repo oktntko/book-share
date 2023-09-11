@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { RouterOutput } from '~/lib/trpc';
 import SearchBook from '~/pages/book/components/SearchBook.vue';
+import ModalAddReadingrecord from '~/pages/my-readingrecord/components/ModalAddReadingrecord.vue';
+import { openModal } from '~/utils/ProgrammaticComponentHelper';
 
 const volume = ref<RouterOutput['book']['getVolume']>();
 const p = ref({ pageX: 0, pageY: 0 });
@@ -40,18 +42,25 @@ function handleSelected(book: RouterOutput['book']['getVolume'], e: PointerEvent
           tabindex="-1"
         >
           <div role="none">
-            <RouterLink
-              :to="{
-                path: `/`,
-                query: { book_id: volume.id },
-              }"
-              class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-              exact
-              active-class="text-blue-600 border-l-gray-200"
+            <a
+              class="block cursor-pointer border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
+              @click="
+                () => {
+                  openModal({
+                    component: ModalAddReadingrecord,
+                    componentProps: {
+                      volume_id: volume?.id ?? '',
+                      book_title: volume?.volumeInfo?.title ?? '',
+                    },
+                    componentEvents: {},
+                  });
+                  volume = undefined;
+                }
+              "
             >
               本を読んだ
               <p class="text-xs text-gray-400">読書の記録をつけましょう！</p>
-            </RouterLink>
+            </a>
             <RouterLink
               :to="{
                 path: `/`,

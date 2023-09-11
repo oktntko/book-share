@@ -5,7 +5,7 @@ export const ReadingrecordScalarFieldEnumSchema = z.enum([
   'user_id',
   'volume_id',
   'book_title',
-  'read_at',
+  'read_date',
   'star',
   'hitokoto',
   'created_at',

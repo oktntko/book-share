@@ -63,8 +63,8 @@ erDiagram
     Int user_id 
     String volume_id 
     String book_title 
-    DateTime read_at 
-    Int star 
+    String read_date 
+    Float star 
     String hitokoto 
     DateTime created_at 
     DateTime updated_at 

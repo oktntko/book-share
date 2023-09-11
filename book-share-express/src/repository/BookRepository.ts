@@ -71,3 +71,29 @@ function transformVolume(volume: books_v1.Schema$Volume) {
 
   return volume;
 }
+
+// Volume (GoogleAPI) の情報とマージする
+// Conditional Types がうまく使えなかったため、 オーバーロード関数 (overload function) を使った。
+// 引数が Post | null のときは Nullable 、 引数が Post のときは NonNullable にしたかった。
+export async function mergeVolume<T extends { volume_id: string }>(
+  reqid: string,
+  t: T,
+): Promise<T & { volume: books_v1.Schema$Volume | undefined }>;
+export async function mergeVolume<T extends { volume_id: string }>(
+  reqid: string,
+  t: T | null,
+): Promise<(T & { volume: books_v1.Schema$Volume | undefined }) | null>;
+export async function mergeVolume<T extends { volume_id: string }>(reqid: string, t: T | null) {
+  if (t === null) {
+    return null;
+  }
+
+  const volume = t.volume_id
+    ? await BookRepository.getVolume(reqid, t.volume_id).catch(() => undefined)
+    : undefined;
+
+  return {
+    ...t,
+    volume,
+  };
+}

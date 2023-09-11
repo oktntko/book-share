@@ -1,6 +1,7 @@
 import type { Prisma, Readingrecord } from '@prisma/client';
 import { log } from '~/lib/log4js';
 import type { PrismaClient } from '~/middleware/prisma';
+import { mergeVolume } from '~/repository/BookRepository';
 
 type ParamReadingrecord = Omit<Readingrecord, 'readingrecord_id' | CommonColumn>;
 
@@ -26,12 +27,21 @@ async function findManyReadingrecord(
 ) {
   log.trace(reqid, 'findManyReadingrecord');
 
-  return prisma.readingrecord.findMany({
+  const readingrecord_list = await prisma.readingrecord.findMany({
     where,
     orderBy,
     take,
     skip,
   });
+
+  // Array.prototype.map() を使うと overload function の効果が消えて戻り値が Nullable になるため、
+  // for of を使っている。
+  const computedList = [];
+  for (const readingrecord of readingrecord_list) {
+    computedList.push(await mergeVolume(reqid, readingrecord));
+  }
+
+  return computedList;
 }
 
 async function createReadingrecord(
@@ -47,7 +57,7 @@ async function createReadingrecord(
     data: {
       volume_id: readingrecord.volume_id,
       book_title: readingrecord.book_title,
-      read_at: readingrecord.read_at,
+      read_date: readingrecord.read_date,
       star: readingrecord.star,
       hitokoto: readingrecord.hitokoto,
       user_id: operator_id,
@@ -80,6 +90,7 @@ async function updateReadingrecord(
     data: {
       volume_id: readingrecord.volume_id,
       book_title: readingrecord.book_title,
+      read_date: readingrecord.read_date,
       star: readingrecord.star,
       hitokoto: readingrecord.hitokoto,
       user_id: operator_id,

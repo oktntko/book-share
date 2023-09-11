@@ -1,8 +1,7 @@
 import type { Post, Prisma } from '@prisma/client';
 import { log } from '~/lib/log4js';
 import type { PrismaClient } from '~/middleware/prisma';
-import { BookRepository } from './BookRepository';
-import { books_v1 } from '@googleapis/books';
+import { mergeVolume } from '~/repository/BookRepository';
 
 type ParamPost = Omit<Post, 'post_id' | 'toukousya_id' | CommonColumn>;
 
@@ -135,29 +134,3 @@ export const PostRepository = {
   deletePost,
   countPostGroupByVolumeId,
 };
-
-// Volume (GoogleAPI) の情報とマージする
-// Conditional Types がうまく使えなかったため、 オーバーロード関数 (overload function) を使った。
-// 引数が Post | null のときは Nullable 、 引数が Post のときは NonNullable にしたかった。
-async function mergeVolume(
-  reqid: string,
-  post: Post,
-): Promise<Post & { volume: books_v1.Schema$Volume | undefined }>;
-async function mergeVolume(
-  reqid: string,
-  post: Post | null,
-): Promise<(Post & { volume: books_v1.Schema$Volume | undefined }) | null>;
-async function mergeVolume(reqid: string, post: Post | null) {
-  if (post === null) {
-    return null;
-  }
-
-  const volume = post.volume_id
-    ? await BookRepository.getVolume(reqid, post.volume_id).catch(() => undefined)
-    : undefined;
-
-  return {
-    ...post,
-    volume,
-  };
-}
