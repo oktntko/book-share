@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SearchMyReadingrecord from '~/pages/my-readingrecord/components/SearchMyReadingrecord.vue';
+import SearchMyReadingrecord from '~/pages/mypage/readingrecord/components/SearchMyReadingrecord.vue';
 </script>
 
 <template>
@@ -10,7 +10,7 @@ import SearchMyReadingrecord from '~/pages/my-readingrecord/components/SearchMyR
       :items="[
         {
           label: '読んだ本',
-          to: '/my-readingrecord',
+          to: '/mypage/readingrecord',
         },
       ]"
     >

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SearchMyPost from '~/pages/my-post/components/SearchMyPost.vue';
+import SearchMyPost from '~/pages/mypage/post/components/SearchMyPost.vue';
 </script>
 
 <template>
@@ -10,7 +10,7 @@ import SearchMyPost from '~/pages/my-post/components/SearchMyPost.vue';
       :items="[
         {
           label: '投稿一覧',
-          to: '/my-post',
+          to: '/mypage/post',
         },
       ]"
     >

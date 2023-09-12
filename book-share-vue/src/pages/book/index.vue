@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RouterOutput } from '~/lib/trpc';
 import SearchBook from '~/pages/book/components/SearchBook.vue';
-import ModalAddReadingrecord from '~/pages/my-readingrecord/components/ModalAddReadingrecord.vue';
+import ModalAddReadingrecord from '~/pages/mypage/readingrecord/components/ModalAddReadingrecord.vue';
 import { openModal } from '~/utils/ProgrammaticComponentHelper';
 
 const volume = ref<RouterOutput['book']['getVolume']>();
@@ -75,7 +75,7 @@ function handleSelected(book: RouterOutput['book']['getVolume'], e: PointerEvent
             </RouterLink>
             <RouterLink
               :to="{
-                path: `/my-post/add`,
+                path: `/mypage/post/add`,
                 query: { book_id: volume?.id },
               }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"

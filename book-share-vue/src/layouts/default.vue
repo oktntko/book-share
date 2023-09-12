@@ -97,7 +97,7 @@ const keyword = ref('');
               >
                 <div class="py-1" role="none">
                   <RouterLink
-                    to="/my-readingrecord"
+                    to="/mypage/readingrecord"
                     class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
                     exact
                     active-class="text-blue-600 border-l-gray-200"
@@ -117,7 +117,7 @@ const keyword = ref('');
                 </div>
                 <div class="py-1" role="none">
                   <RouterLink
-                    to="/my-post/add"
+                    to="/mypage/post/add"
                     class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
                     exact
                     active-class="text-blue-600 border-l-gray-200"
@@ -126,7 +126,7 @@ const keyword = ref('');
                     <p class="text-xs text-gray-400">BOOK を SHARE しましょう</p>
                   </RouterLink>
                   <RouterLink
-                    to="/my-post"
+                    to="/mypage/post"
                     class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
                     exact
                     active-class="text-blue-600 border-l-gray-200"
@@ -165,7 +165,7 @@ const keyword = ref('');
             </Transition>
           </div>
           <!-- 投稿を書く -->
-          <RouterLink to="/my-post/add">
+          <RouterLink to="/mypage/post/add">
             <MyButton type="button" classset="text" colorset="blue" secondary>
               <Icon icon="line-md:edit-twotone" class="-ml-1 mr-2 h-4 w-4"> </Icon>
               投稿を書く

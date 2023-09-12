@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
-import FormPost, { type ModelPost } from '~/pages/my-post/components/FormPost.vue';
+import FormPost, { type ModelPost } from '~/pages/mypage/post/components/FormPost.vue';
 import {
   openConfirmDialog,
   openLoading,
@@ -36,7 +36,7 @@ async function handleSubmit(value: ModelPost) {
       updated_at,
     });
 
-    router.replace(`/my-post`);
+    router.replace(`/mypage/post`);
 
     openSuccessToast('データを保存しました。');
   } finally {
@@ -53,11 +53,11 @@ async function handleSubmit(value: ModelPost) {
       :items="[
         {
           label: '投稿一覧',
-          to: '/my-post',
+          to: '/mypage/post',
         },
         {
           label: '投稿を書く',
-          to: `/my-post/${post_id}`,
+          to: `/mypage/post/${post_id}`,
         },
       ]"
     >
@@ -99,7 +99,7 @@ async function handleSubmit(value: ModelPost) {
                         router.push(`/post/${post.post_id}`);
                         openSuccessToast('投稿を公開しました。');
                       } else {
-                        router.push(`/my-post`);
+                        router.push(`/mypage/post`);
                         openSuccessToast('投稿を非公開にました。');
                       }
                     } finally {
@@ -130,7 +130,7 @@ async function handleSubmit(value: ModelPost) {
                     try {
                       await trpc.post.delete.mutate({ post_id, updated_at });
 
-                      router.replace(`/my-post`);
+                      router.replace(`/mypage/post`);
 
                       openSuccessToast('データを削除しました。');
                     } finally {

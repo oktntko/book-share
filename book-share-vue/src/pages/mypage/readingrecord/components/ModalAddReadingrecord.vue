@@ -4,7 +4,7 @@ import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
 import FormReadingrecord, {
   type ModelReadingrecord,
-} from '~/pages/my-readingrecord/components/FormReadingrecord.vue';
+} from '~/pages/mypage/readingrecord/components/FormReadingrecord.vue';
 import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
 
 const emit = defineEmits<{

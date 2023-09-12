@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { trpc } from '~/middleware/trpc';
-import { type ModelReadingrecord } from '~/pages/my-readingrecord/components/FormReadingrecord.vue';
+import { type ModelReadingrecord } from '~/pages/mypage/readingrecord/components/FormReadingrecord.vue';
 import {
   openConfirmDialog,
   openLoading,
@@ -31,7 +31,7 @@ async function handleSubmit(value: ModelReadingrecord) {
       updated_at,
     });
 
-    router.replace(`/my-readingrecord`);
+    router.replace(`/mypage/readingrecord`);
 
     openSuccessToast('データを保存しました。');
   } finally {
@@ -48,11 +48,11 @@ async function handleSubmit(value: ModelReadingrecord) {
       :items="[
         {
           label: '読んだ本',
-          to: '/my-readingrecord',
+          to: '/mypage/readingrecord',
         },
         {
           label: `${modelValue?.book_title ?? ''}`,
-          to: `/my-readingrecord/${readingrecord_id}`,
+          to: `/mypage/readingrecord/${readingrecord_id}`,
         },
       ]"
     >
@@ -85,7 +85,7 @@ async function handleSubmit(value: ModelReadingrecord) {
                     try {
                       await trpc.readingrecord.delete.mutate({ readingrecord_id, updated_at });
 
-                      router.replace(`/my-readingrecord`);
+                      router.replace(`/mypage/readingrecord`);
 
                       openSuccessToast('データを削除しました。');
                     } finally {

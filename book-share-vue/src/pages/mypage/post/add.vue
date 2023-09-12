@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
-import FormPost, { type ModelPost } from '~/pages/my-post/components/FormPost.vue';
+import FormPost, { type ModelPost } from '~/pages/mypage/post/components/FormPost.vue';
 import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
@@ -19,7 +19,7 @@ async function handleSubmit() {
   try {
     const _ = await trpc.post.create.mutate(modelValue.value);
 
-    router.replace(`/my-post`);
+    router.replace(`/mypage/post`);
 
     openSuccessToast('データを保存しました。');
   } finally {
@@ -36,11 +36,11 @@ async function handleSubmit() {
       :items="[
         {
           label: '投稿一覧',
-          to: '/my-post',
+          to: '/mypage/post',
         },
         {
           label: '投稿を書く',
-          to: '/my-post/add',
+          to: '/mypage/post/add',
         },
       ]"
     >
