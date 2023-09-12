@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,40 +7,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator zod {
+  provider                         = "zod-prisma-types"
+  output                           = "../src/schema/zod"
+  useMultipleFiles                 = true
+  createInputTypes                 = false
+  createOptionalDefaultValuesTypes = true
+  createRelationValuesTypes        = true
+}
+
+generator erd {
+  provider                  = "prisma-erd-generator"
+  output                    = "./ERD.md"
+  includeRelationFromFields = true
+}
+
+////////////////////////////////
+// ユーザ関連
+////////////////////////////////
+
 /// ユーザ
 model User {
   user_id Int @id @default(autoincrement())
 
+  /// アバターファイルID
+  avatar_file_id String? @db.Uuid
+  /// アバターイメージ
+  avatar_image   File?   @relation(fields: [avatar_file_id], references: [file_id])
+
+  /// @zod.string.trim().min(1).max(255).email()
   email    String @unique @db.VarChar(255)
-  username String @db.VarChar(50)
-  password String @db.VarChar(255)
+  /// @zod.string.trim().min(1).max(100)
+  username String @db.VarChar(100)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   created_by Int
   updated_at DateTime @updatedAt @db.Timestamptz(3)
   updated_by Int
 
-  lending_volumes  Volume[]  @relation("lending") /// 貸出物
-  borrowed_volumes Volume[]  @relation("borrowed") /// 借用物
-  posts            Post[]
-  sessions         Session[]
+  session_list       Session[]
+  post_list          Post[]
+  readingrecord_list Readingrecord[]
 
   @@index([username], name: "index_username")
-  @@map("users")
+  @@map("user")
 }
+
+////////////////////////////////
+// 汎用機能
+////////////////////////////////
 
 model Session {
   session_id Int @id @default(autoincrement())
 
-  session_key    String   @unique @db.VarChar(255)
+  session_key    String    @unique @db.VarChar(255)
   /// express-session
-  originalMaxAge Int
+  originalMaxAge Int?
   maxAge         Int?
   signed         Boolean?
-  expires        DateTime @default(now()) @db.Timestamptz(3)
+  expires        DateTime? @default(now()) @db.Timestamptz(3)
   httpOnly       Boolean?
-  path           String?
-  domain         String?
+  path           String    @default("")
+  domain         String    @default("")
   secure         Boolean?
   sameSite       Boolean?
   /// custom
@@ -52,54 +79,74 @@ model Session {
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)
 
-  @@map("sessions")
+  @@map("session")
 }
+
+model File {
+  file_id      String @id @default(uuid()) @db.Uuid
+  /// @zod.string.trim().min(1).max(255)
+  originalname String @db.VarChar(255)
+  /// @zod.string.trim().min(1).max(100)
+  mimetype     String @db.VarChar(100)
+  size         Int
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by Int
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+  updated_by Int
+
+  user_list User[]
+
+  @@map("file")
+}
+
+////////////////////////////////
+// 投稿
+////////////////////////////////
 
 model Post {
-  post_id        Int @id @default(autoincrement())
-  contributor_id Int /// 投稿者ID
+  post_id Int @id @default(autoincrement())
 
-  book_id    String  @default("") @db.VarChar(255)
-  book_title String  @default("") @db.VarChar(400)
-  post_title String  @default("") @db.VarChar(255)
-  content    String  @default("") @db.Text()
-  published  Boolean @default(false)
-  hearts     Int     @default(0)
+  toukousya_id Int /// 投稿者ID
+  toukousya    User @relation(fields: [toukousya_id], references: [user_id], onDelete: Cascade) /// 投稿者
 
-  created_at DateTime @default(now()) @db.Timestamptz(3)
-  created_by Int
-  updated_at DateTime @updatedAt @db.Timestamptz(3)
-  updated_by Int
-
-  contributor User @relation(fields: [contributor_id], references: [user_id], onDelete: Cascade) /// 投稿者
-
-  @@map("posts")
-}
-
-/// 物理的な本
-model Volume {
-  volume_id Int @id @default(autoincrement())
-
-  book_id     String       @default("") @db.VarChar(255)
-  book_title  String       @default("") @db.VarChar(400)
-  bookshelf   String       @default("") @db.VarChar(255) /// 本がある場所
-  status      VolumeStatus @default(STOCK)
-  owner_id    Int? /// 所有者ID
-  borrower_id Int? /// 借り手ID
-  borrow_date String       @default("") @db.VarChar(10) // 借りてから 一か月 返さなかったら返却が催促される. など
+  /// @zod.string.trim().max(255)
+  volume_id    String    @default("") @db.VarChar(255)
+  /// @zod.string.trim().max(400)
+  book_title   String    @default("") @db.VarChar(400)
+  /// @zod.string.trim().max(255)
+  post_title   String    @default("") @db.VarChar(255)
+  /// @zod.string.trim()
+  content      String    @default("") @db.Text()
+  published    Boolean   @default(false)
+  published_at DateTime? @db.Timestamptz(3)
+  hearts       Int       @default(0)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
-  created_by Int
   updated_at DateTime @updatedAt @db.Timestamptz(3)
-  updated_by Int
 
-  owner    User? @relation(name: "lending", fields: [owner_id], references: [user_id], onDelete: Cascade) /// 所有者
-  borrower User? @relation(name: "borrowed", fields: [borrower_id], references: [user_id], onDelete: Cascade) /// 借り手
-
-  @@map("volumes")
+  @@map("post")
 }
 
-enum VolumeStatus {
-  STOCK /// 在庫
-  LENDING /// 貸出中
+/// @zod.import(["import { CoerceDateSchema } from '../../_';"])
+model Readingrecord {
+  readingrecord_id Int @id @default(autoincrement())
+
+  user_id Int /// 本を読んだ人のユーザID
+  user    User @relation(fields: [user_id], references: [user_id], onDelete: Cascade) /// 本を読んだ人
+
+  /// @zod.string.trim().max(255)
+  volume_id  String @default("") @db.VarChar(255)
+  /// @zod.string.trim().max(400)
+  book_title String @default("") @db.VarChar(400)
+  /// @zod.custom.use(CoerceDateSchema)
+  read_date  String @default("") @db.VarChar(10)
+  star       Float  @default(0)
+  /// @zod.string.trim().max(255)
+  hitokoto   String @default("") @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("readingrecord")
 }

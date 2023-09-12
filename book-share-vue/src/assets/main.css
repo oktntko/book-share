@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  /* スクロールバーの表示・非表示でずれるため、常にスクロールバーを表示 */
+  @apply overflow-y-scroll;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans JP', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: 'Roboto', monospace;
+}
+
+/* スクロールバー */
+::-webkit-scrollbar {
+  @apply h-2 w-2;
+}
+/* スクロールバーの背景色 */
+::-webkit-scrollbar-track {
+  border-radius: 32px;
+  background-color: #cecece;
+}
+/* スクロールバーの色 */
+::-webkit-scrollbar-thumb {
+  border-radius: 32px;
+  background: #a8a8a8;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator,
+input[type='month']::-webkit-calendar-picker-indicator {
+  @apply cursor-pointer;
+}
+
+/*
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+*/
+
+/* vxe-table */
+[class*='vxe-'],
+[class*='vxe-'] * {
+  font-family: 'Noto Sans JP', sans-serif !important;
+}
+
+.vxe-select .vxe-input--inner {
+  @apply !border-none;
+}
+
+.vxe-select-option {
+  @apply !max-w-full;
+}
+
+.vxe-table--render-default .vxe-table--empty-content {
+  @apply !w-full text-left;
+}
+
+.vxe-pager .vxe-pager--sizes {
+  @apply !w-32;
+}
+/* vxe-table */

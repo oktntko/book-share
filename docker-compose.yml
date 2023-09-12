@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  database:
+    build:
+      context: .
+      dockerfile: ./docker/database/Dockerfile
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      POSTGRES_PASSWORD: postgres # PostgreSQL のスーパーユーザー パスワード
+      TZ: "Asia/Tokyo"
+    restart: on-failure
+    volumes:
+      - bs-volume:/var/lib/postgresql/data
+      - ./docker/database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+
+volumes:
+  bs-volume:

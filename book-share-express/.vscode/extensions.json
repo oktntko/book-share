@@ -2,7 +2,9 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "aaron-bond.better-comments",
-    "Prisma.prisma"
+    "Prisma.prisma",
+    "bierner.markdown-mermaid",
+    "firsttris.vscode-jest-runner",
+    "bierner.markdown-mermaid"
   ]
 }

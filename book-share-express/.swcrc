@@ -8,10 +8,10 @@
       "dynamicImport": false
     },
     "transform": {},
-    "target": "es2021",
+    "target": "es2022",
     "paths": {
       "~/*": ["src/*"],
-      "@/*": ["tests/*"]
+      "@/*": ["test/*"]
     },
     "baseUrl": "./"
   },
