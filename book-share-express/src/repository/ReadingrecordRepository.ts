@@ -52,17 +52,19 @@ async function createReadingrecord(
 ) {
   log.trace(reqid, 'createReadingrecord');
 
-  return prisma.readingrecord.create({
-    include: {},
-    data: {
-      volume_id: readingrecord.volume_id,
-      book_title: readingrecord.book_title,
-      read_date: readingrecord.read_date,
-      star: readingrecord.star,
-      hitokoto: readingrecord.hitokoto,
-      user_id: operator_id,
-    },
-  });
+  return prisma.readingrecord
+    .create({
+      include: {},
+      data: {
+        volume_id: readingrecord.volume_id,
+        book_title: readingrecord.book_title,
+        read_date: readingrecord.read_date,
+        star: readingrecord.star,
+        hitokoto: readingrecord.hitokoto,
+        user_id: operator_id,
+      },
+    })
+    .then((readingrecord) => mergeVolume(reqid, readingrecord));
 }
 
 async function findUniqueReadingrecord(
@@ -86,17 +88,19 @@ async function updateReadingrecord(
 ) {
   log.trace(reqid, 'updateReadingrecord');
 
-  return prisma.readingrecord.update({
-    data: {
-      volume_id: readingrecord.volume_id,
-      book_title: readingrecord.book_title,
-      read_date: readingrecord.read_date,
-      star: readingrecord.star,
-      hitokoto: readingrecord.hitokoto,
-      user_id: operator_id,
-    },
-    where: { readingrecord_id },
-  });
+  return prisma.readingrecord
+    .update({
+      data: {
+        volume_id: readingrecord.volume_id,
+        book_title: readingrecord.book_title,
+        read_date: readingrecord.read_date,
+        star: readingrecord.star,
+        hitokoto: readingrecord.hitokoto,
+        user_id: operator_id,
+      },
+      where: { readingrecord_id },
+    })
+    .then((readingrecord) => mergeVolume(reqid, readingrecord));
 }
 
 async function deleteReadingrecord(reqid: string, prisma: PrismaClient, readingrecord_id: number) {

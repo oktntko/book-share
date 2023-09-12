@@ -19,7 +19,7 @@ export const readingrecord = router({
 
   create: protectedProcedure
     .input(ReadingrecordRouterSchema.createInput)
-    .output(ReadingrecordSchema)
+    .output(ReadingrecordSchemaOutput)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         ReadingrecordService.createReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
@@ -28,7 +28,7 @@ export const readingrecord = router({
 
   get: protectedProcedure
     .input(ReadingrecordRouterSchema.getInput)
-    .output(ReadingrecordSchemaOutput)
+    .output(ReadingrecordSchema)
     .query(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         ReadingrecordService.getReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
@@ -37,7 +37,7 @@ export const readingrecord = router({
 
   update: protectedProcedure
     .input(ReadingrecordRouterSchema.updateInput)
-    .output(ReadingrecordSchema)
+    .output(ReadingrecordSchemaOutput)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         ReadingrecordService.updateReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),

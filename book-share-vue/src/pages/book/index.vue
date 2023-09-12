@@ -64,7 +64,7 @@ function handleSelected(book: RouterOutput['book']['getVolume'], e: PointerEvent
             <RouterLink
               :to="{
                 path: `/`,
-                query: { book_id: volume.id },
+                query: { volume_id: volume.id },
               }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact
@@ -76,7 +76,7 @@ function handleSelected(book: RouterOutput['book']['getVolume'], e: PointerEvent
             <RouterLink
               :to="{
                 path: `/mypage/post/add`,
-                query: { book_id: volume?.id },
+                query: { volume_id: volume?.id },
               }"
               class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               exact

@@ -47,10 +47,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
       </div>
       <!-- 読んだ日 -->
       <div>
-        <label
-          for="book_title"
-          class="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
-        >
+        <label for="read_date" class="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
           読んだ日
         </label>
         <input
@@ -60,7 +57,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
           class="block rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
           required
         />
-        <MyErrorMessage name="read_at" class="text-xs text-red-600" :form-id="formId" />
+        <MyErrorMessage name="read_date" class="text-xs text-red-600" :form-id="formId" />
       </div>
       <!-- 評価 -->
       <!-- https://dev.to/madsstoumann/star-rating-using-a-single-input-i0l -->
@@ -91,7 +88,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
           />
         </div>
 
-        <MyErrorMessage name="read_at" class="text-xs text-red-600" :form-id="formId" />
+        <MyErrorMessage name="star" class="text-xs text-red-600" :form-id="formId" />
       </div>
       <!-- ひとこと -->
       <div>
