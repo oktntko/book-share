@@ -27,7 +27,10 @@ const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
   printType: 'all',
   projection: 'lite',
 });
-const { formId, validateSubmit, revert } = useValidate(BookRouterSchema.listInput, modelValue);
+const { validateSubmit, ErrorMessage, revert } = useValidate(
+  BookRouterSchema.listInput,
+  modelValue,
+);
 
 const data = ref<RouterOutput['book']['listVolume']>({
   total: 0,
@@ -106,7 +109,7 @@ function restoreSession() {
                   />
                   {{ label }}
                 </label>
-                <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="queryfield" />
+                <ErrorMessage class="text-xs text-red-600" for="queryfield" />
               </div>
             </div>
 
@@ -129,7 +132,7 @@ function restoreSession() {
                   />
                   {{ label }}
                 </label>
-                <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="orderBy" />
+                <ErrorMessage class="text-xs text-red-600" for="orderBy" />
               </div>
             </div>
           </div>

@@ -21,7 +21,7 @@ const modelValue = ref<z.infer<typeof UserRouterSchema.listInput>>({
   offset: 0,
 });
 
-const { formId, validateSubmit } = useValidate(UserRouterSchema.listInput, modelValue);
+const { validateSubmit, ErrorMessage } = useValidate(UserRouterSchema.listInput, modelValue);
 
 const data = ref<RouterOutput['user']['list']>({
   total: 0,
@@ -132,7 +132,7 @@ onMounted(() => {
                 maxlength="255"
               />
             </div>
-            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="where.keyword" />
+            <ErrorMessage class="text-xs text-red-600" for="where.keyword" />
           </div>
         </section>
 

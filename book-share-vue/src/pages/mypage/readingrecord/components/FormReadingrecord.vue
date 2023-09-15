@@ -12,7 +12,7 @@ const emit = defineEmits<{
 
 const modelValue = defineModel<ModelReadingrecord>({ required: true });
 
-const { formId, validateSubmit, isDirty, reset } = useValidate(
+const { validateSubmit, ErrorMessage, isDirty, reset } = useValidate(
   ReadingrecordRouterSchema.createInput,
   modelValue,
 );
@@ -43,7 +43,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
           required
           maxlength="400"
         />
-        <MyErrorMessage name="book_title" class="text-xs text-red-600" :form-id="formId" />
+        <ErrorMessage for="book_title" class="text-xs text-red-600" />
       </div>
       <!-- 読んだ日 -->
       <div>
@@ -57,7 +57,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
           class="block rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
           required
         />
-        <MyErrorMessage name="read_date" class="text-xs text-red-600" :form-id="formId" />
+        <ErrorMessage for="read_date" class="text-xs text-red-600" />
       </div>
       <!-- 評価 -->
       <!-- https://dev.to/madsstoumann/star-rating-using-a-single-input-i0l -->
@@ -88,7 +88,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
           />
         </div>
 
-        <MyErrorMessage name="star" class="text-xs text-red-600" :form-id="formId" />
+        <ErrorMessage for="star" class="text-xs text-red-600" />
       </div>
       <!-- ひとこと -->
       <div>
@@ -103,7 +103,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
           required
           maxlength="255"
         />
-        <MyErrorMessage name="hitokoto" class="text-xs text-red-600" :form-id="formId" />
+        <ErrorMessage for="hitokoto" class="text-xs text-red-600" />
       </div>
     </section>
 

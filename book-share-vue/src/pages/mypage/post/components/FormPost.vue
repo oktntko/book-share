@@ -20,7 +20,7 @@ const volume = defineModel<RouterOutput['book']['getVolume'] | undefined>('volum
   required: true,
 });
 
-const { formId, validateSubmit, isDirty, reset } = useValidate(
+const { validateSubmit, ErrorMessage, isDirty, reset } = useValidate(
   PostRouterSchema.createInput,
   modelValue,
 );
@@ -127,7 +127,7 @@ async function openModalSearchBook() {
         >
           タイトル
         </label>
-        <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="post_title" />
+        <ErrorMessage class="text-xs text-red-600" for="post_title" />
       </div>
       <!-- エディタ -->
       <Editor v-model="modelValue.content" editable></Editor>

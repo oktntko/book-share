@@ -1,27 +1,28 @@
 import { diff as difference } from 'deep-object-diff';
 import * as R from 'remeda';
+import type { FunctionalComponent, HTMLAttributes } from 'vue';
+import { type Ref } from 'vue';
 import { z } from 'zod';
 import { openAlertDialog } from '~/utils/ProgrammaticComponentHelper';
-import { type Ref } from 'vue';
+
+interface Props extends /* @vue-ignore */ HTMLAttributes {
+  for: string;
+}
 
 export function useValidate<T extends z.ZodRawShape>(
   schema: z.ZodEffects<z.ZodObject<T>> | z.ZodObject<T>,
   modelValue: Ref<z.infer<typeof schema>>,
 ) {
-  const formId = self.crypto.randomUUID();
-
   // initial value
   const initialValue = ref(R.clone(modelValue.value)) as Ref<z.infer<typeof schema>>;
 
   const diff = computed(() => difference(initialValue.value, modelValue.value));
-  provide(`diff/${formId}`, diff);
 
   const isDirty = computed(() => !R.isEmpty(diff.value as ReadonlyArray<unknown>));
 
   // error object
   type SafeParseReturnType = AwaitedReturnType<typeof schema.safeParseAsync>;
   const error = ref<z.ZodFormattedError<SafeParseReturnType>>();
-  provide(`error/${formId}`, error);
 
   // watch model & run validate
   watch(
@@ -39,7 +40,6 @@ export function useValidate<T extends z.ZodRawShape>(
   const isInvalid = computed(() => !!error.value);
 
   const submitCount = ref(0);
-  provide(`submitCount/${formId}`, submitCount);
 
   // バリデーションする
   function validateSubmit(
@@ -78,8 +78,35 @@ export function useValidate<T extends z.ZodRawShape>(
     return openAlertDialog('入力値に誤りがあります。');
   }
 
+  const ErrorMessage: FunctionalComponent<Props> = (props) => {
+    const keys = props.for.split('.').filter((key) => key);
+
+    const message = computed<string | undefined>(() => {
+      // @ts-ignore
+      const diffValue = R.pathOr(diff.value, keys, undefined); // 自分のキーの差分を取り出す
+      // サブミット済みならエラーメッセージを表示する
+      // 差分がなければエラーメッセージを表示しない
+      if (submitCount.value === 0 && (!diffValue || R.isEmpty(diffValue))) {
+        return;
+      }
+
+      // @ts-ignore
+      const errorValue: any = R.pathOr(error.value, keys, undefined); // 自分のキーのエラーを取り出す
+      if (
+        !errorValue ||
+        R.isEmpty(errorValue) ||
+        !Array.isArray(errorValue._errors) ||
+        !errorValue._errors.length
+      ) {
+        return;
+      }
+      return errorValue._errors[0];
+    });
+
+    return <span>{message.value}</span>;
+  };
+
   return {
-    formId,
     diff,
     error,
     isInvalid,
@@ -88,5 +115,6 @@ export function useValidate<T extends z.ZodRawShape>(
     reset,
     submitCount,
     validateSubmit,
+    ErrorMessage,
   };
 }

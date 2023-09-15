@@ -22,7 +22,10 @@ const modelValue = ref<z.infer<typeof ReadingrecordRouterSchema.listInput>>({
   offset: 0,
 });
 
-const { formId, validateSubmit } = useValidate(ReadingrecordRouterSchema.listInput, modelValue);
+const { validateSubmit, ErrorMessage } = useValidate(
+  ReadingrecordRouterSchema.listInput,
+  modelValue,
+);
 
 const data = ref<RouterOutput['readingrecord']['list']>({
   total: 0,
@@ -70,7 +73,7 @@ onMounted(() => {
                 maxlength="255"
               />
             </div>
-            <MyErrorMessage name="where.keyword" class="text-xs text-red-600" :form-id="formId" />
+            <ErrorMessage for="where.keyword" class="text-xs text-red-600" />
           </div>
         </section>
 

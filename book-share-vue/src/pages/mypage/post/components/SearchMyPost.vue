@@ -24,7 +24,10 @@ const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
   offset: 0,
 });
 
-const { formId, validateSubmit, revert } = useValidate(PostRouterSchema.listInput, modelValue);
+const { validateSubmit, ErrorMessage, revert } = useValidate(
+  PostRouterSchema.listInput,
+  modelValue,
+);
 
 const data = ref<RouterOutput['post']['getMyPostList']>({
   total: 0,
@@ -91,11 +94,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                   {{ option }}
                 </label>
               </div>
-              <MyErrorMessage
-                class="text-xs text-red-600"
-                :form-id="formId"
-                name="where.postStatus"
-              />
+              <ErrorMessage class="text-xs text-red-600" for="where.postStatus" />
             </div>
 
             <!-- ソート -->
@@ -105,7 +104,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                 :model-value="modelValue.sort"
                 :by="(currentSort: object, sortOption: any) => sortOption.value in currentSort"
                 @update:model-value="
-                  (sortOption) => {
+                  (sortOption: any) => {
                     const currentSortValue = R.pathOr(
                       modelValue.sort,
                       [sortOption.value],
@@ -196,7 +195,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                 maxlength="255"
               />
             </div>
-            <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="where.keyword" />
+            <ErrorMessage class="text-xs text-red-600" for="where.keyword" />
           </div>
         </section>
 

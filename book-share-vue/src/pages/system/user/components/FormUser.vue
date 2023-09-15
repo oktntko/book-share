@@ -16,9 +16,10 @@ const emit = defineEmits<{
 
 const modelValue = defineModel<ModelUser>({ required: true });
 
-const { formId, validateSubmit, isDirty, reset } = useValidate<
-  typeof UserRouterSchema.createInput.shape
->(UserRouterSchema.createInput, modelValue);
+const { validateSubmit, ErrorMessage, isDirty, reset } = useValidate(
+  UserRouterSchema.createInput,
+  modelValue,
+);
 
 const handleSubmit = validateSubmit(async () => {
   if (file.value) {
@@ -78,7 +79,7 @@ const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : u
             class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
             required
           />
-          <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="username" />
+          <ErrorMessage class="text-xs text-red-600" for="username" />
         </div>
         <!-- メールアドレス -->
         <div>
@@ -93,7 +94,7 @@ const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : u
             class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
             required
           />
-          <MyErrorMessage class="text-xs text-red-600" :form-id="formId" name="email" />
+          <ErrorMessage class="text-xs text-red-600" for="email" />
         </div>
       </div>
       <!-- 画像 -->
