@@ -1,7 +1,12 @@
-<script setup lang="ts">
-import type { z } from 'zod';
+<script setup lang="tsx">
+import { RouterLink } from 'vue-router';
+import type { VxeGridPropTypes } from 'vxe-table';
+import { type z } from 'zod';
+import MyButton from '~/components/MyButton.vue';
+import MyImage from '~/components/MyImage.vue';
 import { useValidate } from '~/composables/useValidate';
 import type { RouterOutput } from '~/lib/trpc';
+import type { ExtendsColumns } from '~/lib/vxe-table';
 import { trpc } from '~/middleware/trpc';
 import { UserRouterSchema } from '~/schema/UserRouterSchema';
 import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
@@ -31,6 +36,69 @@ const handleSubmit = validateSubmit(async () => {
     loading.value = false;
   }
 });
+
+// https://zenn.dev/jay_es/scraps/20674fa0f7c2f8
+const columns: ExtendsColumns<RouterOutput['user']['list']['user_list'][number]> = [
+  {
+    type: 'seq',
+    width: '48',
+    align: 'right',
+  },
+  {
+    field: 'username',
+    title: '名前',
+    sortable: true,
+    slots: {
+      default: ({ row }) => {
+        return (
+          <div class="flex items-center gap-2">
+            <MyImage
+              srcBase={
+                row.avatar_file_id
+                  ? `api/file/download/${row.avatar_file_id}`
+                  : `https://dummyimage.com/256x256`
+              }
+              width="32"
+              height="32"
+              decoding="async"
+              class="h-8 w-8 rounded-full object-cover object-center"
+              alt="avatar"
+            />
+            <RouterLink
+              to={`/system/user/${row.user_id}`}
+              class="text-blue-600 hover:text-blue-900"
+            >
+              {row.username}
+            </RouterLink>
+          </div>
+        );
+      },
+    },
+  },
+  {
+    field: 'email',
+    title: 'メールアドレス',
+    sortable: true,
+  },
+];
+
+const toolbarConfig: VxeGridPropTypes.ToolbarConfig = {
+  perfect: true,
+  zoom: true,
+  slots: {
+    buttons: () => {
+      return (
+        <div class="ml-4 flex gap-2">
+          <RouterLink to="/system/user/add">
+            <MyButton type="button" classset="text" colorset="blue" secondary>
+              ユーザを追加する
+            </MyButton>
+          </RouterLink>
+        </div>
+      );
+    },
+  },
+};
 
 onMounted(() => {
   handleSubmit();
@@ -83,31 +151,29 @@ onMounted(() => {
     </header>
 
     <main class="shrink grow overflow-y-auto">
-      <VxeToolbar perfect>
-        <template #buttons>
-          <div class="ml-4 flex gap-2">
-            <RouterLink to="/system/user/add">
-              <MyButton type="button" classset="text" colorset="blue" secondary>
-                ユーザを追加する
-              </MyButton>
-            </RouterLink>
-          </div>
-        </template>
-      </VxeToolbar>
-
-      <VxeTable
+      <VxeGrid
         :data="data.user_list"
         border
         :loading="loading"
         show-overflow
         show-header-overflow
+        :columns="columns"
         :column-config="{ resizable: true }"
+        :toolbar-config="toolbarConfig"
         :row-config="{ isCurrent: true, isHover: true }"
         :sort-config="{
           defaultSort: modelValue.sort,
           multiple: true,
           remote: true,
           trigger: 'cell',
+        }"
+        :pager-config="{
+          perfect: true,
+          loading,
+          currentPage: modelValue.offset / modelValue.limit + 1,
+          pageSize: modelValue.limit,
+          pageSizes: [30, 50, 100],
+          total: data.total,
         }"
         @sort-change="
           ({ sortList }) => {
@@ -121,42 +187,6 @@ onMounted(() => {
             handleSubmit();
           }
         "
-      >
-        <VxeColumn type="seq" width="48" align="right"></VxeColumn>
-        <VxeColumn field="username" title="名前" sortable>
-          <template #default="{ row }">
-            <div class="flex items-center gap-2">
-              <MyImage
-                :src-base="
-                  row.avatar_file_id
-                    ? `api/file/download/${row.avatar_file_id}`
-                    : `https://dummyimage.com/256x256`
-                "
-                width="32"
-                height="32"
-                decoding="async"
-                class="h-8 w-8 rounded-full object-cover object-center"
-                alt="avatar"
-              />
-              <RouterLink
-                :to="`/system/user/${row.user_id}`"
-                class="text-blue-600 hover:text-blue-900"
-              >
-                {{ row.username }}
-              </RouterLink>
-            </div>
-          </template>
-        </VxeColumn>
-        <VxeColumn field="email" title="メールアドレス" sortable></VxeColumn>
-      </VxeTable>
-
-      <VxePager
-        :loading="loading"
-        :current-page="modelValue.offset / modelValue.limit + 1"
-        :page-size="modelValue.limit"
-        :total="data.total"
-        :page-sizes="[30, 50, 100]"
-        perfect
         @page-change="
           ({ pageSize, currentPage }) => {
             modelValue.limit = pageSize;
@@ -166,7 +196,7 @@ onMounted(() => {
           }
         "
       >
-      </VxePager>
+      </VxeGrid>
     </main>
 
     <footer></footer>

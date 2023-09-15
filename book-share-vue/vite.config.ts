@@ -1,12 +1,13 @@
 import vue from '@vitejs/plugin-vue';
+import vueJsx from '@vitejs/plugin-vue-jsx';
 import { fileURLToPath, URL } from 'node:url';
 import AutoImport from 'unplugin-auto-import/vite';
 import Unfonts from 'unplugin-fonts/vite';
+import { HeadlessUiResolver, VueUseComponentsResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
 import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
-import { VueUseComponentsResolver, HeadlessUiResolver } from 'unplugin-vue-components/resolvers';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,6 +17,7 @@ export default defineConfig({
         defineModel: true,
       },
     }),
+    vueJsx(),
     Pages({
       exclude: ['**/components/*.vue'],
     }),

@@ -25,15 +25,7 @@ declare module 'vue' {
     OnClickOutside: typeof import('@vueuse/components')['OnClickOutside']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    VxeButton: typeof import('vxe-table')['VxeButton']
-    VxeColumn: typeof import('vxe-table')['VxeColumn']
-    VxeInput: typeof import('vxe-table')['VxeInput']
-    VxeList: typeof import('vxe-table')['VxeList']
-    VxeOption: typeof import('vxe-table')['VxeOption']
+    VxeGrid: typeof import('vxe-table')['VxeGrid']
     VxePager: typeof import('vxe-table')['VxePager']
-    VxePulldown: typeof import('vxe-table')['VxePulldown']
-    VxeSelect: typeof import('vxe-table')['VxeSelect']
-    VxeTable: typeof import('vxe-table')['VxeTable']
-    VxeToolbar: typeof import('vxe-table')['VxeToolbar']
   }
 }
