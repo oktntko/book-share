@@ -5,8 +5,8 @@ import { type Ref } from 'vue';
 import { z } from 'zod';
 import { openAlertDialog } from '~/utils/ProgrammaticComponentHelper';
 
-interface Props extends /* @vue-ignore */ HTMLAttributes {
-  for: string;
+interface Props<T> extends /* @vue-ignore */ HTMLAttributes {
+  for: Paths<T>;
 }
 
 export function useValidate<T extends z.ZodRawShape>(
@@ -78,7 +78,8 @@ export function useValidate<T extends z.ZodRawShape>(
     return openAlertDialog('入力値に誤りがあります。');
   }
 
-  const ErrorMessage: FunctionalComponent<Props> = (props) => {
+  const ErrorMessage: FunctionalComponent<Props<z.infer<typeof schema>>> = (props) => {
+    // @ts-ignore
     const keys = props.for.split('.').filter((key) => key);
 
     const message = computed<string | undefined>(() => {
