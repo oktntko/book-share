@@ -4,7 +4,8 @@ import { trpc } from '~/middleware/trpc';
 import FormReadingrecord, {
   type ModelReadingrecord,
 } from '~/pages/mypage/readingrecord/components/FormReadingrecord.vue';
-import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
+import { useToast } from '~/plugin/ToastPlugin';
+import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const emit = defineEmits<{
   success: [RouterOutput['readingrecord']['update']];
@@ -26,6 +27,7 @@ onMounted(async () => {
   updated_at.value = readingrecord.updated_at;
 });
 
+const toast = useToast();
 async function handleSubmit(modelValue: ModelReadingrecord) {
   const loading = openLoading();
   try {
@@ -37,7 +39,7 @@ async function handleSubmit(modelValue: ModelReadingrecord) {
 
     emit('success', readingrecord);
 
-    openSuccessToast('データを保存しました。');
+    toast.success('データを保存しました。');
   } finally {
     loading.close();
   }

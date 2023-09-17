@@ -2,7 +2,8 @@
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
 import FormPost, { type ModelPost } from '~/pages/mypage/post/components/FormPost.vue';
-import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
+import { useToast } from '~/plugin/ToastPlugin';
+import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const route = useRoute();
@@ -23,6 +24,7 @@ onMounted(async () => {
   }
 });
 
+const toast = useToast();
 async function handleSubmit() {
   const loading = openLoading();
   try {
@@ -30,7 +32,7 @@ async function handleSubmit() {
 
     router.replace(`/mypage/post`);
 
-    openSuccessToast('データを保存しました。');
+    toast.success('データを保存しました。');
   } finally {
     loading.close();
   }

@@ -8,7 +8,7 @@ import Editor from '~/pages/components/Editor.vue';
 import { PostRouterSchema } from '~/schema/PostRouterSchema';
 import { SearchParamPostStatusList } from '~/schema/option/PostStatusSchema';
 import type { PostScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas';
-import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
+import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
   where: {
@@ -351,7 +351,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                               (inlist) => inlist.post_id !== post.post_id,
                             );
 
-                            openSuccessToast('データを削除しました。');
+                            $toast.success('データを削除しました。');
                           } finally {
                             loading.close();
                           }

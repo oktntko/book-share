@@ -5,10 +5,12 @@ import FormUser, {
   type ResetUser,
 } from '~/pages/system/user/components/FormUser.vue';
 import { useDialog } from '~/plugin/DialogPlugin';
-import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
+import { useToast } from '~/plugin/ToastPlugin';
+import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const route = useRoute();
+const toast = useToast();
 
 const user_id = Number(route.params.user_id);
 const updated_at = ref(new Date());
@@ -33,7 +35,7 @@ async function handleSubmit(modelValue: Ref<ModelUser>, reset: ResetUser) {
     reset(user);
     updated_at.value = user.updated_at;
 
-    openSuccessToast('データを保存しました。');
+    toast.success('データを保存しました。');
   } finally {
     loading.close();
   }
@@ -48,7 +50,7 @@ async function handleDelete() {
 
       router.replace(`/system/user`);
 
-      openSuccessToast('データを削除しました。');
+      toast.success('データを削除しました。');
     } finally {
       loading.close();
     }

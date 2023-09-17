@@ -2,7 +2,8 @@
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
 import FormPost, { type ModelPost } from '~/pages/mypage/post/components/FormPost.vue';
-import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
+import { useToast } from '~/plugin/ToastPlugin';
+import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const route = useRoute();
@@ -23,6 +24,7 @@ onMounted(async () => {
   updated_at = post.updated_at;
 });
 
+const toast = useToast();
 async function handleSubmit(value: ModelPost) {
   const loading = openLoading();
   try {
@@ -34,7 +36,7 @@ async function handleSubmit(value: ModelPost) {
 
     router.replace(`/mypage/post`);
 
-    openSuccessToast('データを保存しました。');
+    toast.success('データを保存しました。');
   } finally {
     loading.close();
   }
@@ -91,10 +93,10 @@ async function handleSubmit(value: ModelPost) {
 
                       if (post.published) {
                         router.push(`/post/${post.post_id}`);
-                        openSuccessToast('投稿を公開しました。');
+                        toast.success('投稿を公開しました。');
                       } else {
                         router.push(`/mypage/post`);
-                        openSuccessToast('投稿を非公開にました。');
+                        toast.success('投稿を非公開にました。');
                       }
                     } finally {
                       loading.close();
@@ -124,7 +126,7 @@ async function handleSubmit(value: ModelPost) {
 
                       router.replace(`/mypage/post`);
 
-                      openSuccessToast('データを削除しました。');
+                      toast.success('データを削除しました。');
                     } finally {
                       loading.close();
                     }
