@@ -3,7 +3,7 @@ import * as R from 'remeda';
 import type { FunctionalComponent, HTMLAttributes } from 'vue';
 import { type Ref } from 'vue';
 import { z } from 'zod';
-import { openAlertDialog } from '~/utils/ProgrammaticComponentHelper';
+import { useDialog } from '~/plugin/DialogPlugin';
 
 interface Props<T> extends /* @vue-ignore */ HTMLAttributes {
   for: Paths<T>;
@@ -72,10 +72,11 @@ export function useValidate<T extends z.ZodRawShape>(
     initialValue.value = resetlValue;
   }
 
+  const dialog = useDialog();
   async function handleInvalidSubmit(error: z.ZodFormattedError<unknown>) {
     if (import.meta.env.DEV) console.log(error);
 
-    return openAlertDialog('入力値に誤りがあります。');
+    return dialog.alert('入力値に誤りがあります。');
   }
 
   const ErrorMessage: FunctionalComponent<Props<z.infer<typeof schema>>> = (props) => {

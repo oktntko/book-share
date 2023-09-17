@@ -1,9 +1,13 @@
 import type { Session, SessionData } from 'express-session';
+import { z } from '~/lib/zod';
 import { prisma } from '~/middleware/prisma';
-import { protectedProcedure, publicProcedure, router } from '~/middleware/trpc';
+import { getUserFromSession } from '~/middleware/session';
+import { publicProcedure, router } from '~/middleware/trpc';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
-import { OkSchema } from '~/schema/_';
 import { AuthService } from '~/service/AuthService';
+
+const OkSchema = z.object({ ok: z.literal(true) });
+const AuthSchema = z.object({ auth: z.boolean() });
 
 export const auth = router({
   create: publicProcedure
@@ -25,8 +29,14 @@ export const auth = router({
       });
     }),
 
-  get: protectedProcedure.output(OkSchema).query(async () => {
-    return { ok: true };
+  get: publicProcedure.output(AuthSchema).query(async ({ ctx }) => {
+    const user = await getUserFromSession(
+      ctx.reqid,
+      ctx.req.session.user_id,
+      ctx.req.session.cookie.expires,
+    );
+
+    return { auth: !!user };
   }),
 
   delete: publicProcedure.output(OkSchema).mutation(async ({ ctx }) => {

@@ -7,13 +7,21 @@ import { isRouterError } from '~/lib/trpc';
 import { useTable } from '~/lib/vxe-table';
 import '~/lib/zod';
 import router from '~/middleware/router';
-import { openDialog } from '~/utils/ProgrammaticComponentHelper';
+import DialogPlugin from '~/plugin/DialogPlugin';
+import { useAuthStore } from '~/stores/AuthStore';
 
 const app = createApp(App);
 
 app.use(createPinia());
+
+// pinia をインストールしてからでないと使えないため順番は大事
+const { fetchAuth } = useAuthStore();
+router.afterEach(fetchAuth);
 app.use(router);
+
 app.use(useTable);
+
+app.use(DialogPlugin);
 
 app.mount('#app');
 
@@ -27,7 +35,7 @@ function handleError(error: unknown) {
       router.replace('/login');
     }
 
-    return openDialog({
+    return app.config.globalProperties.$dialog.open({
       colorset,
       icon: colorset === 'blue' ? 'bx:info-circle' : 'bx:error',
       message: error.message,
@@ -64,7 +72,9 @@ app.config.errorHandler = handleError;
  * やること:
  *  - そもそも store を使っていないので、 store を使ってログイン状態を管理する
  *  - モーダルを使って store が引き継がれないことを確認する
+ *    - 🧐 store は引き継がれているが、 config.errorHandler は引き継がれていない。 vxe-select がないといわれる
  *  - プラグインのやり方にする必要がある？
+ *    - ✅ ダイアログをプラグイン化
  *  - モーダルコンポーネントを作るときに、親アプリから子アプリにコンテキストを渡す ⭐ここが重要と思われる⭐
  *
  * 課題②: 複数作成したときにスタックを管理していない

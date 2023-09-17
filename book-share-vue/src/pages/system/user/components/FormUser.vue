@@ -4,8 +4,9 @@ import MyInputFile from '~/components/MyInputFile.vue';
 import { useValidate } from '~/composables/useValidate';
 import { uploadSingleFile } from '~/lib/axios';
 import { trpc } from '~/middleware/trpc';
+import { useDialog } from '~/plugin/DialogPlugin';
 import { UserRouterSchema } from '~/schema/UserRouterSchema';
-import { openAlertDialog, openConfirmDialog, openModal } from '~/utils/ProgrammaticComponentHelper';
+import { openModal } from '~/utils/ProgrammaticComponentHelper';
 
 export type ModelUser = z.infer<typeof UserRouterSchema.createInput>;
 export type ResetUser = typeof reset;
@@ -21,6 +22,7 @@ const { validateSubmit, ErrorMessage, isDirty, reset } = useValidate(
   modelValue,
 );
 
+const dialog = useDialog();
 const handleSubmit = validateSubmit(async () => {
   if (file.value) {
     try {
@@ -31,7 +33,7 @@ const handleSubmit = validateSubmit(async () => {
       modelValue.value.avatar_file_id = file_id;
       file.value = undefined;
     } catch {
-      openAlertDialog('ファイルのアップロードに失敗しました。');
+      dialog.alert('ファイルのアップロードに失敗しました。');
       return;
     }
   }
@@ -42,7 +44,7 @@ const handleSubmit = validateSubmit(async () => {
 async function handleDeleteImage() {
   if (
     modelValue.value.avatar_file_id &&
-    (await openConfirmDialog('ファイルを削除しますか？\nこの操作は取り消せません。'))
+    (await dialog.confirm('ファイルを削除しますか？\nこの操作は取り消せません。'))
   ) {
     await trpc.file.delete.mutate({ file_id: modelValue.value.avatar_file_id });
     // TODO リセットしないと変更があったように見えてしまう。しかし、 modelValue でリセットすると、変更していた状態も失う

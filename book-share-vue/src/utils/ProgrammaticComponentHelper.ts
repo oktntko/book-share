@@ -1,11 +1,9 @@
 /* eslint-disable vue/one-component-per-file */
 import { createApp, type App } from 'vue';
-import MyDialog from '~/components/MyDialog.vue';
 import MyLoading from '~/components/MyLoading.vue';
 import MyModal from '~/components/MyModal.vue';
 import MyToast from '~/components/MyToast.vue';
 import type { ComponentProps } from '~/lib/utility-types';
-
 ////////////////////////////////
 // ローディング
 ////////////////////////////////
@@ -28,63 +26,6 @@ export function openLoading(props?: LoadingProps) {
   return {
     close: vm.close,
   };
-}
-
-////////////////////////////////
-// ダイアログ
-////////////////////////////////
-
-type DialogProps = Omit<ComponentProps<typeof MyDialog>, 'onConfirm' | 'onCancel'>;
-
-export async function openDialog(props?: DialogProps) {
-  const parent = document.createElement('div');
-  document.body.appendChild(parent);
-
-  let app: App<Element>;
-  return new Promise<boolean>((resolve) => {
-    app = createApp(MyDialog, {
-      ...props,
-      onConfirm: () => {
-        resolve(true);
-      },
-      onCancel: () => {
-        resolve(false);
-      },
-    });
-    app.mount(parent);
-  }).finally(() => {
-    app.unmount();
-    document.body.removeChild(parent);
-  });
-}
-
-export async function openAlertDialog(message: string) {
-  return openDialog({
-    message,
-    colorset: 'yellow',
-    icon: 'bx:error',
-    confirmText: 'OK',
-    closeable: {
-      button: false,
-      escape: true,
-      outside: true,
-    },
-  });
-}
-
-export async function openConfirmDialog(message: string) {
-  return openDialog({
-    message,
-    colorset: 'yellow',
-    icon: 'bx:info-circle',
-    confirmText: 'OK',
-    cancelText: 'やめる',
-    closeable: {
-      button: true,
-      escape: true,
-      outside: true,
-    },
-  });
 }
 
 ////////////////////////////////

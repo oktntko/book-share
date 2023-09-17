@@ -4,11 +4,8 @@ import FormUser, {
   type ModelUser,
   type ResetUser,
 } from '~/pages/system/user/components/FormUser.vue';
-import {
-  openConfirmDialog,
-  openLoading,
-  openSuccessToast,
-} from '~/utils/ProgrammaticComponentHelper';
+import { useDialog } from '~/plugin/DialogPlugin';
+import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const route = useRoute();
@@ -42,8 +39,9 @@ async function handleSubmit(modelValue: Ref<ModelUser>, reset: ResetUser) {
   }
 }
 
+const dialog = useDialog();
 async function handleDelete() {
-  if (await openConfirmDialog('データを削除しますか？\nこの操作は取り消せません。')) {
+  if (await dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
     const loading = openLoading();
     try {
       await trpc.user.delete.mutate({ user_id, updated_at: updated_at.value });

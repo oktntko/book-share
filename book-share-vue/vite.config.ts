@@ -23,7 +23,7 @@ export default defineConfig({
     }),
     Layouts(),
     AutoImport({
-      imports: ['vue', 'vue-router', '@vueuse/core'],
+      imports: ['vue', 'vue-router', '@vueuse/core', 'pinia'],
       dts: 'src/auto-imports.d.ts',
     }),
     Components({

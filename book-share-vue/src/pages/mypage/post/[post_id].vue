@@ -2,11 +2,7 @@
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
 import FormPost, { type ModelPost } from '~/pages/mypage/post/components/FormPost.vue';
-import {
-  openConfirmDialog,
-  openLoading,
-  openSuccessToast,
-} from '~/utils/ProgrammaticComponentHelper';
+import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const route = useRoute();
@@ -84,9 +80,7 @@ async function handleSubmit(value: ModelPost) {
               secondary
               @click="
                 async () => {
-                  if (
-                    await openConfirmDialog(`投稿を${published ? '非公開に' : '公開'}しますか？`)
-                  ) {
+                  if (await $dialog.confirm(`投稿を${published ? '非公開に' : '公開'}しますか？`)) {
                     const loading = openLoading();
                     try {
                       const post = await trpc.post.publish.mutate({
@@ -123,9 +117,7 @@ async function handleSubmit(value: ModelPost) {
               secondary
               @click="
                 async () => {
-                  if (
-                    await openConfirmDialog('データを削除しますか？\nこの操作は取り消せません。')
-                  ) {
+                  if (await $dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
                     const loading = openLoading();
                     try {
                       await trpc.post.delete.mutate({ post_id, updated_at });

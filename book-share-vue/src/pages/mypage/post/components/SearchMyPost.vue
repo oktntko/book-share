@@ -8,11 +8,7 @@ import Editor from '~/pages/components/Editor.vue';
 import { PostRouterSchema } from '~/schema/PostRouterSchema';
 import { SearchParamPostStatusList } from '~/schema/option/PostStatusSchema';
 import type { PostScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas';
-import {
-  openConfirmDialog,
-  openLoading,
-  openSuccessToast,
-} from '~/utils/ProgrammaticComponentHelper';
+import { openLoading, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
 
 const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
   where: {
@@ -340,7 +336,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                     @click.prevent="
                       async () => {
                         if (
-                          await openConfirmDialog(
+                          await $dialog.confirm(
                             `データを削除しますか？\nこの操作は取り消せません。\n投稿タイトル: ${post.post_title}`,
                           )
                         ) {

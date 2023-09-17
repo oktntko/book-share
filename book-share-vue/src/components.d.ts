@@ -8,6 +8,10 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Icon: typeof import('@iconify/vue')['Icon']
+    Listbox: typeof import('@headlessui/vue')['Listbox']
+    ListboxButton: typeof import('@headlessui/vue')['ListboxButton']
+    ListboxOption: typeof import('@headlessui/vue')['ListboxOption']
+    ListboxOptions: typeof import('@headlessui/vue')['ListboxOptions']
     MyBreadcrumb: typeof import('./components/MyBreadcrumb.vue')['default']
     MyButton: typeof import('./components/MyButton.vue')['default']
     MyDialog: typeof import('./components/MyDialog.vue')['default']

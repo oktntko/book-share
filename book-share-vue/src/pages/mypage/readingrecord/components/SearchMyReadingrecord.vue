@@ -3,15 +3,10 @@ import type { z } from 'zod';
 import { useValidate } from '~/composables/useValidate';
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
-import { ReadingrecordRouterSchema } from '~/schema/ReadingrecordRouterSchema';
-import ViewBookReadingrecord from '~/pages/mypage/readingrecord/components/ViewBookReadingrecord.vue';
-import {
-  openConfirmDialog,
-  openLoading,
-  openModal,
-  openSuccessToast,
-} from '~/utils/ProgrammaticComponentHelper';
 import ModalEditReadingrecord from '~/pages/mypage/readingrecord/components/ModalEditReadingrecord.vue';
+import ViewBookReadingrecord from '~/pages/mypage/readingrecord/components/ViewBookReadingrecord.vue';
+import { ReadingrecordRouterSchema } from '~/schema/ReadingrecordRouterSchema';
+import { openLoading, openModal, openSuccessToast } from '~/utils/ProgrammaticComponentHelper';
 
 const modelValue = ref<z.infer<typeof ReadingrecordRouterSchema.listInput>>({
   where: {
@@ -148,9 +143,7 @@ onMounted(() => {
               "
               @delete="
                 async () => {
-                  if (
-                    await openConfirmDialog('データを削除しますか？\nこの操作は取り消せません。')
-                  ) {
+                  if (await $dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
                     const loading = openLoading();
                     try {
                       await trpc.readingrecord.delete.mutate(readingrecord);
