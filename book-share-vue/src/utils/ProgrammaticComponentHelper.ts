@@ -1,7 +1,6 @@
 /* eslint-disable vue/one-component-per-file */
-import { createApp, type App } from 'vue';
+import { createApp } from 'vue';
 import MyLoading from '~/components/MyLoading.vue';
-import MyModal from '~/components/MyModal.vue';
 import MyToast from '~/components/MyToast.vue';
 import type { ComponentProps } from '~/lib/utility-types';
 ////////////////////////////////
@@ -83,33 +82,5 @@ export async function openInfoToast(message: string) {
   return openToast({
     colorset: 'info',
     message,
-  });
-}
-
-////////////////////////////////
-// モーダル
-////////////////////////////////
-
-type ModalProps = Omit<ComponentProps<typeof MyModal>, 'onSuccess' | 'onClose'>;
-
-export async function openModal<T>(props: ModalProps) {
-  const parent = document.createElement('div');
-  document.body.appendChild(parent);
-
-  let app: App<Element>;
-  return new Promise<T | undefined>((resolve) => {
-    app = createApp(MyModal, {
-      ...props,
-      onSuccess: (data: T) => {
-        resolve(data);
-      },
-      onClose: () => {
-        resolve(undefined);
-      },
-    });
-    app.mount(parent);
-  }).finally(() => {
-    app.unmount();
-    document.body.removeChild(parent);
   });
 }

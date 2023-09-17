@@ -6,7 +6,6 @@ import { uploadSingleFile } from '~/lib/axios';
 import { trpc } from '~/middleware/trpc';
 import { useDialog } from '~/plugin/DialogPlugin';
 import { UserRouterSchema } from '~/schema/UserRouterSchema';
-import { openModal } from '~/utils/ProgrammaticComponentHelper';
 
 export type ModelUser = z.infer<typeof UserRouterSchema.createInput>;
 export type ResetUser = typeof reset;
@@ -136,7 +135,7 @@ const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : u
           class="w-64"
           @click="
             async () => {
-              file = await openModal<File>({
+              file = await $modal.open<File>({
                 component: MyInputFile,
                 componentProps: { accept: 'image/*' },
                 componentEvents: {},

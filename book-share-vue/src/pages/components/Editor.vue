@@ -13,7 +13,6 @@ import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
 import { BubbleMenu, useEditor, EditorContent } from '@tiptap/vue-3';
-import { openModal } from '~/utils/ProgrammaticComponentHelper';
 import EditorShortcutKeysHelp from './EditorShortcutKeysHelp.vue';
 
 const props = defineProps<{
@@ -105,13 +104,6 @@ function addImage() {
   if (url) {
     editor.value?.chain().focus().setImage({ src: url }).run();
   }
-}
-function openHelp() {
-  openModal({
-    component: EditorShortcutKeysHelp,
-    componentEvents: {},
-    componentProps: {},
-  });
 }
 </script>
 
@@ -437,7 +429,15 @@ function openHelp() {
               type="button"
               title="Help"
               class="m-1 flex h-8 w-8 items-center justify-center rounded transition-colors hover:bg-gray-200 hover:text-black"
-              @click="openHelp"
+              @click="
+                () => {
+                  $modal.open({
+                    component: EditorShortcutKeysHelp,
+                    componentEvents: {},
+                    componentProps: {},
+                  });
+                }
+              "
             >
               <Icon icon="bx:help-circle" class="m-1 h-6 w-6"></Icon>
             </button>

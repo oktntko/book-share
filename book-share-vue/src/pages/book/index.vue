@@ -2,7 +2,6 @@
 import type { RouterOutput } from '~/lib/trpc';
 import SearchBook from '~/pages/book/components/SearchBook.vue';
 import ModalAddReadingrecord from '~/pages/mypage/readingrecord/components/ModalAddReadingrecord.vue';
-import { openModal } from '~/utils/ProgrammaticComponentHelper';
 
 const volume = ref<RouterOutput['book']['getVolume']>();
 const p = ref({ pageX: 0, pageY: 0 });
@@ -46,7 +45,7 @@ function handleSelected(book: RouterOutput['book']['getVolume'], e: PointerEvent
               class="block cursor-pointer border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               @click="
                 () => {
-                  openModal({
+                  $modal.open({
                     component: ModalAddReadingrecord,
                     componentProps: {
                       volume_id: volume?.id ?? '',
