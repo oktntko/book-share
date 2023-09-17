@@ -8,6 +8,9 @@ import { useTable } from '~/lib/vxe-table';
 import '~/lib/zod';
 import router from '~/middleware/router';
 import DialogPlugin from '~/plugin/DialogPlugin';
+import LoadingPlugin from '~/plugin/LoadingPlugin';
+import ModalPlugin from '~/plugin/ModalPlugin';
+import ToastPlugin from '~/plugin/ToastPlugin';
 import { useAuthStore } from '~/stores/AuthStore';
 
 const app = createApp(App);
@@ -22,6 +25,9 @@ app.use(router);
 app.use(useTable);
 
 app.use(DialogPlugin);
+app.use(LoadingPlugin);
+app.use(ModalPlugin);
+app.use(ToastPlugin);
 
 app.mount('#app');
 

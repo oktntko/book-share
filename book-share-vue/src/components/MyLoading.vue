@@ -1,5 +1,5 @@
 <script lang="ts">
-interface CanCancel {
+export interface CanCancel {
   escape: boolean;
   outside: boolean;
 }
@@ -9,8 +9,8 @@ export default defineComponent({
     canCancel: {
       type: Object as PropType<CanCancel>,
       default: () => ({
-        escape: true,
-        outside: true,
+        escape: false,
+        outside: false,
       }),
     },
   },

@@ -8,7 +8,6 @@ import Editor from '~/pages/components/Editor.vue';
 import { PostRouterSchema } from '~/schema/PostRouterSchema';
 import { SearchParamPostStatusList } from '~/schema/option/PostStatusSchema';
 import type { PostScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas';
-import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
   where: {
@@ -340,7 +339,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                             `データを削除しますか？\nこの操作は取り消せません。\n投稿タイトル: ${post.post_title}`,
                           )
                         ) {
-                          const loading = openLoading();
+                          const loading = $loading.open();
                           try {
                             await trpc.post.delete.mutate({
                               post_id: post.post_id,

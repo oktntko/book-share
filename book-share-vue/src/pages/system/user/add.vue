@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { trpc } from '~/middleware/trpc';
 import FormUser, { type ModelUser } from '~/pages/system/user/components/FormUser.vue';
+import { useLoading } from '~/plugin/LoadingPlugin';
 import { useToast } from '~/plugin/ToastPlugin';
-import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const toast = useToast();
@@ -13,8 +13,9 @@ const modelValue = ref<ModelUser>({
   avatar_file_id: null,
 });
 
+const $loading = useLoading();
 async function handleSubmit() {
-  const loading = openLoading();
+  const loading = $loading.open();
   try {
     const user = await trpc.user.create.mutate(modelValue.value);
 

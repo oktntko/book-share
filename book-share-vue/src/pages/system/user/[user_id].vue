@@ -5,8 +5,8 @@ import FormUser, {
   type ResetUser,
 } from '~/pages/system/user/components/FormUser.vue';
 import { useDialog } from '~/plugin/DialogPlugin';
+import { useLoading } from '~/plugin/LoadingPlugin';
 import { useToast } from '~/plugin/ToastPlugin';
-import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const route = useRoute();
@@ -23,8 +23,9 @@ onMounted(async () => {
   updated_at.value = user.updated_at;
 });
 
+const $loading = useLoading();
 async function handleSubmit(modelValue: Ref<ModelUser>, reset: ResetUser) {
-  const loading = openLoading();
+  const loading = $loading.open();
   try {
     const user = await trpc.user.update.mutate({
       ...modelValue.value,
@@ -44,7 +45,7 @@ async function handleSubmit(modelValue: Ref<ModelUser>, reset: ResetUser) {
 const dialog = useDialog();
 async function handleDelete() {
   if (await dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
-    const loading = openLoading();
+    const loading = $loading.open();
     try {
       await trpc.user.delete.mutate({ user_id, updated_at: updated_at.value });
 

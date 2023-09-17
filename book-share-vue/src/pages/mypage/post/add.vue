@@ -2,8 +2,8 @@
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/middleware/trpc';
 import FormPost, { type ModelPost } from '~/pages/mypage/post/components/FormPost.vue';
+import { useLoading } from '~/plugin/LoadingPlugin';
 import { useToast } from '~/plugin/ToastPlugin';
-import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 const route = useRoute();
@@ -25,8 +25,9 @@ onMounted(async () => {
 });
 
 const toast = useToast();
+const $loading = useLoading();
 async function handleSubmit() {
-  const loading = openLoading();
+  const loading = $loading.open();
   try {
     const _ = await trpc.post.create.mutate(modelValue.value);
 

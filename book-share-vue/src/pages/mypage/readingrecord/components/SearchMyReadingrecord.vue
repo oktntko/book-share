@@ -6,7 +6,6 @@ import { trpc } from '~/middleware/trpc';
 import ModalEditReadingrecord from '~/pages/mypage/readingrecord/components/ModalEditReadingrecord.vue';
 import ViewBookReadingrecord from '~/pages/mypage/readingrecord/components/ViewBookReadingrecord.vue';
 import { ReadingrecordRouterSchema } from '~/schema/ReadingrecordRouterSchema';
-import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const modelValue = ref<z.infer<typeof ReadingrecordRouterSchema.listInput>>({
   where: {
@@ -144,7 +143,7 @@ onMounted(() => {
               @delete="
                 async () => {
                   if (await $dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
-                    const loading = openLoading();
+                    const loading = $loading.open();
                     try {
                       await trpc.readingrecord.delete.mutate(readingrecord);
 

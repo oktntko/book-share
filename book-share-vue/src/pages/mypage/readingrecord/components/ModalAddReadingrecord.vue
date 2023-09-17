@@ -5,8 +5,8 @@ import { trpc } from '~/middleware/trpc';
 import FormReadingrecord, {
   type ModelReadingrecord,
 } from '~/pages/mypage/readingrecord/components/FormReadingrecord.vue';
+import { useLoading } from '~/plugin/LoadingPlugin';
 import { useToast } from '~/plugin/ToastPlugin';
-import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const emit = defineEmits<{
   success: [RouterOutput['readingrecord']['create']];
@@ -27,8 +27,9 @@ const modelValue = ref<ModelReadingrecord>({
 });
 
 const toast = useToast();
+const $loading = useLoading();
 async function handleSubmit() {
-  const loading = openLoading();
+  const loading = $loading.open();
   try {
     const readingrecord = await trpc.readingrecord.create.mutate(modelValue.value);
 

@@ -7,8 +7,8 @@ meta:
 import type { z } from 'zod';
 import { useValidate } from '~/composables/useValidate';
 import { trpc } from '~/middleware/trpc';
+import { useLoading } from '~/plugin/LoadingPlugin';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
-import { openLoading } from '~/utils/ProgrammaticComponentHelper';
 
 const router = useRouter();
 
@@ -18,8 +18,9 @@ const modelValue = ref<z.infer<typeof AuthRouterSchema.createInput>>({
 
 const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.createInput, modelValue);
 
+const $loading = useLoading();
 const handleSubmit = validateSubmit(async () => {
-  const loading = openLoading();
+  const loading = $loading.open();
   try {
     await trpc.auth.create.mutate(modelValue.value);
 
