@@ -30,6 +30,7 @@ export const UserSchema = z.object({
    */
   avatar_file_id: z.string().nullable(),
   email: z.string().trim().min(1).max(255).email(),
+  password: z.string().trim().min(1).max(255),
   username: z.string().trim().min(1).max(100),
   created_at: z.coerce.date(),
   created_by: z.number().int(),

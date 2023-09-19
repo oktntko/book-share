@@ -10,7 +10,6 @@ export async function createContext(opts: trpcExpress.CreateExpressContextOption
   return {
     req: opts.req,
     reqid: opts.req.id,
-    res: opts.res,
   };
 }
 
@@ -66,7 +65,6 @@ const isAuthed = middleware(async ({ next, ctx }) => {
     ctx: {
       ...ctx,
       operator_id: user.user_id,
-      user,
     },
   });
 });

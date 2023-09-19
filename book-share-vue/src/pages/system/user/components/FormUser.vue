@@ -75,7 +75,6 @@ const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : u
           <input
             id="username"
             v-model.lazy="modelValue.username"
-            name="username"
             type="text"
             class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
             required
@@ -90,7 +89,6 @@ const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : u
           <input
             id="email"
             v-model.lazy="modelValue.email"
-            name="email"
             type="email"
             class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
             required

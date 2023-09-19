@@ -12,18 +12,19 @@ import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
 
 const router = useRouter();
 
-const modelValue = ref<z.infer<typeof AuthRouterSchema.signinInput>>({
+const modelValue = ref<z.infer<typeof AuthRouterSchema.signupInput>>({
   email: 'example@example.com',
   password: '',
+  confirm: '',
 });
 
-const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinInput, modelValue);
+const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signupInput, modelValue);
 
 const $loading = useLoading();
 const handleSubmit = validateSubmit(async () => {
   const loading = $loading.open();
   try {
-    await trpc.auth.signin.mutate(modelValue.value);
+    await trpc.auth.signup.mutate(modelValue.value);
 
     router.push({ name: 'index' });
   } finally {
@@ -79,29 +80,38 @@ const show = ref(false);
                   <Icon v-if="show" icon="fa6-solid:eye-slash"></Icon>
                 </div>
               </div>
-              <ErrorMessage class="text-xs text-red-600" for="email"></ErrorMessage>
+              <ErrorMessage class="text-xs text-red-600" for="password"></ErrorMessage>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="password" class="text-sm font-medium text-gray-900">
+                (確認用)もう一度パスワードを入力してください
+              </label>
+              <input
+                id="confirm"
+                v-model.lazy="modelValue.confirm"
+                type="password"
+                required
+                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
+              />
+              <ErrorMessage class="text-xs text-red-600" for="confirm"></ErrorMessage>
             </div>
           </section>
 
           <section>
             <MyButton class="w-full" type="submit" classset="text" colorset="green">
-              ログイン
+              登録
             </MyButton>
           </section>
         </form>
 
         <section class="mt-8 flex flex-col items-end">
           <div class="text-sm font-light text-gray-500">
-            <RouterLink to="#" class="text-primary-600 font-medium text-blue-600 hover:underline">
-              パスワードを忘れてしまった
-            </RouterLink>
-          </div>
-          <div class="text-sm font-light text-gray-500">
+            アカウントを持っていますか？
             <RouterLink
-              to="/signup"
+              to="/login"
               class="text-primary-600 font-medium text-blue-600 hover:underline"
             >
-              アカウントを作る
+              ログインする
             </RouterLink>
           </div>
         </section>

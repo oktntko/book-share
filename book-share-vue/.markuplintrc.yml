@@ -2,10 +2,10 @@ extends:
   - markuplint:recommended
 
 parser:
-  .vue$: "@markuplint/vue-parser"
+  .vue$: '@markuplint/vue-parser'
 
 specs:
-  .vue$: "@markuplint/vue-spec"
+  .vue$: '@markuplint/vue-spec'
 
 rules:
   require-accessible-name: false

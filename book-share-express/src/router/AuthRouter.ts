@@ -10,15 +10,34 @@ const OkSchema = z.object({ ok: z.literal(true) });
 const AuthSchema = z.object({ auth: z.boolean() });
 
 export const auth = router({
-  create: publicProcedure
-    .input(AuthRouterSchema.createInput)
+  signup: publicProcedure
+    .input(AuthRouterSchema.signupInput)
     .output(OkSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) => {
         // セッションの再生成
         await regenerate(ctx.req.session);
 
-        const user = await AuthService.createAuth(ctx.reqid, prisma, input);
+        const user = await AuthService.signup(ctx.reqid, prisma, input);
+
+        // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
+        if (ctx.req) {
+          ctx.req.session.user_id = user.user_id;
+        }
+
+        return { ok: true };
+      });
+    }),
+
+  signin: publicProcedure
+    .input(AuthRouterSchema.signinInput)
+    .output(OkSchema)
+    .mutation(async ({ ctx, input }) => {
+      return prisma.$transaction(async (prisma) => {
+        // セッションの再生成
+        await regenerate(ctx.req.session);
+
+        const user = await AuthService.signin(ctx.reqid, prisma, input);
 
         // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
         if (ctx.req) {

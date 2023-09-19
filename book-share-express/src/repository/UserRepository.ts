@@ -34,7 +34,7 @@ async function createUser(
   reqid: string,
   prisma: PrismaClient,
   operator_id: number,
-  user: ParamUser,
+  user: Omit<ParamUser, 'avatar_file_id'>,
 ) {
   log.trace(reqid, 'createUser');
 
@@ -43,7 +43,7 @@ async function createUser(
     data: {
       email: user.email,
       username: user.username,
-      avatar_file_id: user.avatar_file_id,
+      password: user.password,
       created_by: operator_id,
       updated_by: operator_id,
     },

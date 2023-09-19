@@ -5,6 +5,7 @@ erDiagram
     Int user_id "🗝️"
     String avatar_file_id "❓"
     String email 
+    String password 
     String username 
     DateTime created_at 
     Int created_by 

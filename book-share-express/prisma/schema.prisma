@@ -37,6 +37,8 @@ model User {
 
   /// @zod.string.trim().min(1).max(255).email()
   email    String @unique @db.VarChar(255)
+  /// @zod.string.trim().min(1).max(255)
+  password String @db.VarChar(255)
   /// @zod.string.trim().min(1).max(100)
   username String @db.VarChar(100)
 
