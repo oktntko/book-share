@@ -14,7 +14,7 @@ const router = useRouter();
 
 const modelValue = ref<z.infer<typeof AuthRouterSchema.signupInput>>({
   email: 'example@example.com',
-  password: '',
+  new_password: '',
   confirm: '',
 });
 
