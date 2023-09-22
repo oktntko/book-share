@@ -88,7 +88,7 @@ export function useValidate<T extends z.ZodRawShape>(
       const diffValue = R.pathOr(diff.value, keys, undefined); // 自分のキーの差分を取り出す
       // サブミット済みならエラーメッセージを表示する
       // 差分がなければエラーメッセージを表示しない
-      if (submitCount.value === 0 && (!diffValue || R.isEmpty(diffValue))) {
+      if (submitCount.value === 0 && diffValue === undefined) {
         return;
       }
 

@@ -6,11 +6,11 @@ const signupInput = UserSchema.pick({
 })
   .merge(
     z.object({
-      password: z.string().trim().min(8).max(255),
+      new_password: z.string().trim().min(8).max(255),
       confirm: z.string().trim().min(1).max(255),
     }),
   )
-  .refine((data) => data.password === data.confirm, {
+  .refine((data) => data.new_password === data.confirm, {
     message: 'パスワードが一致していません。',
     path: ['confirm'],
   });

@@ -142,12 +142,12 @@ const { auth } = storeToRefs(useAuthStore());
                   </div>
                   <div class="py-1" role="none">
                     <RouterLink
-                      to="/system/user"
+                      to="/mypage/profile"
                       class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
                       exact
                       active-class="text-blue-600 border-l-gray-200"
                     >
-                      ユーザ管理
+                      プロフィール
                     </RouterLink>
                   </div>
                   <div class="py-1" role="none">

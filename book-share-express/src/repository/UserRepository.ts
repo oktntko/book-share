@@ -34,7 +34,7 @@ async function createUser(
   reqid: string,
   prisma: PrismaClient,
   operator_id: number,
-  user: Omit<ParamUser, 'avatar_file_id'>,
+  user: Pick<ParamUser, 'email' | 'username' | 'password'>,
 ) {
   log.trace(reqid, 'createUser');
 
@@ -42,7 +42,7 @@ async function createUser(
     include: {},
     data: {
       email: user.email,
-      username: user.username,
+      username: user.email,
       password: user.password,
       created_by: operator_id,
       updated_by: operator_id,
@@ -66,7 +66,7 @@ async function updateUser(
   reqid: string,
   prisma: PrismaClient,
   operator_id: number,
-  user: ParamUser,
+  user: Partial<ParamUser>,
   user_id: number,
 ) {
   log.trace(reqid, 'updateUser');
@@ -76,6 +76,7 @@ async function updateUser(
       email: user.email,
       username: user.username,
       avatar_file_id: user.avatar_file_id,
+      password: user.password,
       updated_by: operator_id,
     },
     where: { user_id },

@@ -66,11 +66,12 @@ const show = ref(false);
               <label for="password" class="text-sm font-medium text-gray-900"> パスワード </label>
               <div class="relative">
                 <input
-                  id="password"
-                  v-model.lazy="modelValue.password"
+                  id="new_password"
+                  v-model.lazy="modelValue.new_password"
                   :type="show ? 'text' : 'password'"
                   required
                   class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
+                  autocomplete="new-password"
                 />
                 <div
                   class="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-sm leading-5"
@@ -80,10 +81,10 @@ const show = ref(false);
                   <Icon v-if="show" icon="fa6-solid:eye-slash"></Icon>
                 </div>
               </div>
-              <ErrorMessage class="text-xs text-red-600" for="password"></ErrorMessage>
+              <ErrorMessage class="text-xs text-red-600" for="new_password"></ErrorMessage>
             </div>
             <div class="flex flex-col gap-1">
-              <label for="password" class="text-sm font-medium text-gray-900">
+              <label for="confirm" class="text-sm font-medium text-gray-900">
                 (確認用)もう一度パスワードを入力してください
               </label>
               <input
