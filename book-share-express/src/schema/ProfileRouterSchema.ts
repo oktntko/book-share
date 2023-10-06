@@ -5,6 +5,7 @@ export const OutputProfileSchema = UserSchema.pick({
   username: true,
   email: true,
   avatar_file_id: true,
+  twofa_enable: true,
 });
 
 const patchAvatarFileIdInput = UserSchema.pick({

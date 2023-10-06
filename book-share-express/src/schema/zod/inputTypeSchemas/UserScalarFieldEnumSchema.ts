@@ -6,6 +6,8 @@ export const UserScalarFieldEnumSchema = z.enum([
   'email',
   'password',
   'username',
+  'twofa_enable',
+  'twofa_secret',
   'created_at',
   'created_by',
   'updated_at',

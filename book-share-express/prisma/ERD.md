@@ -7,6 +7,8 @@ erDiagram
     String email 
     String password 
     String username 
+    Boolean twofa_enable 
+    String twofa_secret 
     DateTime created_at 
     Int created_by 
     DateTime updated_at 
@@ -27,6 +29,7 @@ erDiagram
     Boolean secure "❓"
     Boolean sameSite "❓"
     Int user_id "❓"
+    String data "❓"
     DateTime created_at 
     DateTime updated_at 
     }

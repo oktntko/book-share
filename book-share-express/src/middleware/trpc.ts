@@ -1,6 +1,7 @@
 import type { inferAsyncReturnType } from '@trpc/server';
 import { initTRPC, TRPCError } from '@trpc/server';
 import type * as trpcExpress from '@trpc/server/adapters/express';
+import { use } from 'i18next';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { getUserFromSession } from '~/middleware/session';
@@ -65,6 +66,10 @@ const isAuthed = middleware(async ({ next, ctx }) => {
     ctx: {
       ...ctx,
       operator_id: user.user_id,
+      user: {
+        user_id: user.user_id,
+        email: user.email,
+      },
     },
   });
 });

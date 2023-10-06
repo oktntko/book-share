@@ -27,6 +27,7 @@ export const SessionSchema = z.object({
    * custom
    */
   user_id: z.number().int().nullable(),
+  data: z.string().nullable(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
 });

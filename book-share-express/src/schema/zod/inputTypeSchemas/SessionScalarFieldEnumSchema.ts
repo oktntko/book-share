@@ -13,6 +13,7 @@ export const SessionScalarFieldEnumSchema = z.enum([
   'secure',
   'sameSite',
   'user_id',
+  'data',
   'created_at',
   'updated_at',
 ]);

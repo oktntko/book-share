@@ -14,6 +14,13 @@ import { SessionService } from '~/service/SessionService';
 declare module 'express-session' {
   interface SessionData {
     user_id?: number | null;
+    data?: {
+      // 二要素認証
+      twofa?: {
+        expires: Date;
+        secret: string;
+      };
+    };
   }
 }
 

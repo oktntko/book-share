@@ -55,6 +55,7 @@ export function useValidate<T extends z.ZodRawShape>(
       const validateResult = await schema.safeParseAsync(modelValue.value);
 
       if (validateResult.success) {
+        submitCount.value = 0;
         return callback();
       } else {
         error.value = validateResult.error.format();

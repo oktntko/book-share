@@ -42,7 +42,10 @@ const show = ref(false);
     "
   >
     <div>
-      <label for="username" class="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+      <label
+        for="current_password"
+        class="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
+      >
         現在のパスワード
       </label>
       <input
@@ -56,7 +59,10 @@ const show = ref(false);
     </div>
 
     <div>
-      <label for="email" class="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+      <label
+        for="new_password"
+        class="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
+      >
         新しいパスワード
       </label>
       <div class="relative">
@@ -80,7 +86,7 @@ const show = ref(false);
     </div>
 
     <div>
-      <label for="email" class="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+      <label for="confirm" class="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
         (確認用)もう一度パスワードを入力してください
       </label>
       <input

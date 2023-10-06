@@ -42,6 +42,12 @@ model User {
   /// @zod.string.trim().min(1).max(100)
   username String @db.VarChar(100)
 
+  /// 二要素認証の有効化 `true`: 有効 / `false`: 無効
+  twofa_enable Boolean @default(false)
+  /// 二要素認証の秘密鍵
+  /// @zod.string.trim().max(255)
+  twofa_secret String  @default("") @db.VarChar(255)
+
   created_at DateTime @default(now()) @db.Timestamptz(3)
   created_by Int
   updated_at DateTime @updatedAt @db.Timestamptz(3)
@@ -75,6 +81,7 @@ model Session {
   sameSite       Boolean?
   /// custom
   user_id        Int?
+  data           String?
 
   user User? @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 

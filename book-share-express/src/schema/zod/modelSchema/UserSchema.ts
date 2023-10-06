@@ -32,6 +32,14 @@ export const UserSchema = z.object({
   email: z.string().trim().min(1).max(255).email(),
   password: z.string().trim().min(1).max(255),
   username: z.string().trim().min(1).max(100),
+  /**
+   * 二要素認証の有効化 `true`: 有効 / `false`: 無効
+   */
+  twofa_enable: z.boolean(),
+  /**
+   * 二要素認証の秘密鍵
+   */
+  twofa_secret: z.string().trim().max(255),
   created_at: z.coerce.date(),
   created_by: z.number().int(),
   updated_at: z.coerce.date(),
@@ -47,6 +55,14 @@ export type User = z.infer<typeof UserSchema>;
 export const UserOptionalDefaultsSchema = UserSchema.merge(
   z.object({
     user_id: z.number().int().optional(),
+    /**
+     * 二要素認証の有効化 `true`: 有効 / `false`: 無効
+     */
+    twofa_enable: z.boolean().optional(),
+    /**
+     * 二要素認証の秘密鍵
+     */
+    twofa_secret: z.string().trim().max(255).optional(),
     created_at: z.coerce.date().optional(),
     updated_at: z.coerce.date().optional(),
   }),

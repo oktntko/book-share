@@ -63,7 +63,9 @@ const show = ref(false);
               <ErrorMessage class="text-xs text-red-600" for="email"></ErrorMessage>
             </div>
             <div class="flex flex-col gap-1">
-              <label for="password" class="text-sm font-medium text-gray-900"> パスワード </label>
+              <label for="new_password" class="text-sm font-medium text-gray-900">
+                パスワード
+              </label>
               <div class="relative">
                 <input
                   id="new_password"

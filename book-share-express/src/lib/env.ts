@@ -1,4 +1,5 @@
 export const env = {
+  APP_NAME: process.env.APP_NAME || 'Book Share',
   get NODE_ENV() {
     if (process.env.NODE_ENV === 'production') {
       return 'production';
@@ -13,6 +14,7 @@ export const env = {
   session: {
     SESSION_SECRET: process.env.SESSION_SECRET || 'SESSION_SECRET',
     SESSION_NAME: process.env.SESSION_NAME || 'SESSION_NAME',
-    DOMAIN: process.env.DOMAIN || undefined,
+    SESSION_DOMAIN: process.env.SESSION_DOMAIN || undefined,
+    SESSION_PATH: process.env.SESSION_PATH || '/',
   },
 } as const;

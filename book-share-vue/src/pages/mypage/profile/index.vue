@@ -4,6 +4,7 @@ import { trpc } from '~/middleware/trpc';
 import FormProfile from './components/FormProfile.vue';
 import FormAvatarFile from './components/FormAvatarFile.vue';
 import FormPassword from './components/FormPassword.vue';
+import ModalMFAEnable from '~/pages/mypage/profile/components/ModalMFAEnable.vue';
 
 const modelValue = ref<RouterOutput['profile']['get']>();
 
@@ -51,7 +52,56 @@ onMounted(async () => {
             削除
           </MyButton>
         </template> -->
+
+        <div class="columns">
+          <div class="column is-half is-offset-one-quarter">
+            <p class="subtitle">$二要素認証</p>
+            <div class="block">
+              <div class="box px-6 py-6">
+                <div class="is-flex is-justify-content-center">
+                  <div class="has-text-centered">
+                    <Icon icon="wpf:security-checked" class="h-32 w-32 text-green-400"> </Icon>
+                    <Icon icon="fluent-emoji-flat:light-bulb" class="h-32 w-32"> </Icon>
+
+                    <p v-if="modelValue.twofa_enable" class="has-text-centered">
+                      既に有効化されています。<a
+                        @click="
+                          async () => {
+                            if (await $dialog.confirm('二要素認証を無効化しますか？')) {
+                              await trpc.profile.disableSecret.mutate();
+                              modelValue!.twofa_enable = false;
+                            }
+                          }
+                        "
+                      >
+                        無効化する
+                      </a>
+                    </p>
+                    <p
+                      v-else
+                      class="has-text-centered"
+                      @click="
+                        async () => {
+                          const enableSecret = await $modal.open<boolean>({
+                            component: ModalMFAEnable,
+                            componentProps: {},
+                            componentEvents: {},
+                          });
+
+                          modelValue!.twofa_enable = !!enableSecret;
+                        }
+                      "
+                    >
+                      <a>有効化する</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
+
       <MyPulseLoading v-else> </MyPulseLoading>
     </Transition>
   </div>

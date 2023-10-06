@@ -26,13 +26,14 @@ app.use(AfterLogHandler);
 app.set('trust proxy', 1); // trust first proxy
 app.use(
   session({
-    secret: env.session.SESSION_SECRET || 'SESSION_SECRET',
-    name: env.session.SESSION_NAME || 'SESSION_NAME',
+    secret: env.session.SESSION_SECRET,
+    name: env.session.SESSION_NAME,
     store: new SessionStore(),
     cookie: {
       maxAge: 7 * 24 * 60 * 60 * 1000 /*ms*/,
       httpOnly: true,
-      domain: env.session.DOMAIN || undefined,
+      domain: env.session.SESSION_DOMAIN,
+      path: env.session.SESSION_PATH,
       secure: env.PROD,
     },
     resave: false,
