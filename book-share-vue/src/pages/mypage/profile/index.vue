@@ -1,108 +1,160 @@
 <script setup lang="ts">
-import type { RouterOutput } from '~/lib/trpc';
+import type { z } from 'zod';
+import MyInputFile from '~/components/MyInputFile.vue';
+import { useValidate } from '~/composables/useValidate';
+import { uploadSingleFile } from '~/lib/axios';
 import { trpc } from '~/middleware/trpc';
-import FormProfile from './components/FormProfile.vue';
-import FormAvatarFile from './components/FormAvatarFile.vue';
-import FormPassword from './components/FormPassword.vue';
-import ModalMFAEnable from '~/pages/mypage/profile/components/ModalMFAEnable.vue';
+import { ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
 
-const modelValue = ref<RouterOutput['profile']['get']>();
+const user = await trpc.profile.get.query();
 
-onMounted(async () => {
-  const user = await trpc.profile.get.query();
+const modelValue = ref<z.infer<typeof ProfileRouterSchema.patchProfileInput>>(user);
 
-  modelValue.value = user;
-});
+const { validateSubmit, ErrorMessage, isDirty, reset } = useValidate(
+  ProfileRouterSchema.patchProfileInput,
+  modelValue,
+);
+
+const file = ref<File>();
+const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : undefined));
 </script>
 
 <template>
-  <div class="mb-8">
-    <MyBreadcrumb
-      class="container mx-auto my-4"
-      icon="uil:setting"
-      :items="[
-        {
-          label: 'プロフィール編集',
-          to: '/mypage/profile',
-        },
-      ]"
-    >
-    </MyBreadcrumb>
+  <form
+    class="flex flex-col gap-8 laptop:max-w-3xl desktop:max-w-4xl"
+    autocomplete="off"
+    @submit.prevent="
+      validateSubmit(async () => {
+        if (file) {
+          try {
+            const {
+              data: { file_id },
+            } = await uploadSingleFile(file);
 
-    <Transition
-      enter-from-class="transform opacity-0"
-      enter-active-class="ease-out duration-500"
-      enter-to-class="transform opacity-100"
-    >
-      <section v-if="modelValue" class="container mx-auto my-4">
-        <section class="mx-auto my-4 flex flex-col gap-8 laptop:max-w-3xl desktop:max-w-5xl">
-          <section class="flex flex-col gap-4 tablet:flex-row tablet:gap-8">
-            <!-- ユーザ名・メールアドレス -->
-            <FormProfile v-model="modelValue" class="grow"> </FormProfile>
-            <!-- 画像 -->
-            <FormAvatarFile v-model="modelValue"> </FormAvatarFile>
-          </section>
-        </section>
-        <!-- パスワード変更 -->
-        <FormPassword class="mx-auto my-4 flex flex-col gap-4 laptop:max-w-3xl desktop:max-w-5xl">
-        </FormPassword>
-        <!-- 削除 -->
-        <!-- <template #sub-button>
-          <MyButton type="button" classset="text" colorset="yellow" secondary @click="handleDelete">
-            削除
-          </MyButton>
-        </template> -->
+            modelValue.avatar_file_id = file_id;
+            file = undefined;
+          } catch {
+            $dialog.alert('ファイルのアップロードに失敗しました。');
+            return;
+          }
+        }
 
-        <div class="columns">
-          <div class="column is-half is-offset-one-quarter">
-            <p class="subtitle">$二要素認証</p>
-            <div class="block">
-              <div class="box px-6 py-6">
-                <div class="is-flex is-justify-content-center">
-                  <div class="has-text-centered">
-                    <Icon icon="wpf:security-checked" class="h-32 w-32 text-green-400"> </Icon>
-                    <Icon icon="fluent-emoji-flat:light-bulb" class="h-32 w-32"> </Icon>
+        const loading = $loading.open();
+        try {
+          const user = await trpc.profile.patchProfile.mutate({
+            ...modelValue,
+          });
 
-                    <p v-if="modelValue.twofa_enable" class="has-text-centered">
-                      既に有効化されています。<a
-                        @click="
-                          async () => {
-                            if (await $dialog.confirm('二要素認証を無効化しますか？')) {
-                              await trpc.profile.disableSecret.mutate();
-                              modelValue!.twofa_enable = false;
-                            }
-                          }
-                        "
-                      >
-                        無効化する
-                      </a>
-                    </p>
-                    <p
-                      v-else
-                      class="has-text-centered"
-                      @click="
-                        async () => {
-                          const enableSecret = await $modal.open<boolean>({
-                            component: ModalMFAEnable,
-                            componentProps: {},
-                            componentEvents: {},
-                          });
+          reset(user);
 
-                          modelValue!.twofa_enable = !!enableSecret;
-                        }
-                      "
-                    >
-                      <a>有効化する</a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          $toast.success('データを保存しました。');
+        } finally {
+          loading.close();
+        }
+      })()
+    "
+  >
+    <section class="flex flex-col gap-4 tablet:flex-row tablet:gap-8">
+      <div class="flex grow flex-col gap-4">
+        <!-- 名前 -->
+        <div>
+          <label
+            for="username"
+            class="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
+          >
+            名前
+          </label>
+          <input
+            id="username"
+            v-model.lazy="modelValue.username"
+            type="text"
+            class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
+            required
+          />
+          <ErrorMessage class="text-xs text-red-600" for="username" />
         </div>
-      </section>
+        <!-- メールアドレス -->
+        <div>
+          <label for="email" class="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+            メールアドレス
+          </label>
+          <input
+            id="email"
+            v-model.lazy="modelValue.email"
+            type="email"
+            class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
+            required
+          />
+          <ErrorMessage class="text-xs text-red-600" for="email" />
+        </div>
+      </div>
+      <!-- 画像 -->
+      <div class="flex flex-col items-center gap-4">
+        <div>
+          <MyImage
+            :src-base="
+              preview
+                ? preview
+                : modelValue.avatar_file_id
+                ? `api/file/download/${modelValue.avatar_file_id}`
+                : `https://dummyimage.com/256x256`
+            "
+            width="256"
+            height="256"
+            decoding="async"
+            class="h-64 w-64 rounded object-cover object-center"
+            alt="avatar"
+          />
+        </div>
+        <MyButton
+          v-if="modelValue.avatar_file_id"
+          type="button"
+          colorset="yellow"
+          classset="text"
+          class="w-64"
+          secondary
+          @click="
+            async () => {
+              if (
+                modelValue.avatar_file_id &&
+                (await $dialog.confirm('ファイルを削除しますか？\nこの操作は取り消せません。'))
+              ) {
+                await trpc.file.delete.mutate({ file_id: modelValue.avatar_file_id });
+                // TODO リセットしないと変更があったように見えてしまう。しかし、 modelValue でリセットすると、変更していた状態も失う
+                // => initailValue を呼べるようにするか、特定のプロパティだけリセットできるようにする
+                modelValue.avatar_file_id = null;
+              }
+            }
+          "
+        >
+          イメージを削除する
+        </MyButton>
+        <MyButton
+          v-else
+          type="button"
+          colorset="white"
+          classset="text"
+          class="w-64"
+          @click="
+            async () => {
+              file = await $modal.open<File>({
+                component: MyInputFile,
+                componentProps: { accept: 'image/*' },
+                componentEvents: {},
+              });
+            }
+          "
+        >
+          イメージを選ぶ
+        </MyButton>
+      </div>
+    </section>
 
-      <MyPulseLoading v-else> </MyPulseLoading>
-    </Transition>
-  </div>
+    <section class="flex gap-4">
+      <MyButton type="submit" classset="text" colorset="green" :disabled="!(isDirty || file)">
+        登録
+      </MyButton>
+      <slot name="sub-button"></slot>
+    </section>
+  </form>
 </template>

@@ -77,6 +77,8 @@ async function updateUser(
       username: user.username,
       avatar_file_id: user.avatar_file_id,
       password: user.password,
+      twofa_enable: user.twofa_enable,
+      twofa_secret: user.twofa_secret,
       updated_by: operator_id,
     },
     where: { user_id },

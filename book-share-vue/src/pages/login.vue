@@ -30,8 +30,6 @@ const handleSubmit = validateSubmit(async () => {
     loading.close();
   }
 });
-
-const show = ref(false);
 </script>
 
 <template>
@@ -63,22 +61,12 @@ const show = ref(false);
             </div>
             <div class="flex flex-col gap-1">
               <label for="password" class="text-sm font-medium text-gray-900"> パスワード </label>
-              <div class="relative">
-                <input
-                  id="password"
-                  v-model.lazy="modelValue.password"
-                  :type="show ? 'text' : 'password'"
-                  required
-                  class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
-                />
-                <div
-                  class="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-sm leading-5"
-                  @click="show = !show"
-                >
-                  <Icon v-if="!show" icon="fa6-solid:eye"></Icon>
-                  <Icon v-if="show" icon="fa6-solid:eye-slash"></Icon>
-                </div>
-              </div>
+              <InputPassword
+                id="password"
+                v-model.lazy="modelValue.password"
+                required
+                class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
+              />
               <ErrorMessage class="text-xs text-red-600" for="email"></ErrorMessage>
             </div>
           </section>

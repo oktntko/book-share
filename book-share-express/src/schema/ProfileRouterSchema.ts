@@ -8,13 +8,10 @@ export const OutputProfileSchema = UserSchema.pick({
   twofa_enable: true,
 });
 
-const patchAvatarFileIdInput = UserSchema.pick({
-  avatar_file_id: true,
-});
-
 const patchProfileInput = UserSchema.pick({
   username: true,
   email: true,
+  avatar_file_id: true,
 });
 
 const patchPasswordInput = z
@@ -28,8 +25,12 @@ const patchPasswordInput = z
     path: ['confirm'],
   });
 
+const enableSecretInput = z.object({
+  token: z.string().length(6),
+});
+
 export const ProfileRouterSchema = {
-  patchAvatarFileIdInput,
   patchProfileInput,
   patchPasswordInput,
+  enableSecretInput,
 };
