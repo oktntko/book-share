@@ -15,14 +15,7 @@ export const SessionSchema = z.object({
    * express-session
    */
   originalMaxAge: z.number().int().nullable(),
-  maxAge: z.number().int().nullable(),
-  signed: z.boolean().nullable(),
   expires: z.coerce.date(),
-  httpOnly: z.boolean().nullable(),
-  path: z.string(),
-  domain: z.string(),
-  secure: z.boolean().nullable(),
-  sameSite: z.boolean().nullable(),
   /**
    * custom
    */
@@ -42,8 +35,6 @@ export const SessionOptionalDefaultsSchema = SessionSchema.merge(
   z.object({
     session_id: z.number().int().optional(),
     expires: z.coerce.date().optional(),
-    path: z.string().optional(),
-    domain: z.string().optional(),
     created_at: z.coerce.date().optional(),
     updated_at: z.coerce.date().optional(),
   }),

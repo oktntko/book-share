@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import type { SessionData } from 'express-session';
 import { log } from '~/lib/log4js';
 import type { PrismaClient } from '~/middleware/prisma';
+import superjson from 'superjson';
 import { SessionRepository } from '~/repository/SessionRepository';
 
 // # session.get
@@ -23,14 +24,10 @@ async function getSession(prisma: PrismaClient, session_key: string): Promise<Se
   return {
     cookie: {
       originalMaxAge: foundSession.originalMaxAge,
-      maxAge: foundSession.maxAge ?? undefined,
       expires: foundSession.expires,
-      httpOnly: foundSession.httpOnly ?? undefined,
-      path: foundSession.path ?? undefined,
-      domain: foundSession.domain ?? undefined,
-      secure: foundSession.secure ?? undefined,
     },
     user_id: foundSession.user_id,
+    data: foundSession.data ? superjson.parse<SessionData['data']>(foundSession.data) : null,
   };
 }
 
@@ -41,13 +38,9 @@ async function postSession(prisma: PrismaClient, session_key: string, session: S
   return SessionRepository.upsertSession(prisma, {
     session_key,
     originalMaxAge: session.cookie.originalMaxAge,
-    maxAge: session.cookie.maxAge,
     expires: session.cookie.expires,
-    httpOnly: session.cookie.httpOnly,
-    path: session.cookie.path,
-    domain: session.cookie.domain,
-    secure: typeof session.cookie.secure === 'boolean' ? session.cookie.secure : false,
     user_id: session.user_id,
+    data: session.data ? superjson.stringify(session.data) : null,
   });
 }
 

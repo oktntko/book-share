@@ -71,14 +71,7 @@ model Session {
   session_key    String    @unique @db.VarChar(255)
   /// express-session
   originalMaxAge Int?
-  maxAge         Int?
-  signed         Boolean?
   expires        DateTime? @default(now()) @db.Timestamptz(3)
-  httpOnly       Boolean?
-  path           String    @default("")
-  domain         String    @default("")
-  secure         Boolean?
-  sameSite       Boolean?
   /// custom
   user_id        Int?
   data           String?

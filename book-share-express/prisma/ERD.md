@@ -20,14 +20,7 @@ erDiagram
     Int session_id "🗝️"
     String session_key 
     Int originalMaxAge "❓"
-    Int maxAge "❓"
-    Boolean signed "❓"
     DateTime expires "❓"
-    Boolean httpOnly "❓"
-    String path 
-    String domain 
-    Boolean secure "❓"
-    Boolean sameSite "❓"
     Int user_id "❓"
     String data "❓"
     DateTime created_at 

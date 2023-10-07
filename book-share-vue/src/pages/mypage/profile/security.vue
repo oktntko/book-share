@@ -11,7 +11,7 @@ const modelValue = ref<z.infer<typeof ProfileRouterSchema.enableSecretInput>>({
   token: '',
 });
 
-const { validateSubmit, ErrorMessage, isDirty, reset } = useValidate(
+const { validateSubmit, ErrorMessage, isDirty, revert } = useValidate(
   ProfileRouterSchema.enableSecretInput,
   modelValue,
 );
@@ -19,59 +19,75 @@ const { validateSubmit, ErrorMessage, isDirty, reset } = useValidate(
 const qrcode = ref<RouterOutput['profile']['generateSecret']>({
   dataurl: '',
 });
+const refInputToken = ref<HTMLInputElement>();
 </script>
 
 <template>
   <div class="flex flex-col gap-8 laptop:max-w-3xl desktop:max-w-4xl">
-    <!-- 二要素認証が有効の場合 -->
-    <section v-if="user.twofa_enable" class="mb-4">
+    <!-- お知らせ -->
+    <section class="mb-4">
       <div
-        class="flex flex-col gap-4 border-t-2 border-blue-300 bg-blue-50 p-4 dark:bg-blue-300"
+        class="flex flex-col gap-4 border-t-2 p-4"
+        :class="{
+          'border-blue-300 bg-blue-50': user.twofa_enable,
+          'border-yellow-300 bg-yellow-50': !user.twofa_enable,
+        }"
         role="alert"
       >
         <div class="flex items-center gap-4">
           <span class="sr-only">Info</span>
-          <Icon icon="wpf:security-checked" class="h-32 w-32 text-green-400"> </Icon>
-          <h3 class="text-lg font-medium text-blue-900">二要素認証が有効です。</h3>
-        </div>
-        <div class="flex justify-end">
-          <MyButton
-            type="button"
-            classset="text"
-            colorset="red"
-            secondary
-            @click="
-              async () => {
-                if (await $dialog.confirm('二要素認証を無効化しますか？')) {
-                  await trpc.profile.disableSecret.mutate();
-                  user.twofa_enable = false;
-                }
-              }
-            "
+          <Icon
+            v-if="user.twofa_enable"
+            icon="wpf:security-checked"
+            class="h-32 w-32 text-green-400"
           >
-            <Icon icon="akar-icons:circle-x-fill" class="-ml-1 mr-2 h-4 w-4"></Icon>
-            無効化する
-          </MyButton>
-        </div>
-      </div>
-    </section>
+          </Icon>
+          <Icon v-else icon="fluent-emoji-flat:light-bulb" class="h-32 w-32"> </Icon>
 
-    <section v-else class="mb-4">
-      <div
-        class="flex flex-col gap-4 border-t-2 border-yellow-300 bg-yellow-50 p-4 dark:bg-yellow-300"
-        role="alert"
-      >
-        <div class="flex items-center gap-4">
-          <span class="sr-only">Info</span>
-          <Icon icon="fluent-emoji-flat:light-bulb" class="h-32 w-32"> </Icon>
           <div>
-            <h3 class="text-lg font-medium text-yellow-900">二要素認証が有効になっていません。</h3>
+            <h3
+              class="text-lg font-medium"
+              :class="{
+                'text-blue-900': user.twofa_enable,
+                'text-yellow-900 ': !user.twofa_enable,
+              }"
+            >
+              {{
+                user.twofa_enable ? '二要素認証が有効です。' : '二要素認証が有効になっていません。'
+              }}
+            </h3>
             <button
+              v-if="user.twofa_enable"
+              type="button"
+              class="inline-flex items-center justify-center px-4 py-2 text-sm text-gray-700 transition-colors hover:text-blue-600"
+              @click="
+                async () => {
+                  if (await $dialog.confirm('二要素認証を無効化しますか？')) {
+                    const loading = $loading.open();
+                    try {
+                      await trpc.profile.disableSecret.mutate();
+                      user.twofa_enable = false;
+                      $forceUpdate(); // TODO: KeepAlive のせいか？ 表示が更新されないため強制更新
+
+                      $toast.success('二要素認証を無効化しました。');
+                    } finally {
+                      loading.close();
+                    }
+                  }
+                }
+              "
+            >
+              <Icon icon="fluent-emoji-flat:light-bulb" class="-ml-1 mr-2 h-4 w-4"></Icon>
+              無効化する
+            </button>
+            <button
+              v-else
               type="button"
               class="inline-flex items-center justify-center px-4 py-2 text-sm text-gray-700 transition-colors hover:text-blue-600"
               @click="
                 async () => {
                   qrcode = await trpc.profile.generateSecret.mutate();
+                  $nextTick(() => refInputToken?.focus());
                 }
               "
             >
@@ -134,7 +150,11 @@ const qrcode = ref<RouterOutput['profile']['generateSecret']>({
                 ...modelValue,
               });
 
-              $toast.success('データを保存しました。');
+              revert();
+              qrcode.dataurl = '';
+              user.twofa_enable = true;
+
+              $toast.success('二要素認証を有効化しました。');
             } finally {
               loading.close();
             }
@@ -157,7 +177,8 @@ const qrcode = ref<RouterOutput['profile']['generateSecret']>({
 
         <div class="flex items-center gap-2">
           <input
-            v-model="modelValue.token"
+            ref="refInputToken"
+            v-model.lazy="modelValue.token"
             placeholder=""
             type="text"
             pattern="\d{6}"
@@ -167,6 +188,7 @@ const qrcode = ref<RouterOutput['profile']['generateSecret']>({
           />
           <span class="text-xs text-gray-400"> {{ modelValue.token.length }}/6 桁 </span>
         </div>
+        <ErrorMessage class="text-xs text-red-600" for="token"></ErrorMessage>
 
         <section class="flex gap-4">
           <MyButton type="submit" classset="text" colorset="green" :disabled="!isDirty">

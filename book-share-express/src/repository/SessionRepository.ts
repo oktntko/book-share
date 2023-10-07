@@ -23,24 +23,19 @@ async function upsertSession(prisma: PrismaClient, param: Prisma.SessionUnchecke
     where: { session_key: param.session_key },
     create: {
       session_key: param.session_key,
+
       originalMaxAge: param.originalMaxAge,
-      maxAge: param.maxAge,
       expires: param.expires,
-      httpOnly: param.httpOnly,
-      path: param.path,
-      domain: param.domain,
-      secure: param.secure,
+
       user_id: param.user_id,
+      data: param.data,
     },
     update: {
       originalMaxAge: param.originalMaxAge,
-      maxAge: param.maxAge,
       expires: param.expires,
-      httpOnly: param.httpOnly,
-      path: param.path,
-      domain: param.domain,
-      secure: param.secure,
+
       user_id: param.user_id,
+      data: param.data,
     },
   });
 }

@@ -19,8 +19,8 @@ declare module 'express-session' {
       twofa?: {
         expires: Date;
         secret: string;
-      };
-    };
+      } | null;
+    } | null;
   }
 }
 

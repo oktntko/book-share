@@ -120,7 +120,7 @@ async function generateSecret(reqid: string, operator_id: number, email: string)
 
   // セッションに生成したシークレットを保存する
   const twofa = {
-    expires: dayjs().add(1, 'hour').toDate(),
+    expires: dayjs().add(12, 'hour').toDate(),
     secret: secret.base32,
   };
 
@@ -143,21 +143,23 @@ async function enableSecret(
 ) {
   log.trace(reqid, 'enableSecret', operator_id, input);
 
-  if (!input.twofa || Date.now() > input.twofa.expires.getDate()) {
+  if (!input.twofa || dayjs(input.twofa.expires).isBefore(dayjs())) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: '二要素認証のQRコードが発行されていないか、QRコードの有効期限が切れています。',
     });
   }
+  log.trace(reqid, 'enableSecret', operator_id, input);
 
   const verified = speakeasy.totp.verify({
     secret: input.twofa.secret,
     encoding: 'base32',
     token: input.token,
   });
+  log.trace(reqid, 'enableSecret', operator_id, input);
 
   if (!verified) {
-    throw new TRPCError({ code: 'BAD_REQUEST', message: '検証コードが合致しません。' });
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'コードが合致しません。' });
   }
 
   const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
