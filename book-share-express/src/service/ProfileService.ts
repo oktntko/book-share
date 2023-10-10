@@ -1,5 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import dayjs from 'dayjs';
 import qrcode from 'qrcode';
 import speakeasy from 'speakeasy';
@@ -119,12 +120,12 @@ async function generateSecret(reqid: string, operator_id: number, email: string)
   const dataurl = await qrcode.toDataURL(url);
 
   // セッションに生成したシークレットを保存する
-  const twofa = {
+  const setting_twofa = {
     expires: dayjs().add(12, 'hour').toDate(),
-    secret: secret.base32,
+    twofa_secret: encrypt(secret.base32),
   };
 
-  return { dataurl, twofa };
+  return { dataurl, setting_twofa };
 }
 
 // # profile.enableSecret
@@ -133,33 +134,19 @@ async function enableSecret(
   prisma: PrismaClient,
   operator_id: number,
   input: z.infer<typeof ProfileRouterSchema.enableSecretInput> & {
-    twofa:
-      | {
-          expires: Date;
-          secret: string;
-        }
-      | undefined;
+    setting_twofa: {
+      expires: Date;
+      twofa_secret: string;
+    } | null;
   },
 ) {
   log.trace(reqid, 'enableSecret', operator_id, input);
 
-  if (!input.twofa || dayjs(input.twofa.expires).isBefore(dayjs())) {
+  if (!input.setting_twofa || dayjs(input.setting_twofa.expires).isBefore(dayjs())) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: '二要素認証のQRコードが発行されていないか、QRコードの有効期限が切れています。',
     });
-  }
-  log.trace(reqid, 'enableSecret', operator_id, input);
-
-  const verified = speakeasy.totp.verify({
-    secret: input.twofa.secret,
-    encoding: 'base32',
-    token: input.token,
-  });
-  log.trace(reqid, 'enableSecret', operator_id, input);
-
-  if (!verified) {
-    throw new TRPCError({ code: 'BAD_REQUEST', message: 'コードが合致しません。' });
   }
 
   const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
@@ -171,11 +158,21 @@ async function enableSecret(
     });
   }
 
+  const verified = speakeasy.totp.verify({
+    secret: decrypt(input.setting_twofa.twofa_secret),
+    encoding: 'base32',
+    token: input.token,
+  });
+
+  if (!verified) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'コードが合致しません。' });
+  }
+
   return UserRepository.updateUser(
     reqid,
     prisma,
     operator_id,
-    { twofa_enable: true, twofa_secret: input.twofa.secret },
+    { twofa_enable: true, twofa_secret: input.setting_twofa.twofa_secret },
     operator_id,
   );
 }
@@ -233,4 +230,28 @@ async function checkRelations(
       });
     }
   }
+}
+
+const ALGORITHM = 'aes-256-ctr';
+const IV_LENGTH = 16;
+const PASSWORD_LENGTH = 23;
+
+const PASSWORD = crypto.randomBytes(PASSWORD_LENGTH).toString('base64');
+
+export function encrypt(text: string) {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, PASSWORD, iv);
+
+  return Buffer.concat([iv, cipher.update(Buffer.from(text)), cipher.final()]).toString('base64');
+}
+
+export function decrypt(data: string) {
+  const buff = Buffer.from(data, 'base64');
+
+  const iv = buff.subarray(0, IV_LENGTH);
+  const encData = buff.subarray(IV_LENGTH);
+
+  const decipher = crypto.createDecipheriv(ALGORITHM, PASSWORD, iv);
+
+  return Buffer.concat([decipher.update(encData), decipher.final()]).toString('utf8');
 }

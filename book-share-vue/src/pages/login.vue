@@ -7,8 +7,9 @@ meta:
 import type { z } from 'zod';
 import { useValidate } from '~/composables/useValidate';
 import { trpc } from '~/middleware/trpc';
-import { useLoading } from '~/plugin/LoadingPlugin';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
+import ModalSigninTwofa from './components/ModalSigninTwofa.vue';
+import type { RouterOutput } from '~/lib/trpc';
 
 const router = useRouter();
 
@@ -18,18 +19,6 @@ const modelValue = ref<z.infer<typeof AuthRouterSchema.signinInput>>({
 });
 
 const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinInput, modelValue);
-
-const $loading = useLoading();
-const handleSubmit = validateSubmit(async () => {
-  const loading = $loading.open();
-  try {
-    await trpc.auth.signin.mutate(modelValue.value);
-
-    router.push({ name: 'index' });
-  } finally {
-    loading.close();
-  }
-});
 </script>
 
 <template>
@@ -45,7 +34,33 @@ const handleSubmit = validateSubmit(async () => {
       <div
         class="w-full rounded-lg border border-gray-200 bg-gray-50 p-6 shadow-md sm:max-w-md sm:p-8 md:mt-0"
       >
-        <form class="flex flex-col gap-8" @submit.prevent="handleSubmit">
+        <form
+          class="flex flex-col gap-8"
+          @submit.prevent="
+            validateSubmit(async () => {
+              const loading = $loading.open();
+              try {
+                const { auth } = await trpc.auth.signin.mutate(modelValue);
+
+                if (auth) {
+                  router.push({ name: 'index' });
+                } else {
+                  const result = await $modal.open<RouterOutput['auth']['signinTwofa']>({
+                    component: ModalSigninTwofa,
+                    componentProps: {},
+                    componentEvents: {},
+                  });
+
+                  if (result) {
+                    router.push({ name: 'index' });
+                  }
+                }
+              } finally {
+                loading.close();
+              }
+            })()
+          "
+        >
           <section class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
               <label for="email" class="text-sm font-medium text-gray-900"> メールアドレス </label>

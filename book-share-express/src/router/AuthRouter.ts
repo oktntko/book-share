@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import type { Session, SessionData } from 'express-session';
 import { z } from '~/lib/zod';
 import { prisma } from '~/middleware/prisma';
@@ -21,9 +22,7 @@ export const auth = router({
         const user = await AuthService.signup(ctx.reqid, prisma, input);
 
         // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
-        if (ctx.req) {
-          ctx.req.session.user_id = user.user_id;
-        }
+        ctx.req.session.user_id = user.user_id;
 
         return { ok: true };
       });
@@ -31,7 +30,7 @@ export const auth = router({
 
   signin: publicProcedure
     .input(AuthRouterSchema.signinInput)
-    .output(OkSchema)
+    .output(AuthSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) => {
         // セッションの再生成
@@ -39,10 +38,40 @@ export const auth = router({
 
         const user = await AuthService.signin(ctx.reqid, prisma, input);
 
-        // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
-        if (ctx.req) {
+        if (user.twofa_enable) {
+          // 二要素認証が有効 => ID/パスワード認証が成功したことをセッションに保存 => 二要素認証へ
+          ctx.req.session.data = ctx.req.session.data ?? {};
+          ctx.req.session.data.auth_twofa = {
+            expires: dayjs().add(10, 'minutes').toDate(),
+            user_id: user.user_id,
+          };
+
+          ctx.res.status(202);
+          return { auth: false };
+        } else {
+          // 二要素認証が無効 => ID/パスワード認証が成功したことでログイン成功
+          // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
           ctx.req.session.user_id = user.user_id;
+
+          ctx.res.status(200);
+          return { auth: true };
         }
+      });
+    }),
+
+  signinTwofa: publicProcedure
+    .input(AuthRouterSchema.signinTwofaInput)
+    .output(OkSchema)
+    .mutation(async ({ ctx, input }) => {
+      return prisma.$transaction(async (prisma) => {
+        const auth_twofa = ctx.req.session.data?.auth_twofa ?? null;
+
+        // セッションの再生成
+        await regenerate(ctx.req.session);
+
+        const user = await AuthService.signinTwofa(ctx.reqid, prisma, { ...input, auth_twofa });
+
+        ctx.req.session.user_id = user.user_id;
 
         return { ok: true };
       });
@@ -59,11 +88,9 @@ export const auth = router({
   }),
 
   delete: publicProcedure.output(OkSchema).mutation(async ({ ctx }) => {
-    if (ctx.req) {
-      ctx.req.session.destroy(() => {
-        /*Nothing To Do*/
-      });
-    }
+    ctx.req.session.destroy(() => {
+      /*Nothing To Do*/
+    });
 
     return { ok: true };
   }),

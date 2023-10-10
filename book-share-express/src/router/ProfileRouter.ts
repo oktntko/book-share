@@ -1,3 +1,4 @@
+import { z } from '~/lib/zod';
 import { prisma } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import { OutputProfileSchema, ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
@@ -39,23 +40,34 @@ export const profile = router({
     const data = await ProfileService.generateSecret(ctx.reqid, ctx.operator_id, ctx.user.email);
 
     ctx.req.session.data = ctx.req.session.data ?? {};
-    ctx.req.session.data.twofa = data.twofa;
+    ctx.req.session.data.setting_twofa = data.setting_twofa;
 
     return { dataurl: data.dataurl };
   }),
 
   enableSecret: protectedProcedure
     .input(ProfileRouterSchema.enableSecretInput)
+    .output(z.void())
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) => {
-        const twofa = ctx.req.session.data?.twofa;
-        return ProfileService.enableSecret(ctx.reqid, prisma, ctx.operator_id, { ...input, twofa });
+        const setting_twofa = ctx.req.session.data?.setting_twofa ?? null;
+
+        await ProfileService.enableSecret(ctx.reqid, prisma, ctx.operator_id, {
+          ...input,
+          setting_twofa,
+        });
+
+        ctx.req.session.data = ctx.req.session.data ?? {};
+        ctx.req.session.data.setting_twofa = null;
       });
     }),
 
-  disableSecret: protectedProcedure.mutation(async ({ ctx }) => {
-    return prisma.$transaction(async (prisma) =>
-      ProfileService.disableSecret(ctx.reqid, prisma, ctx.operator_id),
-    );
+  disableSecret: protectedProcedure.output(z.void()).mutation(async ({ ctx }) => {
+    return prisma.$transaction(async (prisma) => {
+      await ProfileService.disableSecret(ctx.reqid, prisma, ctx.operator_id);
+
+      ctx.req.session.data = ctx.req.session.data ?? {};
+      ctx.req.session.data.setting_twofa = null;
+    });
   }),
 });

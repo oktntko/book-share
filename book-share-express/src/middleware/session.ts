@@ -15,10 +15,15 @@ declare module 'express-session' {
   interface SessionData {
     user_id?: number | null;
     data?: {
-      // 二要素認証
-      twofa?: {
+      // 二要素認証 設定
+      setting_twofa?: {
         expires: Date;
-        secret: string;
+        twofa_secret: string;
+      } | null;
+      // 二要素認証 ログイン
+      auth_twofa?: {
+        expires: Date;
+        user_id: number;
       } | null;
     } | null;
   }

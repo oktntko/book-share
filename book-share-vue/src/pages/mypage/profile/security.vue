@@ -179,7 +179,6 @@ const refInputToken = ref<HTMLInputElement>();
           <input
             ref="refInputToken"
             v-model.lazy="modelValue.token"
-            placeholder=""
             type="text"
             pattern="\d{6}"
             class="block w-24 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
