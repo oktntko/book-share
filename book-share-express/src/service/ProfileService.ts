@@ -1,18 +1,13 @@
 import { TRPCError } from '@trpc/server';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
 import dayjs from 'dayjs';
-import qrcode from 'qrcode';
-import speakeasy from 'speakeasy';
 import { z } from 'zod';
-import { env } from '~/lib/env';
 import { log } from '~/lib/log4js';
+import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
 import type { PrismaClient } from '~/middleware/prisma';
 import { FileRepository } from '~/repository/FileRepository';
 import { UserRepository } from '~/repository/UserRepository';
 import { checkDuplicate } from '~/repository/_';
 import type { ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
-import { saltOrRounds } from './AuthService';
 
 // # profile.get
 async function getProfile(reqid: string, prisma: PrismaClient, operator_id: number) {
@@ -49,14 +44,14 @@ async function patchPassword(
   }
 
   // 現在のパスワードの確認
-  if (!bcrypt.compareSync(input.current_password, user.password)) {
+  if (!HashPassword.compare(input.current_password, user.password)) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: 'パスワードが誤っています。',
     });
   }
   // 新しいパスワードをハッシュ化
-  const hashedPassword = bcrypt.hashSync(input.new_password, saltOrRounds);
+  const hashedPassword = HashPassword.hash(input.new_password);
 
   return UserRepository.updateUser(
     reqid,
@@ -105,24 +100,17 @@ async function deleteProfile(reqid: string, prisma: PrismaClient, operator_id: n
 async function generateSecret(reqid: string, operator_id: number, email: string) {
   log.trace(reqid, 'generateSecret', operator_id, email);
 
-  const secret = speakeasy.generateSecret({
-    length: 32,
-    name: email,
-    issuer: env.APP_NAME,
-  });
+  const secret = OnetimePassword.generateSecret({ name: email });
 
-  const url = speakeasy.otpauthURL({
+  const dataurl = await OnetimePassword.generateQrcodeUrl({
     secret: secret.ascii,
-    label: encodeURIComponent(email),
-    issuer: env.APP_NAME,
+    name: email,
   });
-
-  const dataurl = await qrcode.toDataURL(url);
 
   // セッションに生成したシークレットを保存する
   const setting_twofa = {
     expires: dayjs().add(12, 'hour').toDate(),
-    twofa_secret: encrypt(secret.base32),
+    twofa_secret: SecretPassword.encrypt(secret.base32),
   };
 
   return { dataurl, setting_twofa };
@@ -158,9 +146,8 @@ async function enableSecret(
     });
   }
 
-  const verified = speakeasy.totp.verify({
-    secret: decrypt(input.setting_twofa.twofa_secret),
-    encoding: 'base32',
+  const verified = OnetimePassword.verifyToken({
+    secret: SecretPassword.decrypt(input.setting_twofa.twofa_secret),
     token: input.token,
   });
 
@@ -230,28 +217,4 @@ async function checkRelations(
       });
     }
   }
-}
-
-const ALGORITHM = 'aes-256-ctr';
-const IV_LENGTH = 16;
-const PASSWORD_LENGTH = 23;
-
-const PASSWORD = crypto.randomBytes(PASSWORD_LENGTH).toString('base64');
-
-export function encrypt(text: string) {
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv(ALGORITHM, PASSWORD, iv);
-
-  return Buffer.concat([iv, cipher.update(Buffer.from(text)), cipher.final()]).toString('base64');
-}
-
-export function decrypt(data: string) {
-  const buff = Buffer.from(data, 'base64');
-
-  const iv = buff.subarray(0, IV_LENGTH);
-  const encData = buff.subarray(IV_LENGTH);
-
-  const decipher = crypto.createDecipheriv(ALGORITHM, PASSWORD, iv);
-
-  return Buffer.concat([decipher.update(encData), decipher.final()]).toString('utf8');
 }

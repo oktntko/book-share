@@ -1,15 +1,11 @@
 import { TRPCError } from '@trpc/server';
-import bcrypt from 'bcrypt';
 import dayjs from 'dayjs';
-import speakeasy from 'speakeasy';
 import type { z } from 'zod';
 import { log } from '~/lib/log4js';
+import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
 import type { PrismaClient } from '~/middleware/prisma';
 import { UserRepository } from '~/repository/UserRepository';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
-import { decrypt } from '~/service/ProfileService';
-
-export const saltOrRounds = 10;
 
 async function signup(
   reqid: string,
@@ -29,7 +25,7 @@ async function signup(
     });
   }
 
-  const hashedPassword = bcrypt.hashSync(input.new_password, saltOrRounds);
+  const hashedPassword = HashPassword.hash(input.new_password);
 
   return UserRepository.createUser(reqid, prisma, 0, {
     username: input.email,
@@ -49,7 +45,7 @@ async function signin(
     email: input.email,
   });
 
-  if (!user || !bcrypt.compareSync(input.password, user.password)) {
+  if (!user || !HashPassword.compare(input.password, user.password)) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message:
@@ -90,9 +86,8 @@ async function signinTwofa(
     });
   }
 
-  const verified = speakeasy.totp.verify({
-    secret: decrypt(user.twofa_secret),
-    encoding: 'base32',
+  const verified = OnetimePassword.verifyToken({
+    secret: SecretPassword.decrypt(user.twofa_secret),
     token: input.token,
   });
 

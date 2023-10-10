@@ -7,13 +7,12 @@ import { publicProcedure, router } from '~/middleware/trpc';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
 import { AuthService } from '~/service/AuthService';
 
-const OkSchema = z.object({ ok: z.literal(true) });
 const AuthSchema = z.object({ auth: z.boolean() });
 
 export const auth = router({
   signup: publicProcedure
     .input(AuthRouterSchema.signupInput)
-    .output(OkSchema)
+    .output(z.void())
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) => {
         // セッションの再生成
@@ -23,8 +22,6 @@ export const auth = router({
 
         // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
         ctx.req.session.user_id = user.user_id;
-
-        return { ok: true };
       });
     }),
 
@@ -50,7 +47,6 @@ export const auth = router({
           return { auth: false };
         } else {
           // 二要素認証が無効 => ID/パスワード認証が成功したことでログイン成功
-          // session のプロパティに代入することで、 SessionStore#set が呼ばれる. (非同期)
           ctx.req.session.user_id = user.user_id;
 
           ctx.res.status(200);
@@ -61,7 +57,7 @@ export const auth = router({
 
   signinTwofa: publicProcedure
     .input(AuthRouterSchema.signinTwofaInput)
-    .output(OkSchema)
+    .output(AuthSchema)
     .mutation(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) => {
         const auth_twofa = ctx.req.session.data?.auth_twofa ?? null;
@@ -73,7 +69,7 @@ export const auth = router({
 
         ctx.req.session.user_id = user.user_id;
 
-        return { ok: true };
+        return { auth: true };
       });
     }),
 
@@ -87,12 +83,10 @@ export const auth = router({
     return { auth: !!user };
   }),
 
-  delete: publicProcedure.output(OkSchema).mutation(async ({ ctx }) => {
+  delete: publicProcedure.output(z.void()).mutation(async ({ ctx }) => {
     ctx.req.session.destroy(() => {
       /*Nothing To Do*/
     });
-
-    return { ok: true };
   }),
 });
 
