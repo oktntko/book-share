@@ -10,3 +10,7 @@ specs:
 rules:
   require-accessible-name: false
   no-refer-to-non-existent-id: false
+  invalid-attr:
+    options:
+      allowAttrs:
+        - 'autofocus'

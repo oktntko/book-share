@@ -2,7 +2,7 @@ import type { App } from 'vue';
 import MyDialog from '~/components/MyDialog.vue';
 import type { ComponentProps } from '~/lib/utility-types';
 
-type DialogProps = Omit<ComponentProps<typeof MyDialog>, 'onConfirm' | 'onCancel'>;
+type DialogProps = Omit<ComponentProps<typeof MyDialog>, 'onClose'>;
 type DialogPlugin = ReturnType<typeof installDialogPlugin>;
 
 const DialogPluginKey = Symbol() as InjectionKey<DialogPlugin>;
@@ -35,11 +35,8 @@ function installDialogPlugin(parentApp: App) {
       return new Promise<boolean>((resolve) => {
         app = createApp(MyDialog, {
           ...props,
-          onConfirm: () => {
-            resolve(true);
-          },
-          onCancel: () => {
-            resolve(false);
+          onClose: (confirmed: boolean) => {
+            resolve(confirmed);
           },
         });
 
@@ -54,17 +51,21 @@ function installDialogPlugin(parentApp: App) {
       });
     },
 
+    async info(message: string) {
+      return this.open({
+        message,
+        colorset: 'blue',
+        icon: 'bx:info-circle',
+        confirmText: 'OK',
+      });
+    },
+
     async alert(message: string) {
       return this.open({
         message,
         colorset: 'yellow',
         icon: 'bx:error',
         confirmText: 'OK',
-        closeable: {
-          button: false,
-          escape: true,
-          outside: true,
-        },
       });
     },
 
@@ -75,11 +76,6 @@ function installDialogPlugin(parentApp: App) {
         icon: 'bx:info-circle',
         confirmText: 'OK',
         cancelText: 'やめる',
-        closeable: {
-          button: true,
-          escape: true,
-          outside: true,
-        },
       });
     },
   };
