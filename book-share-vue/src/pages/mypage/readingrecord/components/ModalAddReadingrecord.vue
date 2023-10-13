@@ -9,8 +9,7 @@ import { useLoading } from '~/plugin/LoadingPlugin';
 import { useToast } from '~/plugin/ToastPlugin';
 
 const emit = defineEmits<{
-  success: [RouterOutput['readingrecord']['create']];
-  close: [];
+  close: [readingrecord?: RouterOutput['readingrecord']['create']];
 }>();
 
 const props = defineProps<{
@@ -33,7 +32,7 @@ async function handleSubmit() {
   try {
     const readingrecord = await trpc.readingrecord.create.mutate(modelValue.value);
 
-    emit('success', readingrecord);
+    emit('close', readingrecord);
 
     toast.success('データを保存しました。');
   } finally {
@@ -45,7 +44,7 @@ async function handleSubmit() {
 <template>
   <FormReadingrecord
     v-model="modelValue"
-    class="container mx-auto my-4 w-96"
+    class="container mx-auto w-96 p-4"
     @submit="handleSubmit"
   ></FormReadingrecord>
 </template>

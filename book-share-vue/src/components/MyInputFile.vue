@@ -5,8 +5,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  success: [File[] | File | undefined];
-  close: [];
+  close: [File[] | File | undefined];
 }>();
 
 const dragging = ref(false);
@@ -14,7 +13,7 @@ const dragging = ref(false);
 
 <template>
   <div
-    class="flex flex-col items-center justify-center"
+    class="flex flex-col items-center justify-center p-4"
     @dragenter="dragging = true"
     @dragleave="
       (e) => {
@@ -36,7 +35,7 @@ const dragging = ref(false);
       (e) => {
         dragging = false;
         emit(
-          'success',
+          'close',
           e.dataTransfer?.files
             ? props.multiple
               ? Array.from(e.dataTransfer.files)
@@ -63,12 +62,15 @@ const dragging = ref(false);
         class="hidden"
         @change="
           (e) => {
-            if (e.target && (e.target as HTMLInputElement).files) {
-              const files = (e.target as HTMLInputElement).files!;
-              emit('success', props.multiple ? Array.from(files) : files[0]);
-            } else {
-              emit('success', undefined);
+            if (e.target) {
+              const target = e.target as HTMLInputElement;
+              if (target.files && target.files.length) {
+                emit('close', props.multiple ? Array.from(target.files) : target.files[0]);
+                return;
+              }
             }
+
+            emit('close', undefined);
           }
         "
       />

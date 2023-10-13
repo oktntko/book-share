@@ -8,8 +8,7 @@ import { useLoading } from '~/plugin/LoadingPlugin';
 import { useToast } from '~/plugin/ToastPlugin';
 
 const emit = defineEmits<{
-  success: [RouterOutput['readingrecord']['update']];
-  close: [];
+  close: [readingrecord?: RouterOutput['readingrecord']['update']];
 }>();
 
 const props = defineProps<{
@@ -38,7 +37,7 @@ async function handleSubmit(modelValue: ModelReadingrecord) {
       updated_at: updated_at.value,
     });
 
-    emit('success', readingrecord);
+    emit('close', readingrecord);
 
     toast.success('データを保存しました。');
   } finally {
@@ -56,9 +55,9 @@ async function handleSubmit(modelValue: ModelReadingrecord) {
     <FormReadingrecord
       v-if="modelValue"
       v-model="modelValue"
-      class="container mx-auto my-4 w-96"
+      class="container mx-auto w-96 p-4"
       @submit="handleSubmit"
     ></FormReadingrecord>
-    <MyPulseLoading v-else> </MyPulseLoading>
+    <MyPulseLoading v-else class="p-4"> </MyPulseLoading>
   </Transition>
 </template>

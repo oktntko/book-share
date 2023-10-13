@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { OnClickOutside } from '@vueuse/components';
 import type MyButton from '~/components/MyButton.vue';
 
 const CONFIRMED_VALUE = 'confirmed';
@@ -36,13 +35,17 @@ onMounted(() => {
     const dialog = refDialog.value;
     dialog.showModal();
 
+    // ESCキーでキャンセルするとき閉じる
     dialog.addEventListener('cancel', (e) => {
       e.preventDefault();
       closeDelay();
     });
 
-    dialog.addEventListener('close', () => {
-      emit('close', dialog.returnValue === CONFIRMED_VALUE);
+    // ダイアログの外側がクリックされたとき閉じる
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) {
+        closeDelay();
+      }
     });
 
     open.value = true;
@@ -66,9 +69,12 @@ onMounted(() => {
  *    - ＜イベント＞ HTMLDialogElement close(returnValue は空文字(string))
  */
 
-function closeDelay(returnValue?: string | undefined) {
+function closeDelay(returnValue?: typeof CONFIRMED_VALUE | undefined) {
   open.value = false;
-  setTimeout(() => refDialog.value?.close(returnValue), 200);
+  setTimeout(() => {
+    emit('close', returnValue === CONFIRMED_VALUE);
+    refDialog.value?.close();
+  }, 200);
 }
 </script>
 
@@ -82,7 +88,7 @@ function closeDelay(returnValue?: string | undefined) {
     leave-to-class="transform opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
   >
     <dialog v-show="open" ref="refDialog" class="max-w-xl rounded-lg shadow-xl">
-      <OnClickOutside as="form" method="dialog" @trigger="closeDelay">
+      <form method="dialog">
         <header
           v-if="title"
           class="flex items-start justify-between border-b border-gray-200 px-4 py-3"
@@ -142,12 +148,12 @@ function closeDelay(returnValue?: string | undefined) {
             {{ confirmText }}
           </MyButton>
         </footer>
-      </OnClickOutside>
+      </form>
     </dialog>
   </Transition>
 </template>
 
-<style scoped>
+<style scoped lang="postcss">
 dialog::backdrop,
 dialog + .backdrop {
   @apply fixed inset-0 bg-gray-400/50;

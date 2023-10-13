@@ -2,7 +2,7 @@ import type { App } from 'vue';
 import MyModal from '~/components/MyModal.vue';
 import type { ComponentProps } from '~/lib/utility-types';
 
-type ModalProps = Omit<ComponentProps<typeof MyModal>, 'onSuccess' | 'onClose'>;
+type ModalProps = Omit<ComponentProps<typeof MyModal>, 'onClose'>;
 type ModalPlugin = ReturnType<typeof installModalPlugin>;
 
 const ModalPluginKey = Symbol() as InjectionKey<ModalPlugin>;
@@ -35,11 +35,8 @@ function installModalPlugin(parentApp: App) {
       return new Promise<T | undefined>((resolve) => {
         app = createApp(MyModal, {
           ...props,
-          onSuccess: (data: T) => {
+          onClose: (data?: T) => {
             resolve(data);
-          },
-          onClose: () => {
-            resolve(undefined);
           },
         });
 

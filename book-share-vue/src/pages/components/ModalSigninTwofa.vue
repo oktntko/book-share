@@ -12,15 +12,14 @@ const modelValue = ref<z.infer<typeof AuthRouterSchema.signinTwofaInput>>({
 const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinTwofaInput, modelValue);
 
 defineEmits<{
-  success: [result: RouterOutput['auth']['signinTwofa']];
-  close: [];
+  close: [result?: RouterOutput['auth']['signinTwofa']];
 }>();
 </script>
 
 <template>
   <form
-    class="container mx-auto my-4 flex w-96 flex-col gap-8 laptop:max-w-3xl desktop:max-w-4xl"
-    :class="['container mx-auto my-4 w-96']"
+    class="flex flex-col gap-8 laptop:max-w-3xl desktop:max-w-4xl"
+    :class="['container mx-auto w-96 p-4']"
     autocomplete="off"
     @submit.prevent="
       validateSubmit(async () => {
@@ -28,7 +27,7 @@ defineEmits<{
         try {
           const result = await trpc.auth.signinTwofa.mutate(modelValue);
 
-          $emit('success', result);
+          $emit('close', result);
         } finally {
           loading.close();
         }
