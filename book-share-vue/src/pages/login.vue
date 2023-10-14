@@ -41,22 +41,23 @@ const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinInpu
               const loading = $loading.open();
               try {
                 const { auth } = await trpc.auth.signin.mutate(modelValue);
-
                 if (auth) {
                   router.push({ name: 'index' });
-                } else {
-                  const result = await $modal.open<RouterOutput['auth']['signinTwofa']>({
-                    component: ModalSigninTwofa,
-                    componentProps: {},
-                    componentEvents: {},
-                  });
-
-                  if (result) {
-                    router.push({ name: 'index' });
-                  }
+                  return;
                 }
               } finally {
                 loading.close();
+              }
+
+              // 二要素認証
+              const result = await $modal.open<RouterOutput['auth']['signinTwofa']>({
+                component: ModalSigninTwofa,
+                componentProps: {},
+                componentEvents: {},
+              });
+
+              if (result) {
+                router.push({ name: 'index' });
               }
             })()
           "
@@ -80,6 +81,7 @@ const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinInpu
                 id="password"
                 v-model.lazy="modelValue.password"
                 required
+                autocomplete="current-password"
                 class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
               />
               <ErrorMessage class="text-xs text-red-600" for="email"></ErrorMessage>

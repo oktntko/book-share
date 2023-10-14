@@ -202,5 +202,3 @@ const { auth } = storeToRefs(useAuthStore());
     </main>
   </div>
 </template>
-
-<style scoped></style>
