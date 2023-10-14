@@ -73,14 +73,16 @@ function installToastPlugin(parentApp: App) {
     async success(message: string) {
       return this.open({
         message,
-        colorset: 'success',
+        colorset: 'green',
+        icon: 'bx:check',
       });
     },
 
     async info(message: string) {
       return this.open({
         message,
-        colorset: 'info',
+        colorset: 'blue',
+        icon: 'bx:info-circle',
       });
     },
   };
