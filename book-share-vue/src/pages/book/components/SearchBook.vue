@@ -15,7 +15,7 @@ const KEY_BOOK_SEARCH = 'KEY_BOOK_SEARCH';
 withDefaults(defineProps<{ volume_id?: string }>(), { volume_id: '' });
 
 defineEmits<{
-  selected: [RouterOutput['book']['getVolume'], PointerEvent];
+  selected: [RouterOutput['book']['getVolume'], MouseEvent];
 }>();
 
 const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
@@ -150,6 +150,7 @@ function restoreSession() {
                 type="search"
                 class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 required
+                autofocus
               />
             </div>
           </div>

@@ -1,10 +1,18 @@
 <script setup lang="ts">
 // TODO: FunctionalComponent でその場モーダルも作れるようにする
-defineProps<{
-  component: unknown;
-  componentProps: unknown;
-  componentEvents: unknown;
-}>();
+withDefaults(
+  defineProps<{
+    component: unknown;
+    componentProps: unknown;
+    componentEvents: unknown;
+    componentClass?: string;
+    dialogClass?: string;
+  }>(),
+  {
+    componentClass: '',
+    dialogClass: '',
+  },
+);
 
 const emit = defineEmits<{
   close: [data?: unknown];
@@ -51,9 +59,10 @@ function closeDelay(returnValue?: unknown | undefined) {
     leave-active-class="transition ease-in duration-200"
     leave-to-class="transform opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
   >
-    <dialog v-show="open" ref="refDialog" class="relative rounded-lg shadow-xl">
+    <dialog v-show="open" ref="refDialog" class="rounded-lg shadow-xl" :class="dialogClass">
       <component
         :is="component"
+        :class="componentClass"
         v-bind="componentProps"
         v-on="componentEvents"
         @close="(data: unknown) => closeDelay(data)"

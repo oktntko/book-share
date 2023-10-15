@@ -46,11 +46,6 @@ function handleError(error: unknown) {
       icon: colorset === 'blue' ? 'bx:info-circle' : 'bx:error',
       message: error.message,
       confirmText: 'OK',
-      closeable: {
-        escape: true,
-        button: false,
-        outside: true,
-      },
     });
   } else {
     console.error(error);

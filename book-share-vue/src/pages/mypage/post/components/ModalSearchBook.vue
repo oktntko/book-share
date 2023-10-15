@@ -3,14 +3,10 @@ import type { RouterOutput } from '~/lib/trpc';
 import SearchBook from '~/pages/book/components/SearchBook.vue';
 
 defineEmits<{
-  close: [volume?: RouterOutput['book']['getVolume'], event?: PointerEvent];
+  close: [volume?: RouterOutput['book']['getVolume'], event?: MouseEvent];
 }>();
 </script>
 
 <template>
-  <SearchBook
-    class="h-screen w-[calc(100vw-2rem)] p-4"
-    @selected="(volume, e) => $emit('close', volume, e)"
-  >
-  </SearchBook>
+  <SearchBook @selected="(volume, e) => $emit('close', volume, e)"> </SearchBook>
 </template>

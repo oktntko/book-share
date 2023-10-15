@@ -34,7 +34,6 @@ defineExpose({
 </script>
 
 <template>
-  <!-- Overlay -->
   <Transition
     enter-from-class="transform opacity-0"
     enter-active-class="transition ease-out duration-200"

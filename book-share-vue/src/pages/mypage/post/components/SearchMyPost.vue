@@ -321,11 +321,12 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                   v-show="currentPost && currentPost.post_id === post.post_id"
                   class="absolute bottom-2 right-2 flex flex-row gap-2"
                 >
-                  <RouterLink :to="`/mypage/post/${post.post_id}`" tabindex="-1">
-                    <MyButton type="button" classset="text" colorset="blue" secondary>
-                      <Icon icon="line-md:edit-twotone" class="-ml-1 mr-1 h-4 w-4"></Icon>
-                      編集
-                    </MyButton>
+                  <RouterLink
+                    :to="`/mypage/post/${post.post_id}`"
+                    class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:outline-none focus:ring"
+                  >
+                    <Icon icon="line-md:edit-twotone" class="-ml-1 mr-1 h-4 w-4"></Icon>
+                    編集
                   </RouterLink>
                   <MyButton
                     type="button"

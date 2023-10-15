@@ -1,6 +1,7 @@
 import type { App } from 'vue';
 import MyModal from '~/components/MyModal.vue';
 import type { ComponentProps } from '~/lib/utility-types';
+import { useDialogStore } from '~/stores/DialogStore';
 
 type ModalProps = Omit<ComponentProps<typeof MyModal>, 'onClose'>;
 type ModalPlugin = ReturnType<typeof installModalPlugin>;
@@ -26,6 +27,7 @@ declare module '@vue/runtime-core' {
 }
 
 function installModalPlugin(parentApp: App) {
+  const DialogStore = useDialogStore();
   return {
     async open<T>(props?: ModalProps) {
       const parent = document.createElement('div');
@@ -33,6 +35,7 @@ function installModalPlugin(parentApp: App) {
 
       let app: App<Element>;
       return new Promise<T | undefined>((resolve) => {
+        // TODO: onClose 以外のイベントも Close できるようにする
         app = createApp(MyModal, {
           ...props,
           onClose: (data?: T) => {
@@ -45,9 +48,11 @@ function installModalPlugin(parentApp: App) {
         Object.assign(app._context, parentApp._context);
 
         app.mount(parent);
+        DialogStore.increment();
       }).finally(() => {
         app.unmount();
         document.body.removeChild(parent);
+        DialogStore.decrement();
       });
     },
   };

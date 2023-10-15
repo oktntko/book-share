@@ -1,6 +1,7 @@
 import type { App } from 'vue';
 import MyDialog from '~/components/MyDialog.vue';
 import type { ComponentProps } from '~/lib/utility-types';
+import { useDialogStore } from '~/stores/DialogStore';
 
 type DialogProps = Omit<ComponentProps<typeof MyDialog>, 'onClose'>;
 type DialogPlugin = ReturnType<typeof installDialogPlugin>;
@@ -26,6 +27,7 @@ declare module '@vue/runtime-core' {
 }
 
 function installDialogPlugin(parentApp: App) {
+  const DialogStore = useDialogStore();
   return {
     async open(props?: DialogProps) {
       const parent = document.createElement('div');
@@ -45,9 +47,11 @@ function installDialogPlugin(parentApp: App) {
         Object.assign(app._context, parentApp._context);
 
         app.mount(parent);
+        DialogStore.increment();
       }).finally(() => {
         app.unmount();
         document.body.removeChild(parent);
+        DialogStore.decrement();
       });
     },
 
