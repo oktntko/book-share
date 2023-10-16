@@ -62,10 +62,10 @@ export const auth = router({
       return prisma.$transaction(async (prisma) => {
         const auth_twofa = ctx.req.session.data?.auth_twofa ?? null;
 
+        const user = await AuthService.signinTwofa(ctx.reqid, prisma, { ...input, auth_twofa });
+
         // セッションの再生成
         await regenerate(ctx.req.session);
-
-        const user = await AuthService.signinTwofa(ctx.reqid, prisma, { ...input, auth_twofa });
 
         ctx.req.session.user_id = user.user_id;
 
