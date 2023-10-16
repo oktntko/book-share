@@ -29,10 +29,14 @@ export const profile = router({
       );
     }),
 
-  delete: protectedProcedure.output(OutputProfileSchema).mutation(async ({ ctx }) => {
-    return prisma.$transaction(async (prisma) =>
-      ProfileService.deleteProfile(ctx.reqid, prisma, ctx.operator_id),
-    );
+  delete: protectedProcedure.output(z.void()).mutation(async ({ ctx }) => {
+    return prisma.$transaction(async (prisma) => {
+      await ProfileService.deleteProfile(ctx.reqid, prisma, ctx.operator_id);
+
+      ctx.req.session.destroy(() => {
+        /*Nothing To Do*/
+      });
+    });
   }),
 
   // 二要素認証関連

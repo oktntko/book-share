@@ -56,7 +56,7 @@ const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinInpu
                 componentEvents: {},
               });
 
-              if (result) {
+              if (result?.auth) {
                 router.push({ name: 'index' });
               }
             })()

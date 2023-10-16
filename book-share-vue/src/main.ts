@@ -11,6 +11,7 @@ import DialogPlugin from '~/plugin/DialogPlugin';
 import LoadingPlugin from '~/plugin/LoadingPlugin';
 import ModalPlugin from '~/plugin/ModalPlugin';
 import ToastPlugin from '~/plugin/ToastPlugin';
+import WindowPlugin from '~/plugin/WindowPlugin';
 import { useAuthStore } from '~/stores/AuthStore';
 
 const app = createApp(App);
@@ -24,6 +25,7 @@ app.use(router);
 
 app.use(useTable);
 
+app.use(WindowPlugin);
 app.use(DialogPlugin);
 app.use(LoadingPlugin);
 app.use(ModalPlugin);
@@ -60,7 +62,6 @@ app.config.errorHandler = handleError;
 
 /**
  * 機能面
- * - 自分のユーザを削除する機能
  * - 投稿をストックする機能
  * - 投稿にハートをつける機能
  * - 本を探すから投稿を探すのリンクがうまくいってない
