@@ -4,6 +4,7 @@
     "Vue.vscode-typescript-vue-plugin",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "csstools.postcss"
+    "csstools.postcss",
+    "cpylua.language-postcss"
   ]
 }

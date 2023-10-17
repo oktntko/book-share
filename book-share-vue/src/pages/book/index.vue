@@ -6,7 +6,7 @@ import ModalAddReadingrecord from '~/pages/mypage/readingrecord/components/Modal
 const volume = ref<RouterOutput['book']['getVolume']>();
 const p = ref({ pageX: 0, pageY: 0 });
 
-function handleSelected(book: RouterOutput['book']['getVolume'], e: PointerEvent) {
+function handleSelected(book: RouterOutput['book']['getVolume'], e: MouseEvent) {
   volume.value = undefined;
   setTimeout(() => {
     volume.value = book;

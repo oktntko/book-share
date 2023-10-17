@@ -10,6 +10,7 @@ export async function createContext(opts: trpcExpress.CreateExpressContextOption
   return {
     req: opts.req,
     reqid: opts.req.id,
+    res: opts.res,
   };
 }
 

@@ -1,8 +1,9 @@
 import type { App } from 'vue';
 import MyDialog from '~/components/MyDialog.vue';
 import type { ComponentProps } from '~/lib/utility-types';
+import { useDialogStore } from '~/stores/DialogStore';
 
-type DialogProps = Omit<ComponentProps<typeof MyDialog>, 'onConfirm' | 'onCancel'>;
+type DialogProps = Omit<ComponentProps<typeof MyDialog>, 'onClose'>;
 type DialogPlugin = ReturnType<typeof installDialogPlugin>;
 
 const DialogPluginKey = Symbol() as InjectionKey<DialogPlugin>;
@@ -26,6 +27,7 @@ declare module '@vue/runtime-core' {
 }
 
 function installDialogPlugin(parentApp: App) {
+  const DialogStore = useDialogStore();
   return {
     async open(props?: DialogProps) {
       const parent = document.createElement('div');
@@ -35,11 +37,8 @@ function installDialogPlugin(parentApp: App) {
       return new Promise<boolean>((resolve) => {
         app = createApp(MyDialog, {
           ...props,
-          onConfirm: () => {
-            resolve(true);
-          },
-          onCancel: () => {
-            resolve(false);
+          onClose: (confirmed: boolean) => {
+            resolve(confirmed);
           },
         });
 
@@ -48,9 +47,20 @@ function installDialogPlugin(parentApp: App) {
         Object.assign(app._context, parentApp._context);
 
         app.mount(parent);
+        DialogStore.increment();
       }).finally(() => {
         app.unmount();
         document.body.removeChild(parent);
+        DialogStore.decrement();
+      });
+    },
+
+    async info(message: string) {
+      return this.open({
+        message,
+        colorset: 'blue',
+        icon: 'bx:info-circle',
+        confirmText: 'OK',
       });
     },
 
@@ -60,11 +70,6 @@ function installDialogPlugin(parentApp: App) {
         colorset: 'yellow',
         icon: 'bx:error',
         confirmText: 'OK',
-        closeable: {
-          button: false,
-          escape: true,
-          outside: true,
-        },
       });
     },
 
@@ -75,11 +80,6 @@ function installDialogPlugin(parentApp: App) {
         icon: 'bx:info-circle',
         confirmText: 'OK',
         cancelText: 'やめる',
-        closeable: {
-          button: true,
-          escape: true,
-          outside: true,
-        },
       });
     },
   };

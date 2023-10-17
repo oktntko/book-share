@@ -2,13 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
+body {
   /* スクロールバーの表示・非表示でずれるため、常にスクロールバーを表示 */
   @apply overflow-y-scroll;
-}
-
-body {
-  margin: 0;
   font-family: 'Noto Sans JP', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -20,17 +16,15 @@ code {
 
 /* スクロールバー */
 ::-webkit-scrollbar {
-  @apply h-2 w-2;
+  @apply w-2.5;
 }
 /* スクロールバーの背景色 */
 ::-webkit-scrollbar-track {
-  border-radius: 32px;
-  background-color: #cecece;
+  @apply rounded-3xl bg-gray-400;
 }
 /* スクロールバーの色 */
 ::-webkit-scrollbar-thumb {
-  border-radius: 32px;
-  background: #a8a8a8;
+  @apply rounded-3xl bg-gray-500;
 }
 
 input[type='date']::-webkit-calendar-picker-indicator,

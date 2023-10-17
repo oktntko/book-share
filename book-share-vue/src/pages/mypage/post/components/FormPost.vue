@@ -33,6 +33,8 @@ async function openModalSearchBook() {
     component: ModalSearchBook,
     componentProps: {},
     componentEvents: {},
+    componentClass: 'h-[calc(100vh-4rem)] w-[calc(100vw-4rem)] p-4',
+    dialogClass: 'm-8',
   });
 
   if (selectedVolume) {

@@ -169,27 +169,30 @@ const { auth } = storeToRefs(useAuthStore());
                 </div>
               </Transition>
             </div>
-            <RouterLink to="/mypage/post/add">
-              <MyButton type="button" classset="text" colorset="blue" secondary>
-                <Icon icon="line-md:edit-twotone" class="-ml-1 mr-2 h-4 w-4"> </Icon>
-                投稿を書く
-              </MyButton>
+            <RouterLink
+              to="/mypage/post/add"
+              class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:outline-none focus:ring"
+            >
+              <Icon icon="line-md:edit-twotone" class="-ml-1 mr-2 h-4 w-4"> </Icon>
+              投稿を書く
             </RouterLink>
           </template>
 
           <!-- ゲスト -->
           <template v-else-if="auth?.auth === false">
-            <RouterLink to="/login">
-              <MyButton type="button" classset="text" colorset="white" secondary>
-                <Icon icon="material-symbols:login" class="-ml-1 mr-2 h-4 w-4"> </Icon>
-                ログイン
-              </MyButton>
+            <RouterLink
+              to="/login"
+              class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm transition-all hover:bg-gray-200 focus:outline-none focus:ring"
+            >
+              <Icon icon="material-symbols:login" class="-ml-1 mr-2 h-4 w-4"> </Icon>
+              ログイン
             </RouterLink>
-            <RouterLink to="/signup">
-              <MyButton type="button" classset="text" colorset="green" secondary>
-                <Icon icon="el:ok-sign" class="-ml-1 mr-2 h-4 w-4"> </Icon>
-                新規登録
-              </MyButton>
+            <RouterLink
+              to="/signup"
+              class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:outline-none focus:ring"
+            >
+              <Icon icon="el:ok-sign" class="-ml-1 mr-2 h-4 w-4"> </Icon>
+              新規登録
             </RouterLink>
           </template>
         </nav>
@@ -202,5 +205,3 @@ const { auth } = storeToRefs(useAuthStore());
     </main>
   </div>
 </template>
-
-<style scoped></style>

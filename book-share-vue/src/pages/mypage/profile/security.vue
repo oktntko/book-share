@@ -100,103 +100,119 @@ const refInputToken = ref<HTMLInputElement>();
     </section>
 
     <!-- 有効化フォーム -->
-    <section v-if="qrcode.dataurl" class="flex flex-col gap-4">
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center space-x-2.5">
-          <span
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600"
-          >
-            1
-          </span>
-          <div>
-            <h3 class="font-medium leading-tight">
-              AuthenticatorアプリでQRコードをスキャンしてください。
-            </h3>
-            <p class="text-sm text-gray-400">
-              Authenticatorアプリは
-              <a
-                href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="cursor-pointer hover:text-blue-600"
-              >
-                Google Authenticator
-              </a>
-              や
-              <a
-                href="https://play.google.com/store/apps/details?id=com.azure.authenticator"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="cursor-pointer hover:text-blue-600"
-              >
-                Microsoft Authenticator
-              </a>
-              が人気です。
-            </p>
-          </div>
-        </div>
 
-        <img :src="qrcode.dataurl" width="128" height="128" decoding="async" />
-      </div>
-
-      <form
-        class="flex flex-col gap-4"
-        autocomplete="off"
-        @submit.prevent="
-          validateSubmit(async () => {
-            const loading = $loading.open();
-            try {
-              await trpc.profile.enableSecret.mutate({
-                ...modelValue,
-              });
-
-              revert();
-              qrcode.dataurl = '';
-              user.twofa_enable = true;
-
-              $toast.success('二要素認証を有効化しました。');
-            } finally {
-              loading.close();
-            }
-          })()
-        "
+    <section class="flex flex-col gap-4">
+      <Transition
+        enter-from-class="transform opacity-0 translate-y-4 translate-y-0"
+        enter-active-class="transition ease-out duration-200"
+        enter-to-class="transform opacity-100 translate-y-0 "
       >
-        <div class="flex items-center space-x-2.5">
-          <span
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600"
-          >
-            2
-          </span>
-          <div>
-            <h3 class="font-medium leading-tight">コードを検証します。</h3>
-            <p class="text-sm text-gray-400">
-              Authenticatorアプリに表示される6桁の数字を入力してください。
-            </p>
+        <div v-if="qrcode.dataurl" class="flex flex-col gap-4">
+          <div class="flex items-center space-x-2.5">
+            <span
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600"
+            >
+              1
+            </span>
+            <div>
+              <h3 class="font-medium leading-tight">
+                AuthenticatorアプリでQRコードをスキャンしてください。
+              </h3>
+              <p class="text-sm text-gray-400">
+                Authenticatorアプリは
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="cursor-pointer text-blue-500 hover:text-blue-600"
+                >
+                  Google Authenticator
+                </a>
+                や
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.azure.authenticator"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="cursor-pointer text-blue-500 hover:text-blue-600"
+                >
+                  Microsoft Authenticator
+                </a>
+                が人気です。
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div class="flex items-center gap-2">
-          <input
-            ref="refInputToken"
-            v-model.lazy="modelValue.token"
-            placeholder=""
-            type="text"
-            pattern="\d{6}"
-            class="block w-24 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
-            required
-            maxlength="6"
-          />
-          <span class="text-xs text-gray-400"> {{ modelValue.token.length }}/6 桁 </span>
+          <img :src="qrcode.dataurl" width="128" height="128" decoding="async" />
         </div>
-        <ErrorMessage class="text-xs text-red-600" for="token"></ErrorMessage>
+      </Transition>
 
-        <section class="flex gap-4">
-          <MyButton type="submit" classset="text" colorset="green" :disabled="!isDirty">
-            コードを検証し二要素認証を有効化する
-          </MyButton>
-          <slot name="sub-button"></slot>
-        </section>
-      </form>
+      <Transition
+        enter-from-class="transform opacity-0 translate-y-4 translate-y-0"
+        enter-active-class="transition ease-out duration-200 delay-200"
+        enter-to-class="transform opacity-100 translate-y-0 "
+      >
+        <form
+          v-if="qrcode.dataurl"
+          class="flex flex-col gap-4"
+          autocomplete="off"
+          @submit.prevent="
+            validateSubmit(async () => {
+              const loading = $loading.open();
+              try {
+                await trpc.profile.enableSecret.mutate({
+                  ...modelValue,
+                });
+
+                revert();
+                qrcode.dataurl = '';
+                user.twofa_enable = true;
+
+                $toast.success('二要素認証を有効化しました。');
+              } finally {
+                loading.close();
+              }
+            })()
+          "
+        >
+          <label for="token" class="flex items-center space-x-2.5">
+            <span
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600"
+            >
+              2
+            </span>
+            <span>
+              <span class="font-medium leading-tight">コードを検証します。</span>
+              <span class="block text-sm text-gray-400">
+                Authenticatorアプリに表示される6桁の数字を入力してください。
+              </span>
+            </span>
+          </label>
+
+          <div>
+            <div class="flex items-center gap-2">
+              <input
+                id="token"
+                ref="refInputToken"
+                v-model.lazy="modelValue.token"
+                type="text"
+                pattern="\d{6}"
+                class="block w-24 rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
+                required
+                maxlength="6"
+              />
+              <span class="text-xs text-gray-400"> {{ modelValue.token.length }}/6 桁 </span>
+            </div>
+            <ErrorMessage class="text-xs text-red-600" for="token"></ErrorMessage>
+          </div>
+
+          <section class="flex gap-4">
+            <MyButton type="submit" classset="text" colorset="green" :disabled="!isDirty">
+              コードを検証し二要素認証を有効化する
+            </MyButton>
+            <slot name="sub-button"></slot>
+          </section>
+        </form>
+      </Transition>
     </section>
   </div>
 </template>

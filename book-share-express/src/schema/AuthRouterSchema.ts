@@ -20,7 +20,12 @@ const signinInput = UserSchema.pick({
   password: true,
 });
 
+const signinTwofaInput = z.object({
+  token: z.string().length(6),
+});
+
 export const AuthRouterSchema = {
   signupInput,
   signinInput,
+  signinTwofaInput,
 };

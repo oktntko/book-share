@@ -1,36 +1,24 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    colorset?: 'info' | 'success' | 'warning' | 'danger';
+    colorset?: 'blue' | 'green' | 'yellow' | 'red';
+    icon?: 'bx:info-circle' | 'bx:check' | 'bx:info-circle' | 'bx:error';
     message?: string;
     duration?: number;
   }>(),
   {
-    colorset: 'info',
+    colorset: 'blue',
+    icon: 'bx:info-circle',
     message: '',
     duration: 2000 /*ms*/,
   },
 );
 
 const emit = defineEmits<{
-  (e: 'close'): void;
+  close: [];
 }>();
 
 const open = ref(false);
-
-const type = {
-  success: { color: 'green', icon: 'bx:check' },
-  warning: { color: 'yellow', icon: 'bx:info-circle' },
-  danger: { color: 'red', icon: 'bx:error' },
-  info: { color: 'blue', icon: 'bx:info-circle' },
-};
-
-const color = computed(() => {
-  return type[props.colorset].color;
-});
-const icon = computed(() => {
-  return type[props.colorset].icon;
-});
 
 onMounted(() => {
   open.value = true;
@@ -55,37 +43,33 @@ function close() {
   >
     <div
       v-if="open"
-      :class="`mt-4 flex w-full max-w-xs items-center rounded-lg p-4 text-gray-500 shadow-md dark:bg-gray-800 dark:text-gray-400
-      ${
-        color === 'green'
-          ? 'bg-green-100 dark:bg-green-800'
-          : color === 'yellow'
-          ? 'bg-yellow-100 dark:bg-yellow-800'
-          : color === 'red'
-          ? 'bg-red-100 dark:bg-red-800'
-          : 'bg-blue-100 dark:bg-blue-800'
-      }`"
+      class="mt-4 flex max-w-xs justify-between rounded-lg p-4 text-gray-500 shadow-md dark:bg-gray-800 dark:text-gray-400"
+      :class="{
+        'bg-green-100 dark:bg-green-800' /*   */: colorset === 'green',
+        'bg-yellow-100 dark:bg-yellow-800' /* */: colorset === 'yellow',
+        'bg-red-100 dark:bg-red-800' /*       */: colorset === 'red',
+        'bg-blue-100 dark:bg-blue-800' /*     */: colorset === 'blue',
+      }"
     >
-      <div
-        :class="`inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-lg
-        ${
-          color === 'green'
-            ? ' text-green-500 dark:text-green-200'
-            : color === 'yellow'
-            ? ' text-yellow-500 dark:text-yellow-200'
-            : color === 'red'
-            ? ' text-red-500 dark:text-red-200'
-            : ' text-blue-500 dark:text-blue-200'
-        }`"
-      >
-        <Icon class="h-5 w-5" :icon="icon" />
-        <span class="sr-only">Icon</span>
+      <div class="flex items-center gap-2">
+        <div
+          class="inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-lg"
+          :class="{
+            'text-green-500 dark:text-green-200' /*   */: colorset === 'green',
+            'text-yellow-500 dark:text-yellow-200' /* */: colorset === 'yellow',
+            'text-red-500 dark:text-red-200' /*       */: colorset === 'red',
+            'text-blue-500 dark:text-blue-200' /*     */: colorset === 'blue',
+          }"
+        >
+          <Icon class="h-5 w-5" :icon="icon" />
+          <span class="sr-only">Icon</span>
+        </div>
+        <div class="text-sm font-normal">{{ message }}</div>
       </div>
-      <div class="ml-3 text-sm font-normal">{{ message }}</div>
+
       <button
         type="button"
-        class="-mx-1.5 -my-1.5 ml-4 inline-flex h-8 w-8 rounded-lg bg-transparent p-1.5 text-gray-400 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:text-gray-500 dark:hover:text-white"
-        data-dismiss-target="#toast-default"
+        class="rounded-lg bg-transparent p-1.5 text-gray-400 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:text-gray-500 dark:hover:text-white"
         aria-label="Close"
         @click="close"
       >

@@ -1,17 +1,13 @@
 import { TRPCError } from '@trpc/server';
-import bcrypt from 'bcrypt';
 import dayjs from 'dayjs';
-import qrcode from 'qrcode';
-import speakeasy from 'speakeasy';
 import { z } from 'zod';
-import { env } from '~/lib/env';
 import { log } from '~/lib/log4js';
+import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
 import type { PrismaClient } from '~/middleware/prisma';
 import { FileRepository } from '~/repository/FileRepository';
 import { UserRepository } from '~/repository/UserRepository';
 import { checkDuplicate } from '~/repository/_';
 import type { ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
-import { saltOrRounds } from './AuthService';
 
 // # profile.get
 async function getProfile(reqid: string, prisma: PrismaClient, operator_id: number) {
@@ -48,14 +44,14 @@ async function patchPassword(
   }
 
   // 現在のパスワードの確認
-  if (!bcrypt.compareSync(input.current_password, user.password)) {
+  if (!HashPassword.compare(input.current_password, user.password)) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: 'パスワードが誤っています。',
     });
   }
   // 新しいパスワードをハッシュ化
-  const hashedPassword = bcrypt.hashSync(input.new_password, saltOrRounds);
+  const hashedPassword = HashPassword.hash(input.new_password);
 
   return UserRepository.updateUser(
     reqid,
@@ -104,27 +100,20 @@ async function deleteProfile(reqid: string, prisma: PrismaClient, operator_id: n
 async function generateSecret(reqid: string, operator_id: number, email: string) {
   log.trace(reqid, 'generateSecret', operator_id, email);
 
-  const secret = speakeasy.generateSecret({
-    length: 32,
-    name: email,
-    issuer: env.APP_NAME,
-  });
+  const secret = OnetimePassword.generateSecret({ name: email });
 
-  const url = speakeasy.otpauthURL({
+  const dataurl = await OnetimePassword.generateQrcodeUrl({
     secret: secret.ascii,
-    label: encodeURIComponent(email),
-    issuer: env.APP_NAME,
+    name: email,
   });
-
-  const dataurl = await qrcode.toDataURL(url);
 
   // セッションに生成したシークレットを保存する
-  const twofa = {
+  const setting_twofa = {
     expires: dayjs().add(12, 'hour').toDate(),
-    secret: secret.base32,
+    twofa_secret: SecretPassword.encrypt(secret.base32),
   };
 
-  return { dataurl, twofa };
+  return { dataurl, setting_twofa };
 }
 
 // # profile.enableSecret
@@ -133,33 +122,19 @@ async function enableSecret(
   prisma: PrismaClient,
   operator_id: number,
   input: z.infer<typeof ProfileRouterSchema.enableSecretInput> & {
-    twofa:
-      | {
-          expires: Date;
-          secret: string;
-        }
-      | undefined;
+    setting_twofa: {
+      expires: Date;
+      twofa_secret: string;
+    } | null;
   },
 ) {
   log.trace(reqid, 'enableSecret', operator_id, input);
 
-  if (!input.twofa || dayjs(input.twofa.expires).isBefore(dayjs())) {
+  if (!input.setting_twofa || dayjs(input.setting_twofa.expires).isBefore(dayjs())) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: '二要素認証のQRコードが発行されていないか、QRコードの有効期限が切れています。',
     });
-  }
-  log.trace(reqid, 'enableSecret', operator_id, input);
-
-  const verified = speakeasy.totp.verify({
-    secret: input.twofa.secret,
-    encoding: 'base32',
-    token: input.token,
-  });
-  log.trace(reqid, 'enableSecret', operator_id, input);
-
-  if (!verified) {
-    throw new TRPCError({ code: 'BAD_REQUEST', message: 'コードが合致しません。' });
   }
 
   const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
@@ -171,11 +146,20 @@ async function enableSecret(
     });
   }
 
+  const verified = OnetimePassword.verifyToken({
+    secret: SecretPassword.decrypt(input.setting_twofa.twofa_secret),
+    token: input.token,
+  });
+
+  if (!verified) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'コードが合致しません。' });
+  }
+
   return UserRepository.updateUser(
     reqid,
     prisma,
     operator_id,
-    { twofa_enable: true, twofa_secret: input.twofa.secret },
+    { twofa_enable: true, twofa_secret: input.setting_twofa.twofa_secret },
     operator_id,
   );
 }

@@ -20,7 +20,7 @@ withDefaults(
 <template>
   <div
     :class="[
-      'flex flex-col p-4 transition-all bg-white border border-gray-300',
+      'flex flex-col border border-gray-300 bg-white p-4 transition-all',
       active ? '!-translate-x-0.5 !-translate-y-0.5 !transform !bg-blue-50 !drop-shadow' : '',
       hoverable ? 'hover:bg-blue-100' : '',
     ]"
@@ -76,33 +76,23 @@ withDefaults(
             v-if="volume.volumeInfo?.infoLink"
             :href="volume.volumeInfo?.infoLink"
             target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium !text-blue-500 shadow-sm transition-all hover:bg-gray-200 hover:underline focus:outline-none focus:ring"
             @click.stop
           >
-            <MyButton
-              type="button"
-              classset="text"
-              colorset="white"
-              class="hover:underline !text-blue-500"
-            >
-              <Icon icon="bi:google-play" class="mr-1"></Icon>
-              Google Books
-            </MyButton>
+            <Icon icon="bi:google-play" class="mr-1"></Icon>
+            Google Books
           </a>
           <a
             v-if="volume.volumeInfo?.previewLink"
             :href="volume.volumeInfo?.previewLink"
             target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium !text-blue-500 shadow-sm transition-all hover:bg-gray-200 hover:underline focus:outline-none focus:ring"
             @click.stop
           >
-            <MyButton
-              type="button"
-              classset="text"
-              colorset="white"
-              class="hover:underline !text-blue-500"
-            >
-              <Icon icon="fluent-emoji-high-contrast:free-button" class="mr-1"></Icon>
-              無料サンプル
-            </MyButton>
+            <Icon icon="fluent-emoji-high-contrast:free-button" class="mr-1"></Icon>
+            無料サンプル
           </a>
         </footer>
       </div>

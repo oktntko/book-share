@@ -1,8 +1,7 @@
 import type { App } from 'vue';
 import MyLoading from '~/components/MyLoading.vue';
-import type { ComponentProps } from '~/lib/utility-types';
+import { useDialogStore } from '~/stores/DialogStore';
 
-type LoadingProps = ComponentProps<typeof MyLoading>;
 type LoadingPlugin = ReturnType<typeof installLoadingPlugin>;
 
 const LoadingPluginKey = Symbol() as InjectionKey<LoadingPlugin>;
@@ -26,16 +25,17 @@ declare module '@vue/runtime-core' {
 }
 
 function installLoadingPlugin(parentApp: App) {
+  const DialogStore = useDialogStore();
   return {
-    open(props?: LoadingProps) {
+    open() {
       const parent = document.createElement('div');
       document.body.appendChild(parent);
 
       const app = createApp(MyLoading, {
-        ...props,
         onClose: () => {
           app.unmount();
           document.body.removeChild(parent);
+          DialogStore.decrement();
         },
       });
 
@@ -44,6 +44,7 @@ function installLoadingPlugin(parentApp: App) {
       Object.assign(app._context, parentApp._context);
 
       const vm = app.mount(parent) as InstanceType<typeof MyLoading>;
+      DialogStore.increment();
       return {
         close: vm.close,
       };

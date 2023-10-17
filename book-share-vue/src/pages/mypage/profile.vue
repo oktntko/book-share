@@ -56,7 +56,18 @@
                 class="h-5 w-5 text-gray-500 group-hover:text-gray-900"
               >
               </Icon>
-              <span class="ml-2">二要素認証</span>
+              <span class="ml-2">セキュリティ</span>
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink
+              to="/mypage/profile/account"
+              class="group flex items-center rounded-lg rounded-l-none border-l-4 border-l-transparent p-2 hover:bg-gray-100"
+              exact-active-class="text-blue-600 border-l-blue-400"
+            >
+              <Icon icon="codicon:account" class="h-5 w-5 text-gray-500 group-hover:text-gray-900">
+              </Icon>
+              <span class="ml-2">アカウント</span>
             </RouterLink>
           </li>
         </ul>
