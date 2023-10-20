@@ -16,7 +16,7 @@
     "baseUrl": "./"
   },
   "module": {
-    "type": "commonjs",
+    "type": "es6",
 
     // These are defaults.
     "strict": false,
