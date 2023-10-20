@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import qrcode from 'qrcode';
 import speakeasy, { type Encoding } from 'speakeasy';
@@ -13,7 +13,7 @@ function hash(text: string) {
   return bcrypt.hashSync(text, SALT_OR_ROUNDS);
 }
 
-function compare(data: string | Buffer, encrypted: string) {
+function compare(data: string, encrypted: string) {
   return bcrypt.compareSync(data, encrypted);
 }
 

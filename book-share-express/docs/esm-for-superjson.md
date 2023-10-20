@@ -35,3 +35,20 @@
   - `build`: `swc src`
     - `failed to read .swcrc file for input file at "src/app.ts"`
     - => 変わらず
+
+### esbuild を使う
+
+- `esbuild` `esbuild-register` を追加
+  - `dev`: `node --require esbuild-register`
+    - 問題なし
+    - CommonJSのままだけど何で問題ないのか？はわからない
+  - `build`: `esbuild src/index.ts --bundle --outdir=dist --platform=node`
+    - [Module not found: Error: Can't resolve 'aws-sdk'](https://github.com/kelektiv/node.bcrypt.js/issues/758)
+    - 謎のエラーが発生するので、 `bcrypt` => `bcryptjs`
+      - 更新されてないけどダウンロード数が多い
+- 問題
+  - バンドルされるので、ビルドファイルを実行すると、ログに行番号が表示されない。
+  - それで swc を選択した気がする
+- 良かった
+  - ビルドは異常に早い
+  - `nodemon`使っているけど不要になるっぽい
