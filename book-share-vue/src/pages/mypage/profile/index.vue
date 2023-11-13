@@ -87,6 +87,23 @@ const preview = computed(() => (file.value ? URL.createObjectURL(file.value) : u
           />
           <ErrorMessage class="text-xs text-red-600" for="email" />
         </div>
+        <!-- 自己紹介 -->
+        <div>
+          <label
+            for="description"
+            class="mb-1 block text-sm font-medium text-gray-900 dark:text-white"
+          >
+            自己紹介
+          </label>
+          <textarea
+            id="description"
+            v-model.lazy="modelValue.description"
+            rows="4"
+            class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 sm:text-sm"
+          ></textarea>
+
+          <ErrorMessage class="text-xs text-red-600" for="description" />
+        </div>
       </div>
       <!-- 画像 -->
       <div class="flex flex-col items-center gap-4">

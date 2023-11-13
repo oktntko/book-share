@@ -30,6 +30,18 @@ async function findManyUser(
   });
 }
 
+async function findUniqueUser(
+  reqid: string,
+  prisma: PrismaClient,
+  where: RequireOne<Prisma.UserWhereUniqueInput>,
+) {
+  log.trace(reqid, 'findUniqueUser');
+
+  return prisma.user.findUnique({
+    where: where.user_id != null ? { user_id: where.user_id } : { email: where.email },
+  });
+}
+
 async function createUser(
   reqid: string,
   prisma: PrismaClient,
@@ -50,18 +62,6 @@ async function createUser(
   });
 }
 
-async function findUniqueUser(
-  reqid: string,
-  prisma: PrismaClient,
-  where: RequireOne<Prisma.UserWhereUniqueInput>,
-) {
-  log.trace(reqid, 'findUniqueUser');
-
-  return prisma.user.findUnique({
-    where: where.user_id != null ? { user_id: where.user_id } : { email: where.email },
-  });
-}
-
 async function updateUser(
   reqid: string,
   prisma: PrismaClient,
@@ -76,6 +76,7 @@ async function updateUser(
       email: user.email,
       username: user.username,
       avatar_file_id: user.avatar_file_id,
+      description: user.description,
       password: user.password,
       twofa_enable: user.twofa_enable,
       twofa_secret: user.twofa_secret,

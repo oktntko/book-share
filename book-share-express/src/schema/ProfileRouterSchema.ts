@@ -4,6 +4,7 @@ import { UserSchema } from '~/schema/zod/modelSchema/UserSchema';
 export const OutputProfileSchema = UserSchema.pick({
   username: true,
   email: true,
+  description: true,
   avatar_file_id: true,
   twofa_enable: true,
 });
@@ -12,6 +13,7 @@ const patchProfileInput = UserSchema.pick({
   username: true,
   email: true,
   avatar_file_id: true,
+  description: true,
 });
 
 const patchPasswordInput = z

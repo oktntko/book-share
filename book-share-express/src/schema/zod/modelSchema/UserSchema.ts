@@ -32,6 +32,7 @@ export const UserSchema = z.object({
   email: z.string().trim().min(1).max(255).email(),
   password: z.string().trim().min(1).max(255),
   username: z.string().trim().min(1).max(100),
+  description: z.string().trim().max(400),
   /**
    * 二要素認証の有効化 `true`: 有効 / `false`: 無効
    */
@@ -55,6 +56,7 @@ export type User = z.infer<typeof UserSchema>;
 export const UserOptionalDefaultsSchema = UserSchema.merge(
   z.object({
     user_id: z.number().int().optional(),
+    description: z.string().trim().max(400).optional(),
     /**
      * 二要素認証の有効化 `true`: 有効 / `false`: 無効
      */

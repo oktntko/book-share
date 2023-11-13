@@ -7,6 +7,7 @@ erDiagram
     String email 
     String password 
     String username 
+    String description 
     Boolean twofa_enable 
     String twofa_secret 
     DateTime created_at 
