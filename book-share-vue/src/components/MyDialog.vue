@@ -70,113 +70,107 @@ onMounted(() => {
  */
 
 function closeDelay(returnValue?: typeof CONFIRMED_VALUE | undefined) {
-  open.value = false;
-  setTimeout(() => {
+  if (refDialog.value) {
+    const dialog = refDialog.value;
+
+    dialog.addEventListener(
+      'transitionend',
+      () => {
+        dialog.close();
+        emit('close', returnValue === CONFIRMED_VALUE);
+      },
+      { once: true },
+    );
+
+    open.value = false;
+  } else {
     emit('close', returnValue === CONFIRMED_VALUE);
-    refDialog.value?.close();
-  }, 200);
+  }
 }
 </script>
 
 <template>
-  <Transition
-    enter-from-class="transform opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-    enter-active-class="transition ease-out duration-200"
-    enter-to-class="transform opacity-100 translate-y-0 sm:scale-100"
-    leave-from-class="transform opacity-100 translate-y-0 sm:scale-100"
-    leave-active-class="transition ease-in duration-200"
-    leave-to-class="transform opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-  >
-    <dialog v-show="open" ref="refDialog" class="max-w-xl rounded-lg shadow-xl">
-      <form method="dialog">
-        <header
-          v-if="title"
-          class="flex items-start justify-between border-b border-gray-200 px-4 py-3"
+  <dialog ref="refDialog" :class="['max-w-xl rounded-lg shadow-xl', { open }]">
+    <form method="dialog">
+      <header
+        v-if="title"
+        class="flex items-start justify-between border-b border-gray-200 px-4 py-3"
+      >
+        <h3>{{ title }}</h3>
+      </header>
+
+      <main class="flex items-start gap-4 px-4 py-6">
+        <div
+          v-if="icon"
+          class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10"
+          :class="{
+            'bg-green-100' /*  */: colorset === 'green',
+            'bg-yellow-100' /* */: colorset === 'yellow',
+            'bg-red-100' /*    */: colorset === 'red',
+            'bg-blue-100' /*   */: colorset === 'blue',
+          }"
         >
-          <h3>{{ title }}</h3>
-        </header>
-
-        <main class="flex items-start gap-4 px-4 py-6">
-          <div
-            v-if="icon"
-            class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10"
+          <Icon
+            class="h-6 w-6"
             :class="{
-              'bg-green-100' /*  */: colorset === 'green',
-              'bg-yellow-100' /* */: colorset === 'yellow',
-              'bg-red-100' /*    */: colorset === 'red',
-              'bg-blue-100' /*   */: colorset === 'blue',
+              'text-green-600' /*  */: colorset === 'green',
+              'text-yellow-600' /* */: colorset === 'yellow',
+              'text-red-600' /*    */: colorset === 'red',
+              'text-blue-600' /*   */: colorset === 'blue',
             }"
-          >
-            <Icon
-              class="h-6 w-6"
-              :class="{
-                'text-green-600' /*  */: colorset === 'green',
-                'text-yellow-600' /* */: colorset === 'yellow',
-                'text-red-600' /*    */: colorset === 'red',
-                'text-blue-600' /*   */: colorset === 'blue',
-              }"
-              :icon="icon"
-            />
-          </div>
+            :icon="icon"
+          />
+        </div>
 
-          <div>
-            <p class="whitespace-pre-wrap text-sm text-gray-500">
-              {{ message }}
-            </p>
-          </div>
-        </main>
+        <div>
+          <p class="whitespace-pre-wrap text-sm text-gray-500">
+            {{ message }}
+          </p>
+        </div>
+      </main>
 
-        <footer class="flex justify-end gap-4 bg-gray-50 px-4 py-3">
-          <MyButton
-            v-if="cancelText"
-            type="button"
-            colorset="white"
-            classset="text"
-            :autofocus="autofocus === 'cancel'"
-            @click="closeDelay()"
-          >
-            {{ cancelText }}
-          </MyButton>
-          <MyButton
-            v-if="confirmText"
-            type="button"
-            :colorset="colorset"
-            classset="text"
-            :autofocus="autofocus === 'confirm'"
-            @click="closeDelay(CONFIRMED_VALUE)"
-          >
-            {{ confirmText }}
-          </MyButton>
-        </footer>
-      </form>
-    </dialog>
-  </Transition>
+      <footer class="flex justify-end gap-4 bg-gray-50 px-4 py-3">
+        <MyButton
+          v-if="cancelText"
+          type="button"
+          colorset="white"
+          classset="text"
+          :autofocus="autofocus === 'cancel'"
+          @click="closeDelay()"
+        >
+          {{ cancelText }}
+        </MyButton>
+        <MyButton
+          v-if="confirmText"
+          type="button"
+          :colorset="colorset"
+          classset="text"
+          :autofocus="autofocus === 'confirm'"
+          @click="closeDelay(CONFIRMED_VALUE)"
+        >
+          {{ confirmText }}
+        </MyButton>
+      </footer>
+    </form>
+  </dialog>
 </template>
 
 <style scoped lang="postcss">
+dialog {
+  @apply translate-y-4 transform opacity-0 transition duration-200 ease-out sm:translate-y-0 sm:scale-95;
+}
+
+dialog.open {
+  @apply translate-y-0 opacity-100 sm:scale-100;
+}
+
 dialog::backdrop,
 dialog + .backdrop {
-  @apply fixed inset-0 bg-gray-400/50;
+  @apply bg-gray-400/50 opacity-0 transition duration-150 ease-out;
 }
 
-/* dialog スタイル https://web.dev/articles/building/a-dialog-component */
-
-dialog[open]::backdrop {
-  @apply animate-[animate-backdrop-enter_200ms_ease-out];
-}
-
-/* TODO: 効いてない */
-dialog:not([open])::backdrop {
-  @apply animate-[animate-backdrop-enter_200ms_ease-out];
-  animation-direction: reverse;
-}
-
-@keyframes animate-backdrop-enter {
-  from {
-    @apply transform opacity-0;
-  }
-  to {
-    @apply transform opacity-100;
-  }
+dialog.open::backdrop,
+dialog.open + .backdrop {
+  @apply opacity-100;
 }
 </style>
