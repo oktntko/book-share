@@ -86,6 +86,20 @@ async function updateUser(
   });
 }
 
+async function updateUserData(
+  reqid: string,
+  prisma: PrismaClient,
+  data: Prisma.XOR<Prisma.UserUpdateInput, Prisma.UserUncheckedUpdateInput>,
+  user_id: number,
+) {
+  log.trace(reqid, 'updateUserData');
+
+  return prisma.user.update({
+    data,
+    where: { user_id },
+  });
+}
+
 async function deleteUser(reqid: string, prisma: PrismaClient, user_id: number) {
   log.trace(reqid, 'deleteUser');
 
@@ -100,5 +114,6 @@ export const UserRepository = {
   createUser,
   findUniqueUser,
   updateUser,
+  updateUserData,
   deleteUser,
 };

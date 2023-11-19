@@ -74,4 +74,36 @@ export const profile = router({
       ctx.req.session.data.setting_twofa = null;
     });
   }),
+
+  stockPost: protectedProcedure
+    .input(z.number().int())
+    .output(OutputProfileSchema)
+    .mutation(async ({ ctx, input }) =>
+      ProfileService.stockPost(ctx.reqid, prisma, ctx.operator_id, input),
+    ),
+
+  unstockPost: protectedProcedure
+    .input(z.number().int())
+    .output(OutputProfileSchema)
+    .mutation(async ({ ctx, input }) => {
+      return prisma.$transaction(async (prisma) =>
+        ProfileService.unstockPost(ctx.reqid, prisma, ctx.operator_id, input),
+      );
+    }),
+
+  heartPost: protectedProcedure
+    .input(z.number().int())
+    .output(OutputProfileSchema)
+    .mutation(async ({ ctx, input }) =>
+      ProfileService.heartPost(ctx.reqid, prisma, ctx.operator_id, input),
+    ),
+
+  unheartPost: protectedProcedure
+    .input(z.number().int())
+    .output(OutputProfileSchema)
+    .mutation(async ({ ctx, input }) => {
+      return prisma.$transaction(async (prisma) =>
+        ProfileService.unheartPost(ctx.reqid, prisma, ctx.operator_id, input),
+      );
+    }),
 });

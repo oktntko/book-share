@@ -9,7 +9,6 @@ export const PostScalarFieldEnumSchema = z.enum([
   'content',
   'published',
   'published_at',
-  'hearts',
   'created_at',
   'updated_at',
 ]);

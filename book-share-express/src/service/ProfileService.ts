@@ -186,6 +186,74 @@ async function disableSecret(reqid: string, prisma: PrismaClient, operator_id: n
   );
 }
 
+// # profile.stockPost
+async function stockPost(
+  reqid: string,
+  prisma: PrismaClient,
+  operator_id: number,
+  post_id: number,
+) {
+  log.trace(reqid, 'stockPost', operator_id);
+
+  return UserRepository.updateUserData(
+    reqid,
+    prisma,
+    { stock_list: { connect: { post_id } } },
+    operator_id,
+  );
+}
+
+// # profile.unstockPost
+async function unstockPost(
+  reqid: string,
+  prisma: PrismaClient,
+  operator_id: number,
+  post_id: number,
+) {
+  log.trace(reqid, 'unstockPost', operator_id);
+
+  return UserRepository.updateUserData(
+    reqid,
+    prisma,
+    { stock_list: { disconnect: { post_id } } },
+    operator_id,
+  );
+}
+
+// # profile.heartPost
+async function heartPost(
+  reqid: string,
+  prisma: PrismaClient,
+  operator_id: number,
+  post_id: number,
+) {
+  log.trace(reqid, 'heartPost', operator_id);
+
+  return UserRepository.updateUserData(
+    reqid,
+    prisma,
+    { heart_list: { connect: { post_id } } },
+    operator_id,
+  );
+}
+
+// # profile.unheartPost
+async function unheartPost(
+  reqid: string,
+  prisma: PrismaClient,
+  operator_id: number,
+  post_id: number,
+) {
+  log.trace(reqid, 'unheartPost', operator_id);
+
+  return UserRepository.updateUserData(
+    reqid,
+    prisma,
+    { heart_list: { disconnect: { post_id } } },
+    operator_id,
+  );
+}
+
 export const ProfileService = {
   getProfile,
   patchPassword,
@@ -194,6 +262,10 @@ export const ProfileService = {
   generateSecret,
   enableSecret,
   disableSecret,
+  stockPost,
+  unstockPost,
+  heartPost,
+  unheartPost,
 };
 
 async function checkRelations(

@@ -65,7 +65,6 @@ async function createPost(
 
   return PostRepository.createPost(reqid, prisma, operator_id, {
     ...input,
-    hearts: 0,
     published: false,
     published_at: null,
   });
@@ -121,7 +120,6 @@ async function updatePost(
     operator_id,
     {
       ...input,
-      hearts: previous.hearts,
       published: previous.published,
       published_at: previous.published_at,
     },
@@ -172,7 +170,6 @@ async function publishPost(
     operator_id,
     {
       ...previous,
-      hearts: previous.hearts,
       published: input.published,
       published_at: input ? new Date() : null,
     },

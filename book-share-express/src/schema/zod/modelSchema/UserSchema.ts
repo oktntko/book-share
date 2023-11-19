@@ -80,6 +80,8 @@ export type UserRelations = {
   avatar_image?: FileWithRelations | null;
   session_list: SessionWithRelations[];
   post_list: PostWithRelations[];
+  heart_list: PostWithRelations[];
+  stock_list: PostWithRelations[];
   readingrecord_list: ReadingrecordWithRelations[];
 };
 
@@ -90,6 +92,8 @@ export const UserWithRelationsSchema: z.ZodType<UserWithRelations> = UserSchema.
     avatar_image: z.lazy(() => FileWithRelationsSchema).nullable(),
     session_list: z.lazy(() => SessionWithRelationsSchema).array(),
     post_list: z.lazy(() => PostWithRelationsSchema).array(),
+    heart_list: z.lazy(() => PostWithRelationsSchema).array(),
+    stock_list: z.lazy(() => PostWithRelationsSchema).array(),
     readingrecord_list: z.lazy(() => ReadingrecordWithRelationsSchema).array(),
   }),
 );
@@ -102,6 +106,8 @@ export type UserOptionalDefaultsRelations = {
   avatar_image?: FileOptionalDefaultsWithRelations | null;
   session_list: SessionOptionalDefaultsWithRelations[];
   post_list: PostOptionalDefaultsWithRelations[];
+  heart_list: PostOptionalDefaultsWithRelations[];
+  stock_list: PostOptionalDefaultsWithRelations[];
   readingrecord_list: ReadingrecordOptionalDefaultsWithRelations[];
 };
 
@@ -114,6 +120,8 @@ export const UserOptionalDefaultsWithRelationsSchema: z.ZodType<UserOptionalDefa
       avatar_image: z.lazy(() => FileOptionalDefaultsWithRelationsSchema).nullable(),
       session_list: z.lazy(() => SessionOptionalDefaultsWithRelationsSchema).array(),
       post_list: z.lazy(() => PostOptionalDefaultsWithRelationsSchema).array(),
+      heart_list: z.lazy(() => PostOptionalDefaultsWithRelationsSchema).array(),
+      stock_list: z.lazy(() => PostOptionalDefaultsWithRelationsSchema).array(),
       readingrecord_list: z.lazy(() => ReadingrecordOptionalDefaultsWithRelationsSchema).array(),
     }),
   );

@@ -20,7 +20,6 @@ export const PostSchema = z.object({
   content: z.string().trim(),
   published: z.boolean(),
   published_at: z.coerce.date().nullable(),
-  hearts: z.number().int(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
 });
@@ -39,7 +38,6 @@ export const PostOptionalDefaultsSchema = PostSchema.merge(
     post_title: z.string().trim().max(255).optional(),
     content: z.string().trim().optional(),
     published: z.boolean().optional(),
-    hearts: z.number().int().optional(),
     created_at: z.coerce.date().optional(),
     updated_at: z.coerce.date().optional(),
   }),
@@ -53,6 +51,8 @@ export type PostOptionalDefaults = z.infer<typeof PostOptionalDefaultsSchema>;
 
 export type PostRelations = {
   toukousya: UserWithRelations;
+  hearted_list: UserWithRelations[];
+  stocked_list: UserWithRelations[];
 };
 
 export type PostWithRelations = z.infer<typeof PostSchema> & PostRelations;
@@ -60,6 +60,8 @@ export type PostWithRelations = z.infer<typeof PostSchema> & PostRelations;
 export const PostWithRelationsSchema: z.ZodType<PostWithRelations> = PostSchema.merge(
   z.object({
     toukousya: z.lazy(() => UserWithRelationsSchema),
+    hearted_list: z.lazy(() => UserWithRelationsSchema).array(),
+    stocked_list: z.lazy(() => UserWithRelationsSchema).array(),
   }),
 );
 
@@ -69,6 +71,8 @@ export const PostWithRelationsSchema: z.ZodType<PostWithRelations> = PostSchema.
 
 export type PostOptionalDefaultsRelations = {
   toukousya: UserOptionalDefaultsWithRelations;
+  hearted_list: UserOptionalDefaultsWithRelations[];
+  stocked_list: UserOptionalDefaultsWithRelations[];
 };
 
 export type PostOptionalDefaultsWithRelations = z.infer<typeof PostOptionalDefaultsSchema> &
@@ -78,6 +82,8 @@ export const PostOptionalDefaultsWithRelationsSchema: z.ZodType<PostOptionalDefa
   PostOptionalDefaultsSchema.merge(
     z.object({
       toukousya: z.lazy(() => UserOptionalDefaultsWithRelationsSchema),
+      hearted_list: z.lazy(() => UserOptionalDefaultsWithRelationsSchema).array(),
+      stocked_list: z.lazy(() => UserOptionalDefaultsWithRelationsSchema).array(),
     }),
   );
 
