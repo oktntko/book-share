@@ -15,7 +15,7 @@ const KEY_BOOK_SEARCH = 'KEY_BOOK_SEARCH';
 withDefaults(defineProps<{ volume_id?: string }>(), { volume_id: '' });
 
 defineEmits<{
-  selected: [RouterOutput['book']['getVolume'], MouseEvent];
+  selected: [RouterOutput['public']['book']['getVolume'], MouseEvent];
 }>();
 
 const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
@@ -32,7 +32,7 @@ const { validateSubmit, ErrorMessage, revert } = useValidate(
   modelValue,
 );
 
-const data = ref<RouterOutput['book']['listVolume']>({
+const data = ref<RouterOutput['public']['book']['listVolume']>({
   total: 0,
   volume_list: [],
 });
@@ -41,7 +41,7 @@ const loading = ref(false);
 const handleSubmit = validateSubmit(async () => {
   loading.value = true;
   try {
-    data.value = await trpc.book.listVolume.query(modelValue.value);
+    data.value = await trpc.public.book.listVolume.query(modelValue.value);
 
     if (data.value.total) {
       saveSession();

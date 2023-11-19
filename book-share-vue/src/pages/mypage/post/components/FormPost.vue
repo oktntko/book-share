@@ -16,7 +16,7 @@ const emit = defineEmits<{
 }>();
 
 const modelValue = defineModel<ModelPost>({ required: true });
-const volume = defineModel<RouterOutput['book']['getVolume'] | undefined>('volume', {
+const volume = defineModel<RouterOutput['public']['book']['getVolume'] | undefined>('volume', {
   required: true,
 });
 
@@ -29,7 +29,7 @@ const handleSubmit = validateSubmit(() => emit('submit', modelValue.value, reset
 
 const modal = useModal();
 async function openModalSearchBook() {
-  const selectedVolume = await modal.open<RouterOutput['book']['getVolume'] | undefined>({
+  const selectedVolume = await modal.open<RouterOutput['public']['book']['getVolume'] | undefined>({
     component: ModalSearchBook,
     componentProps: {},
     componentEvents: {},

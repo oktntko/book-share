@@ -40,7 +40,7 @@ const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinInpu
             validateSubmit(async () => {
               const loading = $loading.open();
               try {
-                const { auth } = await trpc.auth.signin.mutate(modelValue);
+                const { auth } = await trpc.public.auth.signin.mutate(modelValue);
                 if (auth) {
                   router.push({ name: 'index' });
                   return;
@@ -50,7 +50,7 @@ const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinInpu
               }
 
               // 二要素認証
-              const result = await $modal.open<RouterOutput['auth']['signinTwofa']>({
+              const result = await $modal.open<RouterOutput['public']['auth']['signinTwofa']>({
                 component: ModalSigninTwofa,
                 componentProps: {},
                 componentEvents: {},

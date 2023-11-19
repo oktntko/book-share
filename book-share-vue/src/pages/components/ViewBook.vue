@@ -3,7 +3,7 @@ import type { RouterOutput } from '~/lib/trpc';
 
 withDefaults(
   defineProps<{
-    volume?: RouterOutput['book']['getVolume'];
+    volume?: RouterOutput['public']['book']['getVolume'];
     hoverable?: boolean;
     active?: boolean;
     showDescription?: boolean;

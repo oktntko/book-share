@@ -38,7 +38,7 @@ onBeforeRouteUpdate((to) => {
 
 const { validateSubmit } = useValidate(PostRouterSchema.listInput, modelValue);
 
-const data = ref<RouterOutput['post']['list']>({
+const data = ref<RouterOutput['public']['post']['list']>({
   total: 0,
   post_list: [],
 });
@@ -48,7 +48,7 @@ const loading = ref(true);
 const handleSubmit = validateSubmit(async () => {
   loading.value = true;
   try {
-    data.value = await trpc.post.list.query(modelValue.value);
+    data.value = await trpc.public.post.list.query(modelValue.value);
   } finally {
     loading.value = false;
   }
@@ -59,7 +59,7 @@ onMounted(() => {
 });
 
 const span = ref<z.infer<typeof SearchParamPostSpanEnum>>('累計');
-const ranking = ref<RouterOutput['book']['ranking']>({
+const ranking = ref<RouterOutput['public']['book']['ranking']>({
   volume_list: [],
 });
 const loadingRanking = ref(true);
@@ -68,7 +68,7 @@ watch(
   async () => {
     loadingRanking.value = true;
     try {
-      ranking.value = await trpc.book.ranking.query({ span: span.value });
+      ranking.value = await trpc.public.book.ranking.query({ span: span.value });
     } finally {
       loadingRanking.value = false;
     }

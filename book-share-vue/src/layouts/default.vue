@@ -156,7 +156,7 @@ const { auth } = storeToRefs(useAuthStore());
                       @click="
                         async () => {
                           try {
-                            await trpc.auth.delete.mutate();
+                            await trpc.public.auth.delete.mutate();
                           } finally {
                             $router.replace('/login');
                           }

@@ -1,20 +1,11 @@
 import { prisma } from '~/middleware/prisma';
-import { protectedProcedure, publicProcedure, router } from '~/middleware/trpc';
+import { protectedProcedure, router } from '~/middleware/trpc';
 import { PostRouterSchema, PostSchemaOutput } from '~/schema/PostRouterSchema';
 import { PostSchema } from '~/schema/zod';
 import { PostService } from '~/service/PostService';
 
-export const post = router({
-  list: publicProcedure
-    .input(PostRouterSchema.listInput)
-    .output(PostRouterSchema.listOutput)
-    .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        PostService.listPost(ctx.reqid, prisma, undefined, input),
-      );
-    }),
-
-  getMyPostList: protectedProcedure
+export const myPost = router({
+  list: protectedProcedure
     .input(PostRouterSchema.listInput)
     .output(PostRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
@@ -32,16 +23,7 @@ export const post = router({
       );
     }),
 
-  get: publicProcedure
-    .input(PostRouterSchema.getInput)
-    .output(PostSchemaOutput)
-    .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        PostService.getPost(ctx.reqid, prisma, undefined, input),
-      );
-    }),
-
-  getMyPost: protectedProcedure
+  get: protectedProcedure
     .input(PostRouterSchema.getInput)
     .output(PostSchemaOutput)
     .query(async ({ ctx, input }) => {

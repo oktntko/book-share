@@ -12,11 +12,11 @@ const post_id = Number(route.params.post_id);
 let updated_at = new Date();
 
 const modelValue = ref<ModelPost>();
-const volume = ref<RouterOutput['book']['getVolume']>();
+const volume = ref<RouterOutput['public']['book']['getVolume']>();
 const published = ref(false);
 
 onMounted(async () => {
-  const post = await trpc.post.getMyPost.query({ post_id });
+  const post = await trpc.myPost.get.query({ post_id });
 
   modelValue.value = post;
   volume.value = post.volume;
@@ -29,7 +29,7 @@ const $loading = useLoading();
 async function handleSubmit(value: ModelPost) {
   const loading = $loading.open();
   try {
-    const _ = await trpc.post.update.mutate({
+    const _ = await trpc.myPost.update.mutate({
       ...value,
       post_id,
       updated_at,
@@ -86,7 +86,7 @@ async function handleSubmit(value: ModelPost) {
                   if (await $dialog.confirm(`投稿を${published ? '非公開に' : '公開'}しますか？`)) {
                     const loading = $loading.open();
                     try {
-                      const post = await trpc.post.publish.mutate({
+                      const post = await trpc.myPost.publish.mutate({
                         post_id,
                         updated_at,
                         published: !published,
@@ -123,7 +123,7 @@ async function handleSubmit(value: ModelPost) {
                   if (await $dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
                     const loading = $loading.open();
                     try {
-                      await trpc.post.delete.mutate({ post_id, updated_at });
+                      await trpc.myPost.delete.mutate({ post_id, updated_at });
 
                       router.replace(`/mypage/post`);
 

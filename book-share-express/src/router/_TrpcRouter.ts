@@ -1,16 +1,14 @@
 import { router } from '~/middleware/trpc';
-import { auth } from '~/router/AuthRouter';
-import { book } from '~/router/BookRouter';
 import { file } from '~/router/FileRouter';
-import { post } from '~/router/PostRouter';
+import { myPost } from '~/router/MyPostRouter';
 import { profile } from '~/router/ProfileRouter';
 import { readingrecord } from '~/router/ReadingrecordRouter';
+import { PublicRouter } from '~/router/public/_PublicRouter';
 
 export const TrpcRouter = router({
-  auth,
-  book,
   file,
-  post,
+  myPost,
   profile,
   readingrecord,
+  public: PublicRouter,
 });

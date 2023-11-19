@@ -12,7 +12,7 @@ const modelValue = ref<z.infer<typeof AuthRouterSchema.signinTwofaInput>>({
 const { validateSubmit, ErrorMessage } = useValidate(AuthRouterSchema.signinTwofaInput, modelValue);
 
 defineEmits<{
-  close: [result?: RouterOutput['auth']['signinTwofa']];
+  close: [result?: RouterOutput['public']['auth']['signinTwofa']];
 }>();
 </script>
 
@@ -25,7 +25,7 @@ defineEmits<{
       validateSubmit(async () => {
         const loading = $loading.open();
         try {
-          const result = await trpc.auth.signinTwofa.mutate(modelValue);
+          const result = await trpc.public.auth.signinTwofa.mutate(modelValue);
 
           $emit('close', result);
         } finally {

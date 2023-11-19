@@ -3,7 +3,7 @@ import type { RouterOutput } from '~/lib/trpc';
 import SearchBook from '~/pages/book/components/SearchBook.vue';
 
 defineEmits<{
-  close: [volume?: RouterOutput['book']['getVolume'], event?: MouseEvent];
+  close: [volume?: RouterOutput['public']['book']['getVolume'], event?: MouseEvent];
 }>();
 </script>
 

@@ -3,10 +3,10 @@ import type { RouterOutput } from '~/lib/trpc';
 import SearchBook from '~/pages/book/components/SearchBook.vue';
 import ModalAddReadingrecord from '~/pages/mypage/readingrecord/components/ModalAddReadingrecord.vue';
 
-const volume = ref<RouterOutput['book']['getVolume']>();
+const volume = ref<RouterOutput['public']['book']['getVolume']>();
 const p = ref({ pageX: 0, pageY: 0 });
 
-function handleSelected(book: RouterOutput['book']['getVolume'], e: MouseEvent) {
+function handleSelected(book: RouterOutput['public']['book']['getVolume'], e: MouseEvent) {
   volume.value = undefined;
   setTimeout(() => {
     volume.value = book;

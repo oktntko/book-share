@@ -24,7 +24,7 @@ const { validateSubmit, ErrorMessage, revert } = useValidate(
   modelValue,
 );
 
-const data = ref<RouterOutput['post']['getMyPostList']>({
+const data = ref<RouterOutput['myPost']['list']>({
   total: 0,
   post_list: [],
 });
@@ -33,7 +33,7 @@ const loading = ref(true);
 const handleSubmit = validateSubmit(async () => {
   loading.value = true;
   try {
-    data.value = await trpc.post.getMyPostList.query(modelValue.value);
+    data.value = await trpc.myPost.list.query(modelValue.value);
   } finally {
     loading.value = false;
   }
@@ -43,7 +43,7 @@ onMounted(() => {
   handleSubmit();
 });
 
-const currentPost = ref<RouterOutput['post']['getMyPostList']['post_list'][number]>();
+const currentPost = ref<RouterOutput['myPost']['list']['post_list'][number]>();
 
 const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSchema> }[] = [
   { label: '更新日時', value: 'updated_at' },
@@ -342,7 +342,7 @@ const sortOptions: { label: string; value: z.infer<typeof PostScalarFieldEnumSch
                         ) {
                           const loading = $loading.open();
                           try {
-                            await trpc.post.delete.mutate({
+                            await trpc.myPost.delete.mutate({
                               post_id: post.post_id,
                               updated_at: post.updated_at,
                             });

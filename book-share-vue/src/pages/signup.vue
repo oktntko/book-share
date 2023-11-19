@@ -24,7 +24,7 @@ const $loading = useLoading();
 const handleSubmit = validateSubmit(async () => {
   const loading = $loading.open();
   try {
-    await trpc.auth.signup.mutate(modelValue.value);
+    await trpc.public.auth.signup.mutate(modelValue.value);
 
     router.push({ name: 'index' });
   } finally {

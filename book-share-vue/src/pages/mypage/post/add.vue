@@ -14,11 +14,11 @@ const modelValue = ref<ModelPost>({
   post_title: '',
   volume_id: '',
 });
-const volume = ref<RouterOutput['book']['getVolume']>();
+const volume = ref<RouterOutput['public']['book']['getVolume']>();
 
 onMounted(async () => {
   if (route.query.volume_id && typeof route.query.volume_id === 'string') {
-    volume.value = await trpc.book.getVolume.query({ volume_id: route.query.volume_id });
+    volume.value = await trpc.public.book.getVolume.query({ volume_id: route.query.volume_id });
     modelValue.value.volume_id = route.query.volume_id;
     modelValue.value.book_title = volume.value.volumeInfo?.title ?? '';
   }
@@ -29,7 +29,7 @@ const $loading = useLoading();
 async function handleSubmit() {
   const loading = $loading.open();
   try {
-    const _ = await trpc.post.create.mutate(modelValue.value);
+    const _ = await trpc.myPost.create.mutate(modelValue.value);
 
     router.replace(`/mypage/post`);
 
