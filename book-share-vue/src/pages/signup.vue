@@ -4,6 +4,8 @@ meta:
 </route>
 
 <script setup lang="ts">
+useTitle('アカウントを作る | BookShare');
+
 import type { z } from 'zod';
 import { useValidate } from '~/composables/useValidate';
 import { trpc } from '~/middleware/trpc';

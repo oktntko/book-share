@@ -107,7 +107,7 @@ const { auth } = storeToRefs(useAuthStore());
                       exact
                       active-class="text-blue-600 border-l-gray-200"
                     >
-                      マイ本棚
+                      読んだ本
                       <p class="text-xs text-gray-400">読書の記録の確認はここから</p>
                     </RouterLink>
                     <RouterLink
@@ -191,8 +191,7 @@ const { auth } = storeToRefs(useAuthStore());
               to="/signup"
               class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:outline-none focus:ring"
             >
-              <Icon icon="el:ok-sign" class="-ml-1 mr-2 h-4 w-4"> </Icon>
-              新規登録
+              アカウントを作る
             </RouterLink>
           </template>
         </nav>

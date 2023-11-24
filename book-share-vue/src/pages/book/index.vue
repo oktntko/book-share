@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useTitle('本を探す | BookShare');
+
 import type { RouterOutput } from '~/lib/trpc';
 import SearchBook from '~/pages/book/components/SearchBook.vue';
 import ModalAddReadingrecord from '~/pages/mypage/readingrecord/components/ModalAddReadingrecord.vue';

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useTitle('BookShare | 本を読む人と読まない人のための情報共有サイト');
+
 import * as R from 'remeda';
 import { useValidate } from '~/composables/useValidate';
 import type { RouterOutput } from '~/lib/trpc';

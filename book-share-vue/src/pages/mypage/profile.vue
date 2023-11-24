@@ -7,7 +7,7 @@
       icon="uil:setting"
       :items="[
         {
-          label: 'プロフィール編集',
+          label: 'プロフィール',
           to: '/mypage/profile',
         },
       ]"

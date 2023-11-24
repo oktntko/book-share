@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useTitle('プロフィール | BookShare');
+
 import type { z } from 'zod';
 import MyInputFile from '~/components/MyInputFile.vue';
 import { useValidate } from '~/composables/useValidate';
