@@ -101,10 +101,7 @@ const showMenu = ref(false);
     </div>
 
     <!-- タイトル -->
-    <h2
-      v-if="readingrecord.volume?.volumeInfo?.title"
-      class="line-clamp line-clamp-2 text-lg font-bold"
-    >
+    <h2 v-if="readingrecord.volume?.volumeInfo?.title" class="line-clamp-2 text-lg font-bold">
       {{ readingrecord.volume.volumeInfo.title }}
     </h2>
 
@@ -129,18 +126,6 @@ const showMenu = ref(false);
 </template>
 
 <style scoped>
-/* https://blanche-toile.com/web/css-line-clamp-property */
-/* 複数行の省略 */
-.line-clamp {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  -webkit-line-clamp: 2;
-}
-
 .rating {
   --dir: right;
   --fill: gold;

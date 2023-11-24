@@ -25,10 +25,6 @@ withDefaults(
       hoverable ? 'hover:bg-blue-100' : '',
     ]"
   >
-    <div>
-      <slot name="header" :volume="volume"></slot>
-    </div>
-
     <div class="flex gap-4">
       <!-- 左側 -->
       <div class="flex shrink-0 flex-col">
@@ -59,7 +55,7 @@ withDefaults(
         <h3 v-if="volume.volumeInfo?.authors" class="text-xs text-blue-500 transition-colors">
           {{ volume.volumeInfo?.authors.join(', ') }}
         </h3>
-        <h2 v-if="volume.volumeInfo?.title" class="line-clamp line-clamp-2 text-lg font-bold">
+        <h2 v-if="volume.volumeInfo?.title" class="line-clamp-2 text-lg font-bold">
           {{ volume.volumeInfo?.title }}
         </h2>
         <h2 v-if="volume.volumeInfo?.subtitle" class="text-sm text-gray-600">
@@ -101,41 +97,9 @@ withDefaults(
     <!-- 詳細 -->
     <p
       v-if="showDescription && volume.volumeInfo?.description"
-      class="line-clamp line-clamp-4 text-base leading-relaxed"
+      class="mt-2 line-clamp-4 text-base leading-relaxed"
     >
       {{ volume.volumeInfo?.description }}
     </p>
-
-    <!-- 拡張 -->
-    <div>
-      <slot name="footer" :volume="volume"></slot>
-    </div>
   </div>
 </template>
-
-<style scoped>
-/* https://blanche-toile.com/web/css-line-clamp-property */
-/* 複数行の省略 */
-.line-clamp {
-  margin: 1rem 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  -webkit-line-clamp: 2;
-}
-.line-clamp-3 {
-  -webkit-line-clamp: 3;
-}
-.line-clamp-4 {
-  -webkit-line-clamp: 4;
-}
-.line-clamp-5 {
-  -webkit-line-clamp: 5;
-}
-.line-clamp-6 {
-  -webkit-line-clamp: 6;
-}
-</style>

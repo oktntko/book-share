@@ -144,7 +144,7 @@ watch(
                 <h3 class="text-xs text-blue-500 transition-colors">
                   <span class="block h-4 w-24 rounded-full bg-gray-200"></span>
                 </h3>
-                <h2 class="line-clamp line-clamp-2 text-lg font-bold">
+                <h2 class="line-clamp-2 text-lg font-bold">
                   <span class="block h-7 w-40 animate-pulse rounded-full bg-gray-200"></span>
                 </h2>
                 <h2 class="text-sm text-gray-600">
@@ -206,10 +206,7 @@ watch(
                 >
                   {{ volume.volumeInfo?.authors.join(', ') }}
                 </h3>
-                <h2
-                  v-if="volume.volumeInfo?.title"
-                  class="line-clamp line-clamp-2 text-lg font-bold"
-                >
+                <h2 v-if="volume.volumeInfo?.title" class="line-clamp-2 text-lg font-bold">
                   {{ volume.volumeInfo?.title }}
                 </h2>
                 <h2 v-if="volume.volumeInfo?.subtitle" class="text-sm text-gray-600">
@@ -339,7 +336,7 @@ watch(
                     </div>
                   </div>
                 </div>
-                <p class="text-lg text-gray-900">
+                <p class="line-clamp-2 text-lg text-gray-900" :title="post.post_title">
                   {{ `${post.post_title ? post.post_title : '(タイトル未設定)'}` }}
                 </p>
                 <div class="flex justify-between">
