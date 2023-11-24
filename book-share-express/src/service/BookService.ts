@@ -1,15 +1,15 @@
+import { books_v1 } from '@googleapis/books';
 import { Prisma } from '@prisma/client';
-import { TRPCError } from '@trpc/server';
 import dayjs from 'dayjs';
+import * as R from 'remeda';
 import type { z } from 'zod';
 import { log } from '~/lib/log4js';
 import { prisma } from '~/middleware/prisma';
 import { BookRepository } from '~/repository/BookRepository';
 import { PostRepository } from '~/repository/PostRepository';
-import { PREVIOUS_IS_NOT_FOUND_MESSAGE } from '~/repository/_';
+import { checkDataExist } from '~/repository/_';
 import { BookRouterSchema } from '~/schema/BookRouterSchema';
-import * as R from 'remeda';
-import { books_v1 } from '@googleapis/books';
+
 // # book.listVolume
 async function listVolume(
   reqid: string,
@@ -35,15 +35,11 @@ async function getVolume(
   operator_id: number | undefined,
   input: z.infer<typeof BookRouterSchema.getInput>,
 ) {
-  log.trace(reqid, 'getBook', operator_id, input);
+  log.trace(reqid, 'getVolume', operator_id, input);
 
-  const volume = await BookRepository.getVolume(reqid, input.volume_id).catch(() => null);
-
-  if (!volume) {
-    throw new TRPCError({ code: 'NOT_FOUND', message: PREVIOUS_IS_NOT_FOUND_MESSAGE });
-  }
-
-  return volume;
+  return checkDataExist({
+    data: BookRepository.getVolume(reqid, input.volume_id).catch(() => null),
+  });
 }
 
 // # book.ranking

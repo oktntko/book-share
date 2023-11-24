@@ -6,23 +6,16 @@ import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
 import type { PrismaClient } from '~/middleware/prisma';
 import { FileRepository } from '~/repository/FileRepository';
 import { UserRepository } from '~/repository/UserRepository';
-import { checkDuplicate } from '~/repository/_';
+import { checkDataExist, checkDuplicate } from '~/repository/_';
 import type { ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
 
 // # profile.get
 async function getProfile(reqid: string, prisma: PrismaClient, operator_id: number) {
   log.trace(reqid, 'getProfile', operator_id);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
-
-  return user;
+  return checkDataExist({
+    data: UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id }),
+  });
 }
 
 // # profile.update
@@ -34,14 +27,9 @@ async function patchPassword(
 ) {
   log.trace(reqid, 'patchPassword', operator_id, input);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
+  const user = await checkDataExist({
+    data: UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id }),
+  });
 
   // 現在のパスワードの確認
   if (!HashPassword.compare(input.current_password, user.password)) {
@@ -70,14 +58,9 @@ async function updateProfile(
 ) {
   log.trace(reqid, 'updateProfile', operator_id, input);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
+  const user = await checkDataExist({
+    data: UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id }),
+  });
 
   await checkRelations(reqid, prisma, user);
 
@@ -137,14 +120,9 @@ async function enableSecret(
     });
   }
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
+  await checkDataExist({
+    data: UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id }),
+  });
 
   const verified = OnetimePassword.verifyToken({
     secret: SecretPassword.decrypt(input.setting_twofa.twofa_secret),
@@ -168,14 +146,9 @@ async function enableSecret(
 async function disableSecret(reqid: string, prisma: PrismaClient, operator_id: number) {
   log.trace(reqid, 'disableSecret', operator_id);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
+  await checkDataExist({
+    data: UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id }),
+  });
 
   return UserRepository.updateUser(
     reqid,

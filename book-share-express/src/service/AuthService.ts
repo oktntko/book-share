@@ -5,6 +5,7 @@ import { log } from '~/lib/log4js';
 import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
 import type { PrismaClient } from '~/middleware/prisma';
 import { UserRepository } from '~/repository/UserRepository';
+import { checkDataExist } from '~/repository/_';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
 
 async function signup(
@@ -75,16 +76,12 @@ async function signinTwofa(
     });
   }
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, {
-    user_id: input.auth_twofa.user_id,
+  const user = await checkDataExist({
+    data: UserRepository.findUniqueUser(reqid, prisma, {
+      user_id: input.auth_twofa.user_id,
+    }),
+    dataIsNotExistMessage: 'ログインの有効期限が切れています。最初から操作をやり直してください。',
   });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
 
   const verified = OnetimePassword.verifyToken({
     secret: SecretPassword.decrypt(user.twofa_secret),

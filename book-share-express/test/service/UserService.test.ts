@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { prisma } from '~/middleware/prisma';
 import {
   DUPLICATE_IS_EXISTING_MESSAGE,
-  PREVIOUS_IS_NOT_FOUND_MESSAGE,
+  DATA_IS_NOT_EXIST_MESSAGE,
   PREVIOUS_IS_UPDATED_MESSAGE,
 } from '~/repository/_';
 import { UserRouterSchema } from '~/schema/UserRouterSchema';
@@ -220,7 +220,7 @@ describe('📝 user.get', () => {
           // 削除済みエラーとなること
           new TRPCError({
             code: 'NOT_FOUND',
-            message: PREVIOUS_IS_NOT_FOUND_MESSAGE,
+            message: DATA_IS_NOT_EXIST_MESSAGE,
           }),
         );
 
@@ -328,7 +328,7 @@ describe('📝 user.update', () => {
           // 削除済みエラーとなること
           new TRPCError({
             code: 'NOT_FOUND',
-            message: PREVIOUS_IS_NOT_FOUND_MESSAGE,
+            message: DATA_IS_NOT_EXIST_MESSAGE,
           }),
         );
 
@@ -629,7 +629,7 @@ describe('📝 user.delete', () => {
           // 削除済みエラーとなること
           new TRPCError({
             code: 'NOT_FOUND',
-            message: PREVIOUS_IS_NOT_FOUND_MESSAGE,
+            message: DATA_IS_NOT_EXIST_MESSAGE,
           }),
         );
 

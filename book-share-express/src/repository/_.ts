@@ -1,10 +1,25 @@
 import { TRPCError } from '@trpc/server';
 import * as R from 'remeda';
 
+export const DATA_IS_NOT_EXIST_MESSAGE = '対象のデータは既に削除されています。';
 export const DUPLICATE_IS_EXISTING_MESSAGE = '重複するデータが既に存在しています。';
-export const PREVIOUS_IS_NOT_FOUND_MESSAGE = '対象のデータは既に削除されています。';
 export const PREVIOUS_IS_UPDATED_MESSAGE =
   '対象のデータは変更されています。最新の状態で再度実行してください。';
+
+export async function checkDataExist<T>(param: {
+  data: T | null | Promise<T | null>;
+  dataIsNotExistMessage?: string;
+}) {
+  const data = R.isPromise(param.data) ? await param.data : param.data;
+  if (!data) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: param.dataIsNotExistMessage || DATA_IS_NOT_EXIST_MESSAGE,
+    });
+  }
+
+  return data;
+}
 
 export async function checkDuplicate<T>(param: {
   duplicate: T | null | Promise<T | null>;
@@ -35,7 +50,7 @@ export async function checkDuplicate<T>(param: {
 export async function checkPreviousVersion<T extends { updated_at: Date }>(param: {
   previous: T | null | Promise<T | null>;
   updated_at: string | Date;
-  previousIsNotFoundMessage?: string;
+  dataIsNotExistMessage?: string;
   previousIsUpdatedMessage?: string;
 }) {
   const data = R.isPromise(param.previous) ? await param.previous : param.previous;
@@ -43,7 +58,7 @@ export async function checkPreviousVersion<T extends { updated_at: Date }>(param
   if (!data) {
     throw new TRPCError({
       code: 'NOT_FOUND',
-      message: param.previousIsNotFoundMessage || PREVIOUS_IS_NOT_FOUND_MESSAGE,
+      message: param.dataIsNotExistMessage || DATA_IS_NOT_EXIST_MESSAGE,
     });
   }
 
