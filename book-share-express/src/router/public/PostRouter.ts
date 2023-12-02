@@ -1,6 +1,6 @@
 import { prisma } from '~/middleware/prisma';
 import { publicProcedure, router } from '~/middleware/trpc';
-import { PostRouterSchema, PostSchemaOutput } from '~/schema/PostRouterSchema';
+import { PostRouterSchema, PublicPostSchemaOutput } from '~/schema/PostRouterSchema';
 import { PostService } from '~/service/PostService';
 
 export const post = router({
@@ -15,7 +15,7 @@ export const post = router({
 
   get: publicProcedure
     .input(PostRouterSchema.getInput)
-    .output(PostSchemaOutput)
+    .output(PublicPostSchemaOutput)
     .query(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
         PostService.getPost(ctx.reqid, prisma, undefined, input),

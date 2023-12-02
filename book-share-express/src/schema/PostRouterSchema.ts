@@ -1,9 +1,7 @@
 import { z } from '~/lib/zod';
 import { VolumeSchema } from '~/schema/BookRouterSchema';
 import { SearchParamPostStatusEnum } from '~/schema/option/PostStatusSchema';
-import { PostScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas/PostScalarFieldEnumSchema';
-import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
-import { PostSchema } from '~/schema/zod/modelSchema/PostSchema';
+import { PostScalarFieldEnumSchema, PostSchema, SortOrderSchema, UserSchema } from '~/schema/zod';
 
 const listInput = z.object({
   where: z.object({
@@ -18,6 +16,18 @@ const listInput = z.object({
 export const PostSchemaOutput = PostSchema.merge(
   z.object({
     volume: VolumeSchema.optional(),
+  }),
+);
+
+export const PublicPostSchemaOutput = PostSchema.merge(
+  z.object({
+    toukousya: UserSchema.pick({
+      username: true,
+      avatar_file_id: true,
+      description: true,
+    }),
+    volume: VolumeSchema.optional(),
+    related_post_list: PostSchemaOutput.array(),
   }),
 );
 

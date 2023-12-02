@@ -67,7 +67,7 @@ dialog.open {
 
 dialog::backdrop,
 dialog + .backdrop {
-  @apply bg-gray-400/50 opacity-0 backdrop-blur-[1px] transition duration-150 ease-out;
+  @apply bg-gray-400/5 opacity-0 backdrop-blur-[1px] transition duration-150 ease-out;
 }
 
 dialog.open::backdrop,

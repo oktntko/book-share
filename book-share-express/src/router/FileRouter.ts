@@ -43,6 +43,21 @@ const upload = multer();
 
 export const FileRouter = express.Router();
 
+// /api/file/download/:file_id
+FileRouter.get('/download/:file_id', async (req, res, next) => {
+  const file_id = req.params.file_id;
+
+  return prisma
+    .$transaction(async (prisma) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const buffer = await FileService.downloadFile(req.id, prisma, req.session.user_id!, {
+        file_id,
+      });
+      res.send(buffer);
+    })
+    .catch(next);
+});
+
 FileRouter.use(async (req, res, next) => {
   const user = await getUserFromSession(req.id, req.session.user_id, req.session.cookie.expires);
 
@@ -95,21 +110,6 @@ FileRouter.post('/upload/array', upload.array('files'), async (req, res, next) =
         files.map((file) => FileService.createFile(req.id, prisma, req.session.user_id!, file)),
       );
       res.json(json);
-    })
-    .catch(next);
-});
-
-// /api/file/download/:file_id
-FileRouter.get('/download/:file_id', async (req, res, next) => {
-  const file_id = req.params.file_id;
-
-  return prisma
-    .$transaction(async (prisma) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const buffer = await FileService.downloadFile(req.id, prisma, req.session.user_id!, {
-        file_id,
-      });
-      res.send(buffer);
     })
     .catch(next);
 });

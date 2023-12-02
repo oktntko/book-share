@@ -28,7 +28,7 @@ export const myPost = router({
     .output(PostSchemaOutput)
     .query(async ({ ctx, input }) => {
       return prisma.$transaction(async (prisma) =>
-        PostService.getPost(ctx.reqid, prisma, ctx.operator_id, input),
+        PostService.getMyPost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
 

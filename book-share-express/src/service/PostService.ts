@@ -1,10 +1,9 @@
 import type { Prisma } from '@prisma/client';
-import { TRPCError } from '@trpc/server';
 import type { z } from 'zod';
 import { log } from '~/lib/log4js';
 import type { PrismaClient } from '~/middleware/prisma';
 import { PostRepository } from '~/repository/PostRepository';
-import { PREVIOUS_IS_NOT_FOUND_MESSAGE, checkPreviousVersion } from '~/repository/_';
+import { checkDataExist, checkPreviousVersion } from '~/repository/_';
 import type { PostRouterSchema } from '~/schema/PostRouterSchema';
 
 // # post.list
@@ -54,6 +53,59 @@ async function listPost(
   };
 }
 
+// # myPost.get
+async function getMyPost(
+  reqid: string,
+  prisma: PrismaClient,
+  operator_id: number,
+  input: z.infer<typeof PostRouterSchema.getInput>,
+) {
+  log.trace(reqid, 'getPost', operator_id, input);
+
+  const where: Prisma.PostWhereUniqueInput = { post_id: input.post_id };
+  // operator_id ありは、自分の投稿に対する検索なので、 投稿者ID＝操作者ID
+  where.toukousya_id = operator_id;
+
+  return checkDataExist({
+    data: PostRepository.findUniquePostDetails(reqid, prisma, where),
+  });
+}
+
+// # post.get
+async function getPost(
+  reqid: string,
+  prisma: PrismaClient,
+  operator_id: undefined,
+  input: z.infer<typeof PostRouterSchema.getInput>,
+) {
+  log.trace(reqid, 'getPost', operator_id, input);
+
+  const where: Prisma.PostWhereUniqueInput = { post_id: input.post_id };
+  // operator_id なしは、公開中の投稿に対する検索なので、 公開中＝true 固定
+  where.published = true;
+
+  const post = await checkDataExist({
+    data: PostRepository.findUniquePostDetails(reqid, prisma, where),
+  });
+
+  return {
+    ...post,
+    related_post_list: post.volume_id
+      ? await PostRepository.findManyPost(
+          reqid,
+          prisma,
+          {
+            volume_id: post.volume_id,
+            post_id: { not: post.post_id },
+          },
+          { published_at: 'desc' },
+          10,
+          0,
+        )
+      : [],
+  };
+}
+
 // # post.create
 async function createPost(
   reqid: string,
@@ -68,33 +120,6 @@ async function createPost(
     published: false,
     published_at: null,
   });
-}
-
-// # post.get
-async function getPost(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number | undefined,
-  input: z.infer<typeof PostRouterSchema.getInput>,
-) {
-  log.trace(reqid, 'getPost', operator_id, input);
-
-  const where: Prisma.PostWhereUniqueInput = { post_id: input.post_id };
-  if (operator_id) {
-    // operator_id ありは、自分の投稿に対する検索なので、 投稿者ID＝操作者ID
-    where.toukousya_id = operator_id;
-  } else {
-    // operator_id なしは、公開中の投稿に対する検索なので、 公開中＝true 固定
-    where.published = true;
-  }
-
-  const post = await PostRepository.findUniquePost(reqid, prisma, where);
-
-  if (!post) {
-    throw new TRPCError({ code: 'NOT_FOUND', message: PREVIOUS_IS_NOT_FOUND_MESSAGE });
-  }
-
-  return post;
 }
 
 // # post.update
@@ -181,6 +206,7 @@ export const PostService = {
   listPost,
   createPost,
   getPost,
+  getMyPost,
   updatePost,
   deletePost,
   publishPost,

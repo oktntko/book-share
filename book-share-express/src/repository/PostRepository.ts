@@ -76,6 +76,29 @@ async function findUniquePost(
     .then((post) => mergeVolume(reqid, post));
 }
 
+async function findUniquePostDetails(
+  reqid: string,
+  prisma: PrismaClient,
+  where: Prisma.PostWhereUniqueInput,
+) {
+  log.trace(reqid, 'findUniquePostDetails');
+
+  return prisma.post
+    .findUnique({
+      include: {
+        _count: {
+          select: {
+            hearted_list: true,
+            stocked_list: true,
+          },
+        },
+        toukousya: true,
+      },
+      where,
+    })
+    .then((post) => mergeVolume(reqid, post));
+}
+
 async function updatePost(
   reqid: string,
   prisma: PrismaClient,
@@ -127,6 +150,7 @@ export const PostRepository = {
   countPost,
   findManyPost,
   createPost,
+  findUniquePostDetails,
   findUniquePost,
   updatePost,
   deletePost,
