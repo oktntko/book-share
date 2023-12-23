@@ -1,4 +1,3 @@
-import { prisma } from '~/middleware/prisma';
 import { publicProcedure, router } from '~/middleware/trpc';
 import { PostRouterSchema, PublicPostSchemaOutput } from '~/schema/PostRouterSchema';
 import { PostService } from '~/service/PostService';
@@ -8,7 +7,7 @@ export const post = router({
     .input(PostRouterSchema.listInput)
     .output(PostRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.listPost(ctx.reqid, prisma, undefined, input),
       );
     }),
@@ -17,7 +16,7 @@ export const post = router({
     .input(PostRouterSchema.getInput)
     .output(PublicPostSchemaOutput)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.getPost(ctx.reqid, prisma, undefined, input),
       );
     }),

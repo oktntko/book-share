@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import type { Session, SessionData } from 'express-session';
 import { z } from '~/lib/zod';
-import { prisma } from '~/middleware/prisma';
 import { getUserFromSession } from '~/middleware/session';
 import { publicProcedure, router } from '~/middleware/trpc';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
@@ -14,7 +13,7 @@ export const auth = router({
     .input(AuthRouterSchema.signupInput)
     .output(z.void())
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) => {
+      return ctx.prisma.$transaction(async (prisma) => {
         // セッションの再生成
         await regenerate(ctx.req.session);
 
@@ -29,7 +28,7 @@ export const auth = router({
     .input(AuthRouterSchema.signinInput)
     .output(AuthSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) => {
+      return ctx.prisma.$transaction(async (prisma) => {
         // セッションの再生成
         await regenerate(ctx.req.session);
 
@@ -59,7 +58,7 @@ export const auth = router({
     .input(AuthRouterSchema.signinTwofaInput)
     .output(AuthSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) => {
+      return ctx.prisma.$transaction(async (prisma) => {
         const auth_twofa = ctx.req.session.data?.auth_twofa ?? null;
 
         const user = await AuthService.signinTwofa(ctx.reqid, prisma, { ...input, auth_twofa });

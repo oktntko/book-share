@@ -1,5 +1,6 @@
 import type { Prisma, User } from '@prisma/client';
 import { log } from '~/lib/log4js';
+import type { OriginPrismaClient } from '~/lib/prisma';
 import type { PrismaClient } from '~/middleware/prisma';
 
 type ParamUser = Omit<User, 'user_id' | CommonColumn>;
@@ -32,7 +33,7 @@ async function findManyUser(
 
 async function findUniqueUser(
   reqid: string,
-  prisma: PrismaClient,
+  prisma: OriginPrismaClient | PrismaClient,
   where: RequireOne<Prisma.UserWhereUniqueInput>,
 ) {
   log.trace(reqid, 'findUniqueUser');

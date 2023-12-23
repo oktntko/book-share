@@ -3,6 +3,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import type * as trpcExpress from '@trpc/server/adapters/express';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
+import { generatePrisma } from '~/middleware/prisma';
 import { getUserFromSession } from '~/middleware/session';
 
 // The app's context - is generated for each incoming request
@@ -11,6 +12,7 @@ export async function createContext(opts: trpcExpress.CreateExpressContextOption
     req: opts.req,
     reqid: opts.req.id,
     res: opts.res,
+    prisma: generatePrisma(opts.req.id),
   };
 }
 

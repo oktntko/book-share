@@ -1,6 +1,9 @@
 import type { Prisma } from '@prisma/client';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/middleware/prisma';
+import type { OriginPrismaClient } from '~/lib/prisma';
+import type { PrismaClient as ExtendsPrismaClient } from '~/middleware/prisma';
+
+type PrismaClient = OriginPrismaClient | ExtendsPrismaClient;
 
 async function findUniqueSession(
   prisma: PrismaClient,

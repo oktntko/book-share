@@ -1,9 +1,12 @@
 import dayjs from 'dayjs';
 import type { SessionData } from 'express-session';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/middleware/prisma';
+import type { OriginPrismaClient } from '~/lib/prisma';
+import type { PrismaClient as ExtendsPrismaClient } from '~/middleware/prisma';
 import superjson from 'superjson';
 import { SessionRepository } from '~/repository/SessionRepository';
+
+type PrismaClient = OriginPrismaClient | ExtendsPrismaClient;
 
 // # session.get
 async function getSession(prisma: PrismaClient, session_key: string): Promise<SessionData | null> {

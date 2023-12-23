@@ -7,20 +7,26 @@ export const book = router({
     .input(BookRouterSchema.listInput)
     .output(BookRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
-      return BookService.listVolume(ctx.reqid, undefined, input);
+      return ctx.prisma.$transaction(async (prisma) =>
+        BookService.listVolume(ctx.reqid, prisma, undefined, input),
+      );
     }),
 
   getVolume: publicProcedure
     .input(BookRouterSchema.getInput)
     .output(VolumeSchema)
     .query(async ({ ctx, input }) => {
-      return BookService.getVolume(ctx.reqid, undefined, input);
+      return ctx.prisma.$transaction(async (prisma) =>
+        BookService.getVolume(ctx.reqid, prisma, undefined, input),
+      );
     }),
 
   ranking: publicProcedure
     .input(BookRouterSchema.rankingInput)
     .output(BookRouterSchema.rankingOutput)
     .query(async ({ ctx, input }) => {
-      return BookService.rankingBook(ctx.reqid, undefined, input);
+      return ctx.prisma.$transaction(async (prisma) =>
+        BookService.rankingBook(ctx.reqid, prisma, undefined, input),
+      );
     }),
 });

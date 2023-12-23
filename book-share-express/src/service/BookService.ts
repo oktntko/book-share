@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import * as R from 'remeda';
 import type { z } from 'zod';
 import { log } from '~/lib/log4js';
-import { prisma } from '~/middleware/prisma';
+import type { PrismaClient } from '~/middleware/prisma';
 import { BookRepository } from '~/repository/BookRepository';
 import { PostRepository } from '~/repository/PostRepository';
 import { checkDataExist } from '~/repository/_';
@@ -13,6 +13,7 @@ import { BookRouterSchema } from '~/schema/BookRouterSchema';
 // # book.listVolume
 async function listVolume(
   reqid: string,
+  prisma: PrismaClient,
   operator_id: number | undefined,
   input: z.infer<typeof BookRouterSchema.listInput>,
 ) {
@@ -32,6 +33,7 @@ async function listVolume(
 // # book.getVolume
 async function getVolume(
   reqid: string,
+  prisma: PrismaClient,
   operator_id: number | undefined,
   input: z.infer<typeof BookRouterSchema.getInput>,
 ) {
@@ -45,6 +47,7 @@ async function getVolume(
 // # book.ranking
 async function rankingBook(
   reqid: string,
+  prisma: PrismaClient,
   operator_id: number | undefined,
   input: z.infer<typeof BookRouterSchema.rankingInput>,
 ) {
@@ -69,7 +72,9 @@ async function rankingBook(
 
   const volume_list: books_v1.Schema$Volume & { count: number }[] = [];
   for (const data of volumeIdList) {
-    const volume = await getVolume(reqid, operator_id, { volume_id: data.volume_id });
+    const volume = await getVolume(reqid, prisma, operator_id, {
+      volume_id: data.volume_id,
+    });
     volume_list.push(R.merge(volume, { count: data._count }));
   }
 

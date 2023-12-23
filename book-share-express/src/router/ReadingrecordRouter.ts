@@ -1,4 +1,3 @@
-import { prisma } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import {
   ReadingrecordRouterSchema,
@@ -12,7 +11,7 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.listInput)
     .output(ReadingrecordRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         ReadingrecordService.listReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -21,7 +20,7 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.createInput)
     .output(ReadingrecordSchemaOutput)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         ReadingrecordService.createReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -30,7 +29,7 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.getInput)
     .output(ReadingrecordSchema)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         ReadingrecordService.getReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -39,7 +38,7 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.updateInput)
     .output(ReadingrecordSchemaOutput)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         ReadingrecordService.updateReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -48,7 +47,7 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.deleteInput)
     .output(ReadingrecordSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         ReadingrecordService.deleteReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),

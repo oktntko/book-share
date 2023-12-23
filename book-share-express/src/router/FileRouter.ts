@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import express from 'express';
 import multer from 'multer';
-import { prisma } from '~/middleware/prisma';
+import { generatePrisma } from '~/middleware/prisma';
 import { getUserFromSession } from '~/middleware/session';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import { FileRouterSchema } from '~/schema/FileRouterSchema';
@@ -14,7 +14,7 @@ export const file = router({
     .input(FileRouterSchema.listInput)
     .output(FileRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         FileService.listFile(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -23,7 +23,7 @@ export const file = router({
     .input(FileRouterSchema.getInput)
     .output(FileSchema)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         FileService.getFile(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -32,7 +32,7 @@ export const file = router({
     .input(FileRouterSchema.getInput)
     .output(FileSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         FileService.deleteFile(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -47,7 +47,7 @@ export const FileRouter = express.Router();
 FileRouter.get('/download/:file_id', async (req, res, next) => {
   const file_id = req.params.file_id;
 
-  return prisma
+  return generatePrisma(req.id)
     .$transaction(async (prisma) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const buffer = await FileService.downloadFile(req.id, prisma, req.session.user_id!, {
@@ -81,7 +81,7 @@ FileRouter.post('/upload/single', upload.single('file'), async (req, res, next) 
 
   const file = req.file;
 
-  return prisma
+  return generatePrisma(req.id)
     .$transaction(async (prisma) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const json = await FileService.createFile(req.id, prisma, req.session.user_id!, file);
@@ -103,7 +103,7 @@ FileRouter.post('/upload/array', upload.array('files'), async (req, res, next) =
 
   const files = req.files;
 
-  return prisma
+  return generatePrisma(req.id)
     .$transaction(async (prisma) => {
       const json = await Promise.all(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

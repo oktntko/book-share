@@ -1,4 +1,3 @@
-import { prisma } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import { PostRouterSchema, PostSchemaOutput } from '~/schema/PostRouterSchema';
 import { PostSchema } from '~/schema/zod';
@@ -9,7 +8,7 @@ export const myPost = router({
     .input(PostRouterSchema.listInput)
     .output(PostRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.listPost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -18,7 +17,7 @@ export const myPost = router({
     .input(PostRouterSchema.createInput)
     .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.createPost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -27,7 +26,7 @@ export const myPost = router({
     .input(PostRouterSchema.getInput)
     .output(PostSchemaOutput)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.getMyPost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -36,7 +35,7 @@ export const myPost = router({
     .input(PostRouterSchema.updateInput)
     .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.updatePost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -45,7 +44,7 @@ export const myPost = router({
     .input(PostRouterSchema.deleteInput)
     .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.deletePost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
@@ -54,7 +53,7 @@ export const myPost = router({
     .input(PostRouterSchema.publishInput)
     .output(PostSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
+      return ctx.prisma.$transaction(async (prisma) =>
         PostService.publishPost(ctx.reqid, prisma, ctx.operator_id, input),
       );
     }),
