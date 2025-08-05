@@ -1,5 +1,5 @@
 {
-  "name": "book-share-express",
+  "name": "@book-share/express",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
