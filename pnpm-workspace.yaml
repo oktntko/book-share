@@ -1,0 +1,13 @@
+packages:
+  - app/express
+  - app/vue
+  - common/lib
+  - common/prisma
+  - docker
+
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - "@tailwindcss/oxide"
+  - esbuild
+  - prisma
