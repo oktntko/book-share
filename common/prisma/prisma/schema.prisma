@@ -42,11 +42,6 @@ generator erd {
 model User {
   user_id Int @id @default(autoincrement())
 
-  /// アバターファイルID
-  avatar_file_id String? @db.VarChar(191)
-  /// アバターイメージ
-  avatar_image   File?   @relation(fields: [avatar_file_id], references: [file_id])
-
   email    String @unique @db.VarChar(255) /// @zod.string.trim().min(1).max(255).email()
   password String @db.VarChar(255) /// @zod.string.trim().min(1).max(255)
   username String @db.VarChar(100) /// @zod.string.trim().min(1).max(100)
@@ -55,6 +50,8 @@ model User {
   twofa_enable Boolean @default(false)
   /// 二要素認証の秘密鍵
   twofa_secret String  @default("") @db.VarChar(255) /// @zod.string.trim().max(255)
+  /// アバターイメージ
+  avatar_image String  @default("") @db.Text
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)
@@ -101,8 +98,6 @@ model File {
   updated_at DateTime @updatedAt @db.Timestamptz(3)
   updated_by Int
 
-  user_list User[]
-
   @@map("file")
 }
 
@@ -113,17 +108,15 @@ model File {
 model Post {
   post_id Int @id @default(autoincrement())
 
-  toukousya_id Int /// 投稿者ID
-  toukousya    User @relation(fields: [toukousya_id], references: [user_id], onDelete: Cascade) /// 投稿者
+  /// 投稿者ID
+  toukousya_id Int
+  /// 投稿者
+  toukousya    User @relation(fields: [toukousya_id], references: [user_id], onDelete: Cascade)
 
-  /// @zod.string.trim().max(255)
-  volume_id    String    @default("") @db.VarChar(255)
-  /// @zod.string.trim().max(400)
-  book_title   String    @default("") @db.VarChar(400)
-  /// @zod.string.trim().max(255)
-  post_title   String    @default("") @db.VarChar(255)
-  /// @zod.string.trim()
-  content      String    @default("") @db.Text()
+  volume_id    String    @default("") @db.VarChar(255) /// @zod.string.trim().max(255)
+  book_title   String    @default("") @db.VarChar(400) /// @zod.string.trim().max(400)
+  post_title   String    @default("") @db.VarChar(255) /// @zod.string.trim().max(255)
+  content      String    @default("") @db.Text() /// @zod.string.trim()
   published    Boolean   @default(false)
   published_at DateTime? @db.Timestamptz(3)
   hearts       Int       @default(0)
@@ -138,18 +131,16 @@ model Post {
 model Readingrecord {
   readingrecord_id Int @id @default(autoincrement())
 
-  user_id Int /// 本を読んだ人のユーザID
-  user    User @relation(fields: [user_id], references: [user_id], onDelete: Cascade) /// 本を読んだ人
+  /// 本を読んだ人のユーザID
+  user_id Int
+  /// 本を読んだ人
+  user    User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
-  /// @zod.string.trim().max(255)
-  volume_id  String @default("") @db.VarChar(255)
-  /// @zod.string.trim().max(400)
-  book_title String @default("") @db.VarChar(400)
-  /// @zod.custom.use(DateSchema)
-  read_date  String @default("") @db.VarChar(10)
+  volume_id  String @default("") @db.VarChar(255) /// @zod.string.trim().max(255)
+  book_title String @default("") @db.VarChar(400) /// @zod.string.trim().max(400)
+  read_date  String @default("") @db.VarChar(10) /// @zod.custom.use(DateSchema)
   star       Float  @default(0)
-  /// @zod.string.trim().max(255)
-  hitokoto   String @default("") @db.VarChar(255)
+  hitokoto   String @default("") @db.VarChar(255) /// @zod.string.trim().max(255)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)

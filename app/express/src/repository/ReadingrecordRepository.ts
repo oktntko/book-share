@@ -1,121 +1,124 @@
-import type { Prisma, Readingrecord } from '@prisma/client';
+import type { Prisma } from '@book-share/prisma/client';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/middleware/prisma';
+import { ProtectedContext, PublicContext } from '~/middleware/trpc';
 import { mergeVolume } from '~/repository/BookRepository';
 
-type ParamReadingrecord = Omit<Readingrecord, 'readingrecord_id' | CommonColumn>;
+export const ReadingrecordRepository = {
+  countReadingrecord,
+  findManyReadingrecord,
+  findUniqueReadingrecord,
+  createReadingrecord,
+  updateReadingrecord,
+  deleteReadingrecord,
+};
 
 async function countReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  where: Prisma.ReadingrecordWhereInput,
+  ctx: PublicContext,
+  params: {
+    where: Prisma.ReadingrecordWhereInput;
+  },
 ) {
-  log.trace(reqid, 'countReadingrecord');
+  log.trace(ctx.reqid, 'countReadingrecord');
 
-  return prisma.readingrecord.count({
-    where,
+  return ctx.prisma.readingrecord.count({
+    where: params.where,
   });
 }
 
 async function findManyReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  where?: Prisma.ReadingrecordWhereInput,
-  orderBy?: Prisma.Enumerable<Prisma.ReadingrecordOrderByWithRelationInput>,
-  take?: number,
-  skip?: number,
+  ctx: PublicContext,
+  params: {
+    where?: Prisma.ReadingrecordWhereInput;
+    orderBy?: Prisma.Enumerable<Prisma.ReadingrecordOrderByWithRelationInput>;
+    take?: number;
+    skip?: number;
+  },
 ) {
-  log.trace(reqid, 'findManyReadingrecord');
+  log.trace(ctx.reqid, 'findManyReadingrecord');
 
-  const readingrecord_list = await prisma.readingrecord.findMany({
-    where,
-    orderBy,
-    take,
-    skip,
+  const readingrecord_list = await ctx.prisma.readingrecord.findMany({
+    where: params.where,
+    orderBy: params.orderBy,
+    take: params.take,
+    skip: params.skip,
   });
 
   // Array.prototype.map() を使うと overload function の効果が消えて戻り値が Nullable になるため、
   // for of を使っている。
   const computedList = [];
   for (const readingrecord of readingrecord_list) {
-    computedList.push(await mergeVolume(reqid, readingrecord));
+    computedList.push(await mergeVolume(ctx, readingrecord));
   }
 
   return computedList;
 }
 
-async function createReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  readingrecord: ParamReadingrecord,
+async function findUniqueReadingrecord(
+  ctx: PublicContext,
+  params: {
+    where: RequireOne<Prisma.ReadingrecordWhereUniqueInput>;
+  },
 ) {
-  log.trace(reqid, 'createReadingrecord');
+  log.trace(ctx.reqid, 'findUniqueReadingrecord');
 
-  return prisma.readingrecord
-    .create({
-      include: {},
-      data: {
-        volume_id: readingrecord.volume_id,
-        book_title: readingrecord.book_title,
-        read_date: readingrecord.read_date,
-        star: readingrecord.star,
-        hitokoto: readingrecord.hitokoto,
-        user_id: operator_id,
-      },
-    })
-    .then((readingrecord) => mergeVolume(reqid, readingrecord));
+  return ctx.prisma.readingrecord.findUnique({
+    where: params.where,
+  });
 }
 
-async function findUniqueReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  where: RequireOne<Prisma.ReadingrecordWhereUniqueInput>,
+async function createReadingrecord(
+  ctx: ProtectedContext,
+  params: { data: Omit<Prisma.ReadingrecordUncheckedCreateInput, CommonColumn> },
 ) {
-  log.trace(reqid, 'findUniqueReadingrecord');
+  log.trace(ctx.reqid, 'createReadingrecord');
 
-  return prisma.readingrecord.findUnique({
-    where: { readingrecord_id: where.readingrecord_id },
-  });
+  return ctx.prisma.readingrecord
+    .create({
+      data: {
+        volume_id: params.data.volume_id,
+        book_title: params.data.book_title,
+        read_date: params.data.read_date,
+        star: params.data.star,
+        hitokoto: params.data.hitokoto,
+        user_id: ctx.operator.user_id,
+      },
+    })
+    .then((readingrecord) => mergeVolume(ctx, readingrecord));
 }
 
 async function updateReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  readingrecord: ParamReadingrecord,
-  readingrecord_id: number,
+  ctx: ProtectedContext,
+  params: {
+    where: Prisma.ReadingrecordWhereUniqueInput;
+    data: Omit<Prisma.ReadingrecordUncheckedUpdateInput, CommonColumn>;
+  },
 ) {
-  log.trace(reqid, 'updateReadingrecord');
+  log.trace(ctx.reqid, 'updateReadingrecord');
 
-  return prisma.readingrecord
+  return ctx.prisma.readingrecord
     .update({
       data: {
-        volume_id: readingrecord.volume_id,
-        book_title: readingrecord.book_title,
-        read_date: readingrecord.read_date,
-        star: readingrecord.star,
-        hitokoto: readingrecord.hitokoto,
-        user_id: operator_id,
+        volume_id: params.data.volume_id,
+        book_title: params.data.book_title,
+        read_date: params.data.read_date,
+        star: params.data.star,
+        hitokoto: params.data.hitokoto,
+        user_id: ctx.operator.user_id,
       },
-      where: { readingrecord_id },
+      where: params.where,
     })
-    .then((readingrecord) => mergeVolume(reqid, readingrecord));
+    .then((readingrecord) => mergeVolume(ctx, readingrecord));
 }
 
-async function deleteReadingrecord(reqid: string, prisma: PrismaClient, readingrecord_id: number) {
-  log.trace(reqid, 'deleteReadingrecord');
+async function deleteReadingrecord(
+  ctx: ProtectedContext,
+  params: {
+    where: Prisma.ReadingrecordWhereUniqueInput;
+  },
+) {
+  log.trace(ctx.reqid, 'deleteReadingrecord');
 
-  return prisma.readingrecord.delete({
-    where: { readingrecord_id },
+  return ctx.prisma.readingrecord.delete({
+    where: params.where,
   });
 }
-
-export const ReadingrecordRepository = {
-  countReadingrecord,
-  findManyReadingrecord,
-  createReadingrecord,
-  findUniqueReadingrecord,
-  updateReadingrecord,
-  deleteReadingrecord,
-};

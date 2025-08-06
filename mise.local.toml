@@ -1,2 +1,4 @@
 [env]
 DB_PORT = 2234
+EXPRESS_PORT = 8082
+DATABASE_URL = "postgresql://bs_dev:bs_dev@localhost:{{env.DB_PORT}}/bs_dev?schema=bs_dev"

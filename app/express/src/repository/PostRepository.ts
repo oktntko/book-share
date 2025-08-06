@@ -1,136 +1,147 @@
-import type { Post, Prisma } from '@prisma/client';
+import type { Prisma } from '@book-share/prisma/client';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/middleware/prisma';
+import { ProtectedContext, PublicContext } from '~/middleware/trpc';
 import { mergeVolume } from '~/repository/BookRepository';
 
-type ParamPost = Omit<Post, 'post_id' | 'toukousya_id' | CommonColumn>;
+export const PostRepository = {
+  countPost,
+  findManyPost,
+  findUniquePost,
+  createPost,
+  updatePost,
+  deletePost,
+  countPostGroupByVolumeId,
+};
 
-async function countPost(reqid: string, prisma: PrismaClient, where: Prisma.PostWhereInput) {
-  log.trace(reqid, 'countPost');
+async function countPost(
+  ctx: PublicContext,
+  params: {
+    where: Prisma.PostWhereInput;
+  },
+) {
+  log.trace(ctx.reqid, 'countPost');
 
-  return prisma.post.count({
-    where,
+  return ctx.prisma.post.count({
+    where: params.where,
   });
 }
 
 async function findManyPost(
-  reqid: string,
-  prisma: PrismaClient,
-  where?: Prisma.PostWhereInput,
-  orderBy?: Prisma.PostOrderByWithRelationInput | Prisma.PostOrderByWithRelationInput[],
-  take?: number,
-  skip?: number,
+  ctx: PublicContext,
+  params: {
+    where?: Prisma.PostWhereInput;
+    orderBy?: Prisma.PostOrderByWithRelationInput | Prisma.PostOrderByWithRelationInput[];
+    take?: number;
+    skip?: number;
+  },
 ) {
-  log.trace(reqid, 'findManyPost');
+  log.trace(ctx.reqid, 'findManyPost');
 
-  const post_list = await prisma.post.findMany({
-    where,
-    orderBy,
-    take,
-    skip,
+  const post_list = await ctx.prisma.post.findMany({
+    where: params.where,
+    orderBy: params.orderBy,
+    take: params.take,
+    skip: params.skip,
   });
 
   // Array.prototype.map() を使うと overload function の効果が消えて戻り値が Nullable になるため、
   // for of を使っている。
   const computedList = [];
   for (const post of post_list) {
-    computedList.push(await mergeVolume(reqid, post));
+    computedList.push(await mergeVolume(ctx, post));
   }
 
   return computedList;
 }
 
-async function createPost(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  post: ParamPost,
+async function findUniquePost(
+  ctx: PublicContext,
+  params: {
+    where: Prisma.PostWhereUniqueInput;
+  },
 ) {
-  log.trace(reqid, 'createPost');
+  log.trace(ctx.reqid, 'findUniquePost');
 
-  return prisma.post.create({
-    include: {},
-    data: {
-      toukousya_id: operator_id,
-      volume_id: post.volume_id,
-      book_title: post.book_title,
-      post_title: post.post_title,
-      content: post.content,
-      hearts: post.hearts,
-      published: post.published,
-      published_at: post.published_at,
-    },
-  });
+  return ctx.prisma.post
+    .findUnique({
+      where: params.where,
+    })
+    .then((post) => mergeVolume(ctx, post));
 }
 
-async function findUniquePost(
-  reqid: string,
-  prisma: PrismaClient,
-  where: Prisma.PostWhereUniqueInput,
+async function createPost(
+  ctx: ProtectedContext,
+  params: {
+    data: Omit<Prisma.PostUncheckedCreateInput, 'post_id' | 'toukousya_id' | CommonColumn>;
+  },
 ) {
-  log.trace(reqid, 'findUniquePost');
+  log.trace(ctx.reqid, 'createPost');
 
-  return prisma.post
-    .findUnique({
-      where,
-    })
-    .then((post) => mergeVolume(reqid, post));
+  return ctx.prisma.post.create({
+    include: {},
+    data: {
+      toukousya_id: ctx.operator.user_id,
+      volume_id: params.data.volume_id,
+      book_title: params.data.book_title,
+      post_title: params.data.post_title,
+      content: params.data.content,
+      hearts: params.data.hearts,
+      published: params.data.published,
+      published_at: params.data.published_at,
+    },
+  });
 }
 
 async function updatePost(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  post: ParamPost,
-  post_id: number,
+  ctx: ProtectedContext,
+  params: {
+    where: Prisma.PostWhereUniqueInput;
+    data: Omit<Prisma.PostUpdateInput, 'post_id' | 'toukousya_id' | CommonColumn>;
+  },
 ) {
-  log.trace(reqid, 'updatePost');
+  log.trace(ctx.reqid, 'updatePost');
 
-  return prisma.post.update({
+  return ctx.prisma.post.update({
     data: {
-      toukousya_id: operator_id,
-      volume_id: post.volume_id,
-      book_title: post.book_title,
-      post_title: post.post_title,
-      content: post.content,
-      hearts: post.hearts,
-      published: post.published,
-      published_at: post.published_at,
+      toukousya_id: ctx.operator.user_id,
+      volume_id: params.data.volume_id,
+      book_title: params.data.book_title,
+      post_title: params.data.post_title,
+      content: params.data.content,
+      hearts: params.data.hearts,
+      published: params.data.published,
+      published_at: params.data.published_at,
     },
-    where: { post_id },
+    where: params.where,
   });
 }
 
-async function deletePost(reqid: string, prisma: PrismaClient, post_id: number) {
-  log.trace(reqid, 'deletePost');
+async function deletePost(
+  ctx: ProtectedContext,
+  params: {
+    where: Prisma.PostWhereUniqueInput;
+  },
+) {
+  log.trace(ctx.reqid, 'deletePost');
 
-  return prisma.post.delete({
-    where: { post_id },
+  return ctx.prisma.post.delete({
+    where: params.where,
   });
 }
 
 async function countPostGroupByVolumeId(
-  reqid: string,
-  prisma: PrismaClient,
-  where: Prisma.PostWhereInput,
+  ctx: PublicContext,
+  params: {
+    where: Prisma.PostWhereInput;
+  },
 ) {
-  log.debug(reqid, 'countPostGroupByVolumeId');
+  log.debug(ctx.reqid, 'countPostGroupByVolumeId');
 
-  return prisma.post.groupBy({
+  return ctx.prisma.post.groupBy({
     by: ['volume_id'],
     _count: true,
-    where,
+    where: params.where,
     orderBy: [{ _count: { volume_id: 'desc' } }, { volume_id: 'asc' }],
     take: 10,
   });
 }
-
-export const PostRepository = {
-  countPost,
-  findManyPost,
-  createPost,
-  findUniquePost,
-  updatePost,
-  deletePost,
-  countPostGroupByVolumeId,
-};

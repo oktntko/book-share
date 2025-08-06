@@ -1,125 +1,181 @@
-import { Prisma } from '@prisma/client';
+import type { z } from '@book-share/lib/zod';
+import { type Prisma } from '@book-share/prisma/client';
 import { TRPCError } from '@trpc/server';
-import type { z } from 'zod';
+import AdmZip from 'adm-zip';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/middleware/prisma';
+import { ProtectedContext } from '~/middleware/trpc';
+import {
+  checkDataExist,
+  checkPreviousVersion,
+  MESSAGE_DATA_IS_NOT_EXIST,
+} from '~/repository/_repository';
 import { FileRepository } from '~/repository/FileRepository';
 import { FileRouterSchema } from '~/schema/FileRouterSchema';
 
-// # file.list
-async function listFile(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  input: z.infer<typeof FileRouterSchema.listInput>,
-) {
-  log.trace(reqid, 'listFile', operator_id);
+export const FileService = {
+  readFile,
+  readManyFile,
+  createFile,
+  createManyFile,
+  deleteFile,
+  deleteManyFile,
+  searchFile,
+};
 
-  const where: Prisma.FileWhereInput = {};
-  if (input.where) {
-    where.originalname = { contains: input.where.keyword };
-  }
+// # /api/file/download/single
+async function readFile(ctx: ProtectedContext, input: z.infer<typeof FileRouterSchema.getInput>) {
+  log.trace(ctx.reqid, 'readFile', ctx.operator.user_id, input);
 
-  const [total, files] = await Promise.all([
-    FileRepository.countFile(reqid, prisma),
-    FileRepository.findManyFile(reqid, prisma),
-  ]);
+  // テーブルからデータを取得
+  const filedata = await checkDataExist({
+    data: FileRepository.findUniqueFile(ctx, {
+      where: { file_id: input.file_id },
+    }),
+  });
 
-  return { total, files };
-}
-
-// # file.get
-async function getFile(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  input: z.infer<typeof FileRouterSchema.getInput>,
-) {
-  log.trace(reqid, 'getFile', operator_id, input);
-
-  const filedata = await FileRepository.findUniqueFile(reqid, prisma, input);
-  if (!filedata) {
+  // ストレージからデータを取得
+  const buffer = await FileRepository.readFile(filedata);
+  if (buffer == null) {
     throw new TRPCError({
-      code: 'CONFLICT',
-      message: '削除操作が競合しています。',
+      code: 'NOT_FOUND',
+      message: MESSAGE_DATA_IS_NOT_EXIST,
     });
   }
+
+  return { filedata, buffer };
+}
+
+// # /api/file/download/many
+async function readManyFile(
+  ctx: ProtectedContext,
+  input: z.infer<typeof FileRouterSchema.getManyInput>,
+) {
+  log.trace(ctx.reqid, 'readManyFile', ctx.operator.user_id, input);
+
+  const dataList = await Promise.all(
+    input.file_id_list.map((file_id) => FileService.readFile(ctx, { file_id })),
+  );
+
+  const zip = new AdmZip();
+  dataList.forEach(({ filedata, buffer }) => {
+    zip.addFile(filedata.filename, buffer);
+  });
+
+  return {
+    filedata: { filename: 'download.zip', mimetype: 'application/zip' },
+    buffer: zip.toBuffer(),
+  };
+}
+
+// # /api/file/upload/single
+async function createFile(
+  ctx: ProtectedContext,
+  input: z.infer<typeof FileRouterSchema.createInput>,
+) {
+  log.trace(ctx.reqid, 'createFile', ctx.operator.user_id, input);
+
+  const filename = decodeURIComponent(input.file.originalname);
+
+  // テーブルを更新
+  const filedata = await FileRepository.createFile(ctx, {
+    data: {
+      filename,
+      mimetype: input.file.mimetype,
+      filesize: input.file.size,
+    },
+  });
+
+  // ストレージを更新
+  await FileRepository.writeFile(filedata, input.file.buffer);
 
   return filedata;
 }
 
-// # file.create
-async function createFile(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  file: Express.Multer.File,
+// # /api/file/upload/many
+async function createManyFile(
+  ctx: ProtectedContext,
+  input: z.infer<typeof FileRouterSchema.createManyInput>,
 ) {
-  log.trace(reqid, 'createFile', operator_id, file);
+  log.trace(ctx.reqid, 'createManyFile', ctx.operator.user_id, input);
 
-  const originalname = decodeURIComponent(file.originalname); // 文字化けする
-
-  // テーブルを更新
-  const filedata = await FileRepository.createFile(reqid, prisma, operator_id, {
-    originalname,
-    mimetype: file.mimetype,
-    size: file.size,
-  });
-
-  // ストレージを更新
-  const folder = FileRepository.dirpath(filedata.file_id);
-  FileRepository.rmrf(folder);
-  await FileRepository.writeFile(folder, originalname, file.buffer);
-
-  return { file_id: filedata.file_id };
-}
-
-// # file.get
-async function downloadFile(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  input: z.infer<typeof FileRouterSchema.getInput>,
-) {
-  log.trace(reqid, 'getFile', operator_id, input);
-
-  // テーブルからデータを取得
-  const filedata = await FileRepository.findUniqueFile(reqid, prisma, input);
-  if (!filedata) {
-    throw new TRPCError({
-      code: 'CONFLICT',
-      message: '削除操作が競合しています。',
-    });
-  }
-
-  // ストレージからデータを取得
-  const fullpath = FileRepository.filepath(filedata.file_id, filedata.originalname);
-  return FileRepository.readFile(fullpath);
+  return Promise.all(
+    input.files.map((file) =>
+      FileService.createFile(ctx, {
+        file,
+      }),
+    ),
+  );
 }
 
 // # file.delete
 async function deleteFile(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  input: z.infer<typeof FileRouterSchema.getInput>,
+  ctx: ProtectedContext,
+  input: z.infer<typeof FileRouterSchema.deleteInput>,
 ) {
-  log.trace(reqid, 'deleteFile', operator_id, input);
+  log.trace(ctx.reqid, 'deleteFile', ctx.operator.user_id, input);
 
   // テーブルを更新
-  const filedata = await FileRepository.deleteFile(reqid, prisma, input.file_id);
+  await checkPreviousVersion({
+    previous: FileRepository.findUniqueFile(ctx, {
+      where: { file_id: input.file_id },
+    }),
+    updated_at: input.updated_at,
+  });
+
+  const filedata = await FileRepository.deleteFile(ctx, {
+    where: { file_id: input.file_id },
+  });
 
   // ストレージを更新
-  const folder = FileRepository.dirpath(input.file_id);
-  FileRepository.rmrf(folder);
+  FileRepository.removeFile(filedata);
 
   return filedata;
 }
 
-export const FileService = {
-  listFile,
-  getFile,
-  createFile,
-  downloadFile,
-  deleteFile,
-} as const;
+async function deleteManyFile(
+  ctx: ProtectedContext,
+  input: z.infer<typeof FileRouterSchema.deleteInput>[],
+) {
+  log.trace(ctx.reqid, 'deleteManyFile', ctx.operator.user_id, input);
+
+  return Promise.all(input.map((x) => FileService.deleteFile(ctx, x)));
+}
+
+// file.search
+async function searchFile(
+  ctx: ProtectedContext,
+  input: z.infer<typeof FileRouterSchema.searchInput>,
+) {
+  log.trace(ctx.reqid, 'searchFile', ctx.operator.user_id, input);
+
+  const AND: Prisma.FileWhereInput[] = [];
+
+  if (input.where.file_keyword) {
+    AND.push({
+      OR: [{ filename: { contains: input.where.file_keyword } }],
+    });
+  }
+
+  const where: Prisma.FileWhereInput = {
+    AND,
+  };
+  log.debug(ctx.reqid, 'where', where);
+
+  const orderBy: Prisma.FileOrderByWithRelationInput = { [input.sort.field]: input.sort.order };
+  log.debug(ctx.reqid, 'orderBy', orderBy);
+
+  const total = await FileRepository.countFile(ctx, {
+    where,
+  });
+  const file_list = await FileRepository.findManyFile(ctx, {
+    where,
+    orderBy,
+    take: input.limit,
+    skip: input.limit * (input.page - 1),
+  });
+
+  return {
+    total,
+    file_list,
+  } satisfies z.infer<typeof FileRouterSchema.searchOutput>;
+}

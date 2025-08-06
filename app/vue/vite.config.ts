@@ -1,52 +1,53 @@
-import vue from '@vitejs/plugin-vue';
-import vueJsx from '@vitejs/plugin-vue-jsx';
 import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vite';
+
+import tailwindcss from '@tailwindcss/vite';
+import Vue from '@vitejs/plugin-vue';
+import VueJsx from '@vitejs/plugin-vue-jsx';
 import AutoImport from 'unplugin-auto-import/vite';
 import Unfonts from 'unplugin-fonts/vite';
-import { HeadlessUiResolver, VueUseComponentsResolver } from 'unplugin-vue-components/resolvers';
-import Components from 'unplugin-vue-components/vite';
-import { defineConfig } from 'vite';
-import Pages from 'vite-plugin-pages';
-import Layouts from 'vite-plugin-vue-layouts';
+import { VueUseComponentsResolver } from 'unplugin-vue-components/resolvers';
+import VueComponents from 'unplugin-vue-components/vite';
+import { VueRouterAutoImports } from 'unplugin-vue-router';
+import VueRouter from 'unplugin-vue-router/vite';
+import VueLayouts from 'vite-plugin-vue-layouts';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue({
-      script: {
-        defineModel: true,
-      },
+    VueRouter({
+      extensions: ['.vue'],
+      routesFolder: 'src/page',
+      exclude: ['**/component', '**/modal'],
+      dts: 'src/vue-router.d.ts',
     }),
-    vueJsx(),
-    Pages({
-      exclude: ['**/components/*.vue'],
-    }),
-    Layouts(),
-    AutoImport({
-      imports: ['vue', 'vue-router', '@vueuse/core', 'pinia'],
-      dts: 'src/auto-imports.d.ts',
-    }),
-    Components({
-      dirs: ['src/components'],
-      dts: 'src/components.d.ts',
-      resolvers: [
-        {
-          type: 'component',
-          resolve: (name) => {
-            if (name.startsWith('Vxe')) return { name, from: 'vxe-table' };
-            if (name === 'Icon') return { name, from: '@iconify/vue' };
-          },
-        },
-        VueUseComponentsResolver(),
-        HeadlessUiResolver(),
-      ],
+    Vue(),
+    VueJsx(),
+    VueLayouts({
+      layoutsDirs: 'src/layout',
+      pagesDirs: 'src/page',
+      extensions: ['vue'],
+      exclude: ['**/component', '**/modal'],
+      defaultLayout: 'default',
     }),
     Unfonts({
       // https://fonts.google.com/
       google: {
-        families: ['Noto Sans JP', 'Roboto'],
+        // cSpell:ignore Noto Murecho
+        families: ['Noto Sans JP', 'M PLUS 1', 'M PLUS 2', 'Murecho', 'M PLUS 1 Code'],
       },
     }),
+    AutoImport({
+      imports: ['vue', VueRouterAutoImports, 'pinia', '@vueuse/core'],
+      vueTemplate: true,
+      dts: 'src/vue-auto-import.d.ts',
+    }),
+    VueComponents({
+      dirs: ['src/component'],
+      resolvers: [VueUseComponentsResolver()],
+      dts: 'src/vue-components.d.ts',
+    }),
+    tailwindcss(),
   ],
   resolve: {
     alias: {
@@ -56,9 +57,28 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: `http://localhost:${process.env['EXPRESS_PORT'] || 8080}`,
         changeOrigin: true,
       },
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    include: ['test/**'],
+    alias: {
+      '~': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+    reporters: ['default', 'html'],
+    outputFile: {
+      html: '.report/html/index.html',
+    },
+    coverage: {
+      provider: 'v8',
+      enabled: true,
+      include: ['src/**'],
+      exclude: ['**/*.d.ts'],
+      reportsDirectory: '.report/coverage',
     },
   },
 });

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "EXPRESS_PORT",
+        "DATABASE_URL",
+        "DB_PORT"
+      ],
+      "dependsOn": [
+        "@book-share/lib#build",
+        "@book-share/prisma#build"
+      ]
+    },
+    "build": {
+      "dependsOn": [
+        "type-check",
+        "^build"
+      ]
+    },
+    "type-check": {
+      "dependsOn": [
+        "@book-share/prisma#generate",
+        "^type-check"
+      ]
+    },
+    "preview": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": [
+        "build"
+      ],
+      "env": [
+        "EXPRESS_PORT",
+        "DATABASE_URL",
+        "DB_PORT"
+      ]
+    },
+    "generate": {},
+    "lint": {},
+    "format": {},
+    "test": {
+      "env": [
+        "EXPRESS_PORT",
+        "DATABASE_URL",
+        "DB_PORT"
+      ],
+      "dependsOn": [
+        "@book-share/lib#build",
+        "@book-share/prisma#generate",
+        "@book-share/prisma#build"
+      ]
+    }
+  }
+}

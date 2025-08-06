@@ -1,37 +1,29 @@
-import { z } from '~/lib/zod';
-import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
-import { FileScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas/FileScalarFieldEnumSchema';
-import { FileSchema } from '~/schema/zod/modelSchema/FileSchema';
-
-const listInput = z.object({
-  where: z.object({
-    keyword: z.string().trim().max(255),
-  }),
-  sort: z
-    .object({
-      field: FileScalarFieldEnumSchema,
-      order: SortOrderSchema,
-    })
-    .array(),
-  limit: z.number().int().max(100),
-  offset: z.number().int(),
-});
-
-const listOutput = z.object({
-  total: z.number(),
-  files: z.array(FileSchema),
-});
-
-const createInput = FileSchema.omit({
-  file_id: true,
-  created_at: true,
-  created_by: true,
-  updated_at: true,
-  updated_by: true,
-});
+import { z } from '@book-share/lib/zod';
+import { FileScalarFieldEnumSchema, FileSchema, SortOrderSchema } from '@book-share/prisma/schema';
 
 const getInput = FileSchema.pick({
   file_id: true,
+});
+const getManyInput = z.object({ file_id_list: FileSchema.shape.file_id.array().min(1) });
+
+const fileInput = z.any().refine(
+  (file): file is Express.Multer.File => {
+    return (
+      file != null &&
+      typeof file.fieldname === 'string' &&
+      typeof file.originalname === 'string' &&
+      typeof file.mimetype === 'string' &&
+      typeof file.size === 'number'
+    );
+  },
+  { message: 'Invalid type' },
+);
+
+const createInput = z.object({
+  file: fileInput,
+});
+const createManyInput = z.object({
+  files: fileInput.array().min(1),
 });
 
 const deleteInput = FileSchema.pick({
@@ -39,12 +31,32 @@ const deleteInput = FileSchema.pick({
   updated_at: true,
 });
 
-const updateInput = createInput.merge(deleteInput);
+export const FileOutputSchema = FileSchema;
+
+const searchInput = z.object({
+  where: z.object({
+    file_keyword: z.string().trim().max(255),
+  }),
+  sort: z.object({
+    field: FileScalarFieldEnumSchema,
+    order: SortOrderSchema,
+  }),
+  limit: z.number().int().positive(),
+  page: z.number().int().positive(),
+});
+
+const searchOutput = z.object({
+  total: z.number(),
+  file_list: z.array(FileOutputSchema),
+});
 
 export const FileRouterSchema = {
-  listInput,
-  listOutput,
-  createInput,
   getInput,
-  updateInput,
+  getManyInput,
+  createInput,
+  createManyInput,
+  fileInput,
+  deleteInput,
+  searchInput,
+  searchOutput,
 };

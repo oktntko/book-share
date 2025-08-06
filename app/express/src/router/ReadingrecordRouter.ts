@@ -1,10 +1,10 @@
-import { prisma } from '~/middleware/prisma';
+import { $transaction } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import {
   ReadingrecordRouterSchema,
   ReadingrecordSchemaOutput,
 } from '~/schema/ReadingrecordRouterSchema';
-import { ReadingrecordSchema } from '~/schema/zod';
+import { ReadingrecordSchema } from '@book-share/prisma/schema';
 import { ReadingrecordService } from '~/service/ReadingrecordService';
 
 export const readingrecord = router({
@@ -12,8 +12,8 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.listInput)
     .output(ReadingrecordRouterSchema.listOutput)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        ReadingrecordService.listReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
+      return $transaction(ctx.prisma, async (prisma) =>
+        ReadingrecordService.listReadingrecord({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
       );
     }),
 
@@ -21,8 +21,8 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.createInput)
     .output(ReadingrecordSchemaOutput)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        ReadingrecordService.createReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
+      return $transaction(ctx.prisma, async (prisma) =>
+        ReadingrecordService.createReadingrecord({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
       );
     }),
 
@@ -30,8 +30,8 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.getInput)
     .output(ReadingrecordSchema)
     .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        ReadingrecordService.getReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
+      return $transaction(ctx.prisma, async (prisma) =>
+        ReadingrecordService.getReadingrecord({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
       );
     }),
 
@@ -39,8 +39,8 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.updateInput)
     .output(ReadingrecordSchemaOutput)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        ReadingrecordService.updateReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
+      return $transaction(ctx.prisma, async (prisma) =>
+        ReadingrecordService.updateReadingrecord({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
       );
     }),
 
@@ -48,8 +48,8 @@ export const readingrecord = router({
     .input(ReadingrecordRouterSchema.deleteInput)
     .output(ReadingrecordSchema)
     .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        ReadingrecordService.deleteReadingrecord(ctx.reqid, prisma, ctx.operator_id, input),
+      return $transaction(ctx.prisma, async (prisma) =>
+        ReadingrecordService.deleteReadingrecord({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
       );
     }),
 });

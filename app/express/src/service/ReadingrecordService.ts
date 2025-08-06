@@ -1,23 +1,29 @@
-import type { Prisma } from '@prisma/client';
+import type { z } from '@book-share/lib/zod';
+import type { Prisma } from '@book-share/prisma/client';
 import { TRPCError } from '@trpc/server';
-import type { z } from 'zod';
 import { log } from '~/lib/log4js';
-import type { PrismaClient } from '~/middleware/prisma';
+import { ProtectedContext } from '~/middleware/trpc';
 import { ReadingrecordRepository } from '~/repository/ReadingrecordRepository';
-import { PREVIOUS_IS_NOT_FOUND_MESSAGE, checkPreviousVersion } from '~/repository/_';
+import { MESSAGE_DATA_IS_NOT_EXIST, checkPreviousVersion } from '~/repository/_repository';
 import type { ReadingrecordRouterSchema } from '~/schema/ReadingrecordRouterSchema';
+
+export const ReadingrecordService = {
+  listReadingrecord,
+  getReadingrecord,
+  createReadingrecord,
+  updateReadingrecord,
+  deleteReadingrecord,
+};
 
 // # readingrecord.list
 async function listReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
+  ctx: ProtectedContext,
   input: z.infer<typeof ReadingrecordRouterSchema.listInput>,
 ) {
-  log.trace(reqid, 'listReadingrecord', operator_id, input);
+  log.trace(ctx.reqid, 'listReadingrecord', ctx.operator.user_id, input);
 
   const where: Prisma.ReadingrecordWhereInput = {};
-  where.user_id = operator_id;
+  where.user_id = ctx.operator.user_id;
 
   if (input.where.keyword) {
     where.OR = [
@@ -28,18 +34,18 @@ async function listReadingrecord(
 
   log.debug('where', where);
 
-  const orderBy: Prisma.ReadingrecordOrderByWithRelationInput = input.sort;
+  const orderBy: Prisma.ReadingrecordOrderByWithRelationInput = {
+    [input.sort.field]: input.sort.order,
+  };
 
   const [total, readingrecord_list] = await Promise.all([
-    ReadingrecordRepository.countReadingrecord(reqid, prisma, where),
-    ReadingrecordRepository.findManyReadingrecord(
-      reqid,
-      prisma,
+    ReadingrecordRepository.countReadingrecord(ctx, { where }),
+    ReadingrecordRepository.findManyReadingrecord(ctx, {
       where,
       orderBy,
-      input.limit,
-      input.offset,
-    ),
+      take: input.limit,
+      skip: input.limit * (input.page - 1),
+    }),
   ]);
 
   return {
@@ -48,89 +54,70 @@ async function listReadingrecord(
   };
 }
 
-// # readingrecord.create
-async function createReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
-  input: z.infer<typeof ReadingrecordRouterSchema.createInput>,
-) {
-  log.trace(reqid, 'createReadingrecord', operator_id, input);
-
-  return ReadingrecordRepository.createReadingrecord(reqid, prisma, operator_id, {
-    ...input,
-    user_id: operator_id,
-  });
-}
-
 // # readingrecord.get
 async function getReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
+  ctx: ProtectedContext,
   input: z.infer<typeof ReadingrecordRouterSchema.getInput>,
 ) {
-  log.trace(reqid, 'getReadingrecord', operator_id, input);
+  log.trace(ctx.reqid, 'getReadingrecord', ctx.operator.user_id, input);
 
-  const readingrecord = await ReadingrecordRepository.findUniqueReadingrecord(reqid, prisma, {
-    readingrecord_id: input.readingrecord_id,
+  const readingrecord = await ReadingrecordRepository.findUniqueReadingrecord(ctx, {
+    where: { readingrecord_id: input.readingrecord_id },
   });
 
   if (!readingrecord) {
-    throw new TRPCError({ code: 'NOT_FOUND', message: PREVIOUS_IS_NOT_FOUND_MESSAGE });
+    throw new TRPCError({ code: 'NOT_FOUND', message: MESSAGE_DATA_IS_NOT_EXIST });
   }
 
   return readingrecord;
 }
 
+// # readingrecord.create
+async function createReadingrecord(
+  ctx: ProtectedContext,
+  input: z.infer<typeof ReadingrecordRouterSchema.createInput>,
+) {
+  log.trace(ctx.reqid, 'createReadingrecord', ctx.operator.user_id, input);
+
+  return ReadingrecordRepository.createReadingrecord(ctx, {
+    data: { ...input, user_id: ctx.operator.user_id },
+  });
+}
 // # readingrecord.update
 async function updateReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
+  ctx: ProtectedContext,
   input: z.infer<typeof ReadingrecordRouterSchema.updateInput>,
 ) {
-  log.trace(reqid, 'updateReadingrecord', operator_id, input);
+  log.trace(ctx.reqid, 'updateReadingrecord', ctx.operator.user_id, input);
 
   await checkPreviousVersion({
-    previous: ReadingrecordRepository.findUniqueReadingrecord(reqid, prisma, {
-      readingrecord_id: input.readingrecord_id,
+    previous: ReadingrecordRepository.findUniqueReadingrecord(ctx, {
+      where: { readingrecord_id: input.readingrecord_id },
     }),
     updated_at: input.updated_at,
   });
 
-  return ReadingrecordRepository.updateReadingrecord(
-    reqid,
-    prisma,
-    operator_id,
-    { ...input, user_id: operator_id },
-    input.readingrecord_id,
-  );
+  return ReadingrecordRepository.updateReadingrecord(ctx, {
+    data: { ...input, user_id: ctx.operator.user_id },
+    where: { readingrecord_id: input.readingrecord_id },
+  });
 }
 
 // # readingrecord.delete
 async function deleteReadingrecord(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
+  ctx: ProtectedContext,
   input: z.infer<typeof ReadingrecordRouterSchema.deleteInput>,
 ) {
-  log.trace(reqid, 'deleteReadingrecord', operator_id, input);
+  log.trace(ctx.reqid, 'deleteReadingrecord', ctx.operator.user_id, input);
 
   await checkPreviousVersion({
-    previous: ReadingrecordRepository.findUniqueReadingrecord(reqid, prisma, {
-      readingrecord_id: input.readingrecord_id,
+    previous: ReadingrecordRepository.findUniqueReadingrecord(ctx, {
+      where: { readingrecord_id: input.readingrecord_id },
     }),
     updated_at: input.updated_at,
   });
 
-  return ReadingrecordRepository.deleteReadingrecord(reqid, prisma, input.readingrecord_id);
+  return ReadingrecordRepository.deleteReadingrecord(ctx, {
+    where: { readingrecord_id: input.readingrecord_id },
+  });
 }
-
-export const ReadingrecordService = {
-  listReadingrecord,
-  createReadingrecord,
-  getReadingrecord,
-  updateReadingrecord,
-  deleteReadingrecord,
-};

@@ -1,5 +1,5 @@
-import { z } from '~/lib/zod';
-import { UserSchema } from '~/schema/zod/modelSchema/UserSchema';
+import { z } from '@book-share/lib/zod';
+import { UserSchema } from '@book-share/prisma/schema';
 
 const signupInput = UserSchema.pick({
   email: true,
@@ -29,3 +29,5 @@ export const AuthRouterSchema = {
   signinInput,
   signinTwofaInput,
 };
+
+export const AuthSchema = z.object({ auth: z.boolean() });

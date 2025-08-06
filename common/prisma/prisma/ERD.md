@@ -3,12 +3,12 @@ erDiagram
 
   "user" {
     Int user_id "🗝️"
-    String avatar_file_id "❓"
     String email 
     String password 
     String username 
     Boolean twofa_enable 
     String twofa_secret 
+    String avatar_image 
     DateTime created_at 
     DateTime updated_at 
     }
@@ -65,12 +65,10 @@ erDiagram
     DateTime updated_at 
     }
   
-    "user" o|--|o "file" : "avatar_image"
     "user" o{--}o "session" : "session_list"
     "user" o{--}o "post" : "post_list"
     "user" o{--}o "readingrecord" : "readingrecord_list"
     "session" o|--|o "user" : "user"
-    "file" o{--}o "user" : "user_list"
     "post" o|--|| "user" : "toukousya"
     "readingrecord" o|--|| "user" : "user"
 ```

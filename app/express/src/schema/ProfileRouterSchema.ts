@@ -1,17 +1,17 @@
-import { z } from '~/lib/zod';
-import { UserSchema } from '~/schema/zod/modelSchema/UserSchema';
+import { z } from '@book-share/lib/zod';
+import { UserSchema } from '@book-share/prisma/schema';
 
 export const OutputProfileSchema = UserSchema.pick({
   username: true,
   email: true,
-  avatar_file_id: true,
+  avatar_image: true,
   twofa_enable: true,
 });
 
 const patchProfileInput = UserSchema.pick({
   username: true,
   email: true,
-  avatar_file_id: true,
+  avatar_image: true,
 });
 
 const patchPasswordInput = z

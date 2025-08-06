@@ -1,48 +1,45 @@
+import { dayjs } from '@book-share/lib/dayjs';
+import type { z } from '@book-share/lib/zod';
 import { TRPCError } from '@trpc/server';
-import dayjs from 'dayjs';
-import type { z } from 'zod';
 import { log } from '~/lib/log4js';
 import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
-import type { PrismaClient } from '~/middleware/prisma';
+import { PublicContext } from '~/middleware/trpc';
 import { UserRepository } from '~/repository/UserRepository';
+import { checkDataExist, checkDuplicate } from '~/repository/_repository';
 import { AuthRouterSchema } from '~/schema/AuthRouterSchema';
 
-async function signup(
-  reqid: string,
-  prisma: PrismaClient,
-  input: z.infer<typeof AuthRouterSchema.signupInput>,
-) {
-  log.debug(reqid, 'signup');
+export const AuthService = {
+  signup,
+  signin,
+  signinTwofa,
+};
 
-  if (
-    await UserRepository.findUniqueUser(reqid, prisma, {
-      email: input.email,
-    })
-  ) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: 'メールアドレスは既に登録されています。',
-    });
-  }
+async function signup(ctx: PublicContext, input: z.infer<typeof AuthRouterSchema.signupInput>) {
+  log.trace(ctx.reqid, 'signup', input);
+
+  await checkDuplicate({
+    duplicate: UserRepository.findUniqueUser(ctx, {
+      where: { email: input.email },
+    }),
+    duplicateIsExistingMessage: 'メールアドレスは既に登録されています。',
+  });
 
   const hashedPassword = HashPassword.hash(input.new_password);
 
-  return UserRepository.createUser(reqid, prisma, 0, {
-    username: input.email,
-    email: input.email,
-    password: hashedPassword,
+  return UserRepository.createUser(ctx, {
+    data: {
+      username: input.email,
+      email: input.email,
+      password: hashedPassword,
+    },
   });
 }
 
-async function signin(
-  reqid: string,
-  prisma: PrismaClient,
-  input: z.infer<typeof AuthRouterSchema.signinInput>,
-) {
-  log.debug(reqid, 'signin');
+async function signin(ctx: PublicContext, input: z.infer<typeof AuthRouterSchema.signinInput>) {
+  log.trace(ctx.reqid, 'signup', input);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, {
-    email: input.email,
+  const user = await UserRepository.findUniqueUser(ctx, {
+    where: { email: input.email },
   });
 
   if (!user || !HashPassword.compare(input.password, user.password)) {
@@ -57,8 +54,7 @@ async function signin(
 }
 
 async function signinTwofa(
-  reqid: string,
-  prisma: PrismaClient,
+  ctx: PublicContext,
   input: z.infer<typeof AuthRouterSchema.signinTwofaInput> & {
     auth_twofa: {
       expires: Date;
@@ -66,7 +62,7 @@ async function signinTwofa(
     } | null;
   },
 ) {
-  log.debug(reqid, 'signinTwofa');
+  log.trace(ctx.reqid, 'signinTwofa', input);
 
   if (!input.auth_twofa || dayjs(input.auth_twofa.expires).isBefore(dayjs())) {
     throw new TRPCError({
@@ -75,16 +71,12 @@ async function signinTwofa(
     });
   }
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, {
-    user_id: input.auth_twofa.user_id,
+  const user = await checkDataExist({
+    data: UserRepository.findUniqueUser(ctx, {
+      where: { user_id: input.auth_twofa.user_id },
+    }),
+    dataIsNotExistMessage: 'ログインの有効期限が切れています。最初から操作をやり直してください。',
   });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
 
   const verified = OnetimePassword.verifyToken({
     secret: SecretPassword.decrypt(user.twofa_secret),
@@ -92,10 +84,11 @@ async function signinTwofa(
   });
 
   if (!verified) {
-    throw new TRPCError({ code: 'BAD_REQUEST', message: 'コードが合致しません。' });
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'コードが合致しません。',
+    });
   }
 
   return user;
 }
-
-export const AuthService = { signup, signin, signinTwofa };

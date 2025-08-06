@@ -1,9 +1,8 @@
-import dayjs from 'dayjs';
+import { dayjs } from '@book-share/lib/dayjs';
+import { prisma } from '@book-share/prisma/client';
 import { SessionData, Store } from 'express-session';
+import superjson from 'superjson';
 import { log } from '~/lib/log4js';
-import { prisma } from '~/middleware/prisma';
-import { UserRepository } from '~/repository/UserRepository';
-import { SessionService } from '~/service/SessionService';
 
 /**
  * https://github.com/microsoft/TypeScript-Node-Starter/blob/master/src/types/express-session-types.d.ts
@@ -25,43 +24,32 @@ declare module 'express-session' {
         expires: Date;
         user_id: number;
       } | null;
-    } | null;
+    };
   }
 }
 
 export class SessionStore extends Store {
-  /**
-   * Gets the session from the store given a session ID and passes it to `callback`.
-   *
-   * The `session` argument should be a `Session` object if found, otherwise `null` or `undefined` if the session was not found and there was no error.
-   * A special case is made when `error.code === 'ENOENT'` to act like `callback(null, null)`.
-   */
-  async get(sid: string, callback: (err?: unknown, session?: SessionData | null) => void) {
-    log.debug('SessionStore#get', sid);
+  async get(session_key: string, callback: (err?: unknown, session?: SessionData | null) => void) {
     try {
-      const session = await SessionService.getSession(prisma, sid);
+      const session = await getSession(session_key);
       callback(null, session);
     } catch (err) {
       callback(err);
     }
   }
 
-  /** Upsert a session in the store given a session ID and `SessionData` */
-  async set(sid: string, session: SessionData, callback?: (err?: unknown) => void) {
-    log.debug('SessionStore#set', sid);
+  async set(session_key: string, session: SessionData, callback?: (err?: unknown) => void) {
     try {
-      await SessionService.postSession(prisma, sid, session);
+      await setSession(session_key, session);
       callback?.();
     } catch (err) {
       callback?.(err);
     }
   }
 
-  /** Destroys the dession with the given session ID. */
-  async destroy(sid: string, callback?: (err?: unknown) => void) {
-    log.debug('SessionStore#destroy', sid);
+  async destroy(session_key: string, callback?: (err?: unknown) => void) {
     try {
-      await SessionService.deleteSession(prisma, sid);
+      await destroySession(session_key);
       callback?.();
     } catch (err) {
       callback?.(err);
@@ -69,21 +57,86 @@ export class SessionStore extends Store {
   }
 }
 
-export async function getUserFromSession(
-  reqid: string,
-  user_id?: number | null,
-  expires?: Date | null | undefined,
-) {
-  if (user_id) {
-    if (!expires || dayjs(expires).isBefore(dayjs())) {
-      log.debug('Session has expired.');
-      return null;
-    }
+export const SessionService = {
+  getSession,
+  setSession,
+  destroySession,
+  findUserBySession,
+};
 
-    return UserRepository.findUniqueUser(reqid, prisma, { user_id });
-
-    // セッションに user_id がなければ null
-  } else {
+async function findUserBySession(params: {
+  expires?: Date | null | undefined;
+  user_id?: number | null;
+}) {
+  if (!params.expires || dayjs(params.expires).isBefore(dayjs())) {
+    log.debug('Session has expired.');
     return null;
   }
+  if (!params.user_id) {
+    return null;
+  }
+
+  return prisma.user.findUnique({ where: { user_id: params.user_id } });
+}
+
+// # session.get
+async function getSession(session_key: string): Promise<SessionData | null> {
+  log.debug('getSession', session_key);
+
+  const foundSession = await prisma.session.findUnique({
+    where: { session_key },
+  });
+
+  if (foundSession == null) {
+    log.debug('Not Found Session.');
+    return null;
+  }
+
+  if (foundSession.expires == null || dayjs(foundSession.expires).isBefore(dayjs())) {
+    log.debug('Session has expired.');
+    return null;
+  }
+
+  return {
+    cookie: {
+      originalMaxAge: foundSession.originalMaxAge,
+      expires: foundSession.expires,
+    },
+    user_id: foundSession.user_id,
+    data: foundSession.data ? superjson.parse<SessionData['data']>(foundSession.data) : {},
+  };
+}
+
+// # session.set
+async function setSession(session_key: string, session: SessionData) {
+  log.debug('setSession', session_key);
+
+  return prisma.session.upsert({
+    where: { session_key },
+    create: {
+      session_key,
+
+      originalMaxAge: session.cookie.originalMaxAge,
+      expires: session.cookie.expires,
+
+      user_id: session.user_id,
+      data: session.data ? superjson.stringify(session.data) : '{}',
+    },
+    update: {
+      originalMaxAge: session.cookie.originalMaxAge,
+      expires: session.cookie.expires,
+
+      user_id: session.user_id,
+      data: session.data ? superjson.stringify(session.data) : '{}',
+    },
+  });
+}
+
+// # session.destroy
+async function destroySession(session_key: string) {
+  log.debug('destroySession', session_key);
+
+  return prisma.session.deleteMany({
+    where: { session_key },
+  });
 }

@@ -1,55 +1,91 @@
-import * as trpcExpress from '@trpc/server/adapters/express';
 import express from 'express';
 import session from 'express-session';
 import helmet from 'helmet';
-import '~/lib/dayjs';
+import { createServer } from 'node:http';
 import { env } from '~/lib/env';
-import '~/lib/log4js';
-import '~/lib/zod';
-import { NotFoundHandler, UnexpectedErrorHandler } from '~/middleware/error';
-import { AfterLogHandler, BeforeLogHandler } from '~/middleware/log';
-import { InjectRequestIdHandler } from '~/middleware/request-id';
+import { log } from '~/lib/log4js';
+import {
+  ErrorHandler,
+  InjectRequestIdHandler,
+  LogHandler,
+  NotFoundHandler,
+  UnexpectedErrorHandler,
+} from '~/middleware/express';
 import { SessionStore } from '~/middleware/session';
-import { createContext } from '~/middleware/trpc';
-import { FileRouter } from '~/router/FileRouter';
-import { TrpcRouter } from '~/router/_TrpcRouter';
+import { createExpressMiddleware } from '~/middleware/trpc';
+import { ExpressRouter, TrpcRouter } from '~/router/_router';
 
 export const app = express();
+const server = createServer(app);
 
 // Helmet helps you secure your Express apps by setting various HTTP headers. It's not a silver bullet, but it can help!
 app.use(helmet());
 
 app.use(InjectRequestIdHandler);
-app.use(BeforeLogHandler);
-app.use(AfterLogHandler);
+app.use(LogHandler);
 
 app.set('trust proxy', 1); // trust first proxy
-app.use(
-  session({
-    secret: env.session.SESSION_SECRET,
-    name: env.session.SESSION_NAME,
-    store: new SessionStore(),
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000 /*ms*/,
-      httpOnly: true,
-      domain: env.session.SESSION_DOMAIN,
-      path: env.session.SESSION_PATH,
-      secure: env.PROD,
-    },
-    resave: false,
-    saveUninitialized: false,
-  }),
-);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const SessionMiddleware = session({
+  secret: env.session.SESSION_SECRET,
+  name: env.session.SESSION_NAME,
+  store: new SessionStore(),
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000 /*ms*/,
+    httpOnly: true,
+    domain: env.session.SESSION_DOMAIN,
+    path: env.session.SESSION_PATH,
+    secure: env.PROD,
+  },
+  resave: false,
+  saveUninitialized: false,
+});
+app.use(SessionMiddleware);
 
 app.use(
   '/api/trpc',
-  trpcExpress.createExpressMiddleware({
+  createExpressMiddleware({
     router: TrpcRouter,
-    createContext,
+    onError(opts) {
+      if (
+        [
+          'PARSE_ERROR',
+
+          'INTERNAL_SERVER_ERROR',
+          'NOT_IMPLEMENTED',
+          'BAD_GATEWAY',
+          'SERVICE_UNAVAILABLE',
+          'GATEWAY_TIMEOUT',
+
+          'PRECONDITION_FAILED',
+          'UNSUPPORTED_MEDIA_TYPE',
+          'UNPROCESSABLE_CONTENT',
+          'TOO_MANY_REQUESTS',
+          'CLIENT_CLOSED_REQUEST',
+        ].some((x) => x === opts.error.code)
+      ) {
+        log.error(opts.error.code, opts.error);
+      } else {
+        log.warn(opts.error.code, opts.error);
+      }
+    },
   }),
 );
+app.use(...ExpressRouter);
 
-app.use('/api/file', FileRouter);
-
+app.use(ErrorHandler);
 app.use(NotFoundHandler);
 app.use(UnexpectedErrorHandler);
+
+server.on('error', (err) => {
+  log.error('Error opening server', err);
+});
+
+export function listen() {
+  server.listen(env.EXPRESS_PORT, () => {
+    log.info(`App is running at http://localhost:${env.EXPRESS_PORT} in ${env.NODE_ENV} mode`);
+  });
+}

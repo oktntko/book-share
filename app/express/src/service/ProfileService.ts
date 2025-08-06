@@ -1,19 +1,30 @@
+import { dayjs } from '@book-share/lib/dayjs';
+import type { z } from '@book-share/lib/zod';
 import { TRPCError } from '@trpc/server';
-import dayjs from 'dayjs';
-import { z } from 'zod';
 import { log } from '~/lib/log4js';
 import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
-import type { PrismaClient } from '~/middleware/prisma';
-import { FileRepository } from '~/repository/FileRepository';
+import { ProtectedContext } from '~/middleware/trpc';
 import { UserRepository } from '~/repository/UserRepository';
-import { checkDuplicate } from '~/repository/_';
+import { checkDuplicate } from '~/repository/_repository';
 import type { ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
 
-// # profile.get
-async function getProfile(reqid: string, prisma: PrismaClient, operator_id: number) {
-  log.trace(reqid, 'getProfile', operator_id);
+export const ProfileService = {
+  getProfile,
+  patchPassword,
+  updateProfile,
+  deleteProfile,
+  generateSecret,
+  enableSecret,
+  disableSecret,
+};
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
+// # profile.get
+async function getProfile(ctx: ProtectedContext) {
+  log.trace(ctx.reqid, 'getProfile', ctx.operator.user_id);
+
+  const user = await UserRepository.findUniqueUser(ctx, {
+    where: { user_id: ctx.operator.user_id },
+  });
 
   if (!user) {
     throw new TRPCError({
@@ -27,14 +38,14 @@ async function getProfile(reqid: string, prisma: PrismaClient, operator_id: numb
 
 // # profile.update
 async function patchPassword(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
+  ctx: ProtectedContext,
   input: z.infer<typeof ProfileRouterSchema.patchPasswordInput>,
 ) {
-  log.trace(reqid, 'patchPassword', operator_id, input);
+  log.trace(ctx, 'patchPassword', ctx.operator.user_id, input);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
+  const user = await UserRepository.findUniqueUser(ctx, {
+    where: { user_id: ctx.operator.user_id },
+  });
 
   if (!user) {
     throw new TRPCError({
@@ -53,24 +64,21 @@ async function patchPassword(
   // 新しいパスワードをハッシュ化
   const hashedPassword = HashPassword.hash(input.new_password);
 
-  return UserRepository.updateUser(
-    reqid,
-    prisma,
-    operator_id,
-    { password: hashedPassword },
-    user.user_id,
-  );
+  return UserRepository.updateUser(ctx, {
+    data: { password: hashedPassword },
+    where: { user_id: user.user_id },
+  });
 }
 
 async function updateProfile(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
+  ctx: ProtectedContext,
   input: z.infer<typeof ProfileRouterSchema.patchProfileInput>,
 ) {
-  log.trace(reqid, 'updateProfile', operator_id, input);
+  log.trace(ctx.reqid, 'updateProfile', ctx.operator.user_id, input);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
+  const user = await UserRepository.findUniqueUser(ctx, {
+    where: { user_id: ctx.operator.user_id },
+  });
 
   if (!user) {
     throw new TRPCError({
@@ -79,32 +87,30 @@ async function updateProfile(
     });
   }
 
-  await checkRelations(reqid, prisma, user);
-
   await checkDuplicate({
-    duplicate: UserRepository.findUniqueUser(reqid, prisma, { email: user.email }),
+    duplicate: UserRepository.findUniqueUser(ctx, { where: { email: user.email } }),
     current: { key: 'user_id', value: user.user_id },
   });
 
-  return UserRepository.updateUser(reqid, prisma, operator_id, input, user.user_id);
+  return UserRepository.updateUser(ctx, { data: input, where: { user_id: user.user_id } });
 }
 
 // # profile.delete
-async function deleteProfile(reqid: string, prisma: PrismaClient, operator_id: number) {
-  log.trace(reqid, 'deleteProfile', operator_id);
+async function deleteProfile(ctx: ProtectedContext) {
+  log.trace(ctx.reqid, 'deleteProfile', ctx.operator.user_id);
 
-  return UserRepository.deleteUser(reqid, prisma, operator_id);
+  return UserRepository.deleteUser(ctx, { where: { user_id: ctx.operator.user_id } });
 }
 
 // # profile.generateSecret
-async function generateSecret(reqid: string, operator_id: number, email: string) {
-  log.trace(reqid, 'generateSecret', operator_id, email);
+async function generateSecret(ctx: ProtectedContext) {
+  log.trace(ctx.reqid, 'generateSecret', ctx.operator.user_id);
 
-  const secret = OnetimePassword.generateSecret({ name: email });
+  const secret = OnetimePassword.generateSecret({ name: ctx.operator.email });
 
   const dataurl = await OnetimePassword.generateQrcodeUrl({
     secret: secret.ascii,
-    name: email,
+    name: ctx.operator.email,
   });
 
   // セッションに生成したシークレットを保存する
@@ -118,9 +124,7 @@ async function generateSecret(reqid: string, operator_id: number, email: string)
 
 // # profile.enableSecret
 async function enableSecret(
-  reqid: string,
-  prisma: PrismaClient,
-  operator_id: number,
+  ctx: ProtectedContext,
   input: z.infer<typeof ProfileRouterSchema.enableSecretInput> & {
     setting_twofa: {
       expires: Date;
@@ -128,7 +132,7 @@ async function enableSecret(
     } | null;
   },
 ) {
-  log.trace(reqid, 'enableSecret', operator_id, input);
+  log.trace(ctx.reqid, 'enableSecret', ctx.operator.user_id, input);
 
   if (!input.setting_twofa || dayjs(input.setting_twofa.expires).isBefore(dayjs())) {
     throw new TRPCError({
@@ -137,7 +141,9 @@ async function enableSecret(
     });
   }
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
+  const user = await UserRepository.findUniqueUser(ctx, {
+    where: { user_id: ctx.operator.user_id },
+  });
 
   if (!user) {
     throw new TRPCError({
@@ -155,20 +161,19 @@ async function enableSecret(
     throw new TRPCError({ code: 'BAD_REQUEST', message: 'コードが合致しません。' });
   }
 
-  return UserRepository.updateUser(
-    reqid,
-    prisma,
-    operator_id,
-    { twofa_enable: true, twofa_secret: input.setting_twofa.twofa_secret },
-    operator_id,
-  );
+  return UserRepository.updateUser(ctx, {
+    data: { twofa_enable: true, twofa_secret: input.setting_twofa.twofa_secret },
+    where: { user_id: ctx.operator.user_id },
+  });
 }
 
 // # profile.disableSecret
-async function disableSecret(reqid: string, prisma: PrismaClient, operator_id: number) {
-  log.trace(reqid, 'disableSecret', operator_id);
+async function disableSecret(ctx: ProtectedContext) {
+  log.trace(ctx.reqid, 'disableSecret', ctx.operator.user_id);
 
-  const user = await UserRepository.findUniqueUser(reqid, prisma, { user_id: operator_id });
+  const user = await UserRepository.findUniqueUser(ctx, {
+    where: { user_id: ctx.operator.user_id },
+  });
 
   if (!user) {
     throw new TRPCError({
@@ -177,44 +182,8 @@ async function disableSecret(reqid: string, prisma: PrismaClient, operator_id: n
     });
   }
 
-  return UserRepository.updateUser(
-    reqid,
-    prisma,
-    operator_id,
-    { twofa_enable: false, twofa_secret: '' },
-    operator_id,
-  );
-}
-
-export const ProfileService = {
-  getProfile,
-  patchPassword,
-  updateProfile,
-  deleteProfile,
-  generateSecret,
-  enableSecret,
-  disableSecret,
-};
-
-async function checkRelations(
-  reqid: string,
-  prisma: PrismaClient,
-  {
-    avatar_file_id,
-  }: {
-    avatar_file_id: string | null;
-  },
-) {
-  if (avatar_file_id != null) {
-    const count = await FileRepository.countFile(reqid, prisma, {
-      file_id: avatar_file_id,
-    });
-
-    if (count === 0) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: '対象のファイルは既に削除されています。',
-      });
-    }
-  }
+  return UserRepository.updateUser(ctx, {
+    data: { twofa_enable: false, twofa_secret: '' },
+    where: { user_id: ctx.operator.user_id },
+  });
 }

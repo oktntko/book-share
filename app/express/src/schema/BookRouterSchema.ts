@@ -11,8 +11,8 @@
  */
 //
 
-import { z } from '~/lib/zod';
-import { SearchParamPostSpanEnum } from '~/schema/option/PostSpanSchema';
+import { z } from '@book-share/lib/zod';
+import { SearchParamPostSpanEnum } from '@book-share/prisma/schema';
 
 export const DownloadAccessRestrictionSchema = z.object({
   deviceAllowed: z.boolean().optional().nullable(),
@@ -345,7 +345,7 @@ const listInput = z.object({
   q: z.string().min(1),
   queryfield: BookVolumeQueryfieldSchema.optional(),
   limit: z.number().int().max(100),
-  offset: z.number().int(),
+  page: z.number().int(),
   orderBy: z.union([z.literal('newest'), z.literal('relevance')]).optional(),
   printType: z.union([z.literal('all'), z.literal('books'), z.literal('magazines')]).optional(),
   projection: z.union([z.literal('full'), z.literal('lite')]).optional(),

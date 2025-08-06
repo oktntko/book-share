@@ -1,18 +1,23 @@
-import { z } from '~/lib/zod';
-import { VolumeSchema } from '~/schema/BookRouterSchema';
-import { SearchParamPostStatusEnum } from '~/schema/option/PostStatusSchema';
-import { PostScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas/PostScalarFieldEnumSchema';
-import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
-import { PostSchema } from '~/schema/zod/modelSchema/PostSchema';
+import { z } from '@book-share/lib/zod';
+import {
+  PostScalarFieldEnumSchema,
+  PostSchema,
+  SearchParamPostStatusEnum,
+  SortOrderSchema,
+} from '@book-share/prisma/schema';
+import { VolumeSchema } from './BookRouterSchema';
 
 const listInput = z.object({
   where: z.object({
     keyword: z.string().trim().max(255),
     postStatus: SearchParamPostStatusEnum.or(z.literal('')).default(''),
   }),
-  sort: z.record(PostScalarFieldEnumSchema, SortOrderSchema),
+  sort: z.object({
+    field: PostScalarFieldEnumSchema,
+    order: SortOrderSchema,
+  }),
   limit: z.number().int().max(100),
-  offset: z.number().int(),
+  page: z.number().int(),
 });
 
 export const PostSchemaOutput = PostSchema.merge(

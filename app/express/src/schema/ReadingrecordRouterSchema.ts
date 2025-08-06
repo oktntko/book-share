@@ -1,16 +1,21 @@
-import { z } from '~/lib/zod';
-import { VolumeSchema } from '~/schema/BookRouterSchema';
-import { ReadingrecordScalarFieldEnumSchema } from '~/schema/zod/inputTypeSchemas/ReadingrecordScalarFieldEnumSchema';
-import SortOrderSchema from '~/schema/zod/inputTypeSchemas/SortOrderSchema';
-import { ReadingrecordSchema } from '~/schema/zod/modelSchema/ReadingrecordSchema';
+import { z } from '@book-share/lib/zod';
+import {
+  ReadingrecordScalarFieldEnumSchema,
+  ReadingrecordSchema,
+  SortOrderSchema,
+} from '@book-share/prisma/schema';
+import { VolumeSchema } from './BookRouterSchema';
 
 const listInput = z.object({
   where: z.object({
     keyword: z.string().trim().max(255),
   }),
-  sort: z.record(ReadingrecordScalarFieldEnumSchema, SortOrderSchema),
+  sort: z.object({
+    field: ReadingrecordScalarFieldEnumSchema,
+    order: SortOrderSchema,
+  }),
   limit: z.number().int().max(100),
-  offset: z.number().int(),
+  page: z.number().int(),
 });
 
 export const ReadingrecordSchemaOutput = ReadingrecordSchema.merge(

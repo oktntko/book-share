@@ -1,115 +1,115 @@
-import { TRPCError } from '@trpc/server';
+import { z } from '@book-share/lib/zod';
 import express from 'express';
 import multer from 'multer';
-import { prisma } from '~/middleware/prisma';
-import { getUserFromSession } from '~/middleware/session';
+import { createProtectHandler } from '~/middleware/express';
+import { $transaction } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import { FileRouterSchema } from '~/schema/FileRouterSchema';
-import FileSchema from '~/schema/zod/modelSchema/FileSchema';
 import { FileService } from '~/service/FileService';
 
-// trpc
-export const file = router({
-  list: protectedProcedure
-    .input(FileRouterSchema.listInput)
-    .output(FileRouterSchema.listOutput)
-    .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        FileService.listFile(ctx.reqid, prisma, ctx.operator_id, input),
-      );
-    }),
-
-  get: protectedProcedure
-    .input(FileRouterSchema.getInput)
-    .output(FileSchema)
-    .query(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        FileService.getFile(ctx.reqid, prisma, ctx.operator_id, input),
-      );
-    }),
-
-  delete: protectedProcedure
-    .input(FileRouterSchema.getInput)
-    .output(FileSchema)
-    .mutation(async ({ ctx, input }) => {
-      return prisma.$transaction(async (prisma) =>
-        FileService.deleteFile(ctx.reqid, prisma, ctx.operator_id, input),
-      );
-    }),
+////////////////////////////////////////////////
+// express
+////////////////////////////////////////////////
+const upload = multer({
+  limits: {
+    fieldNameSize: 100, // 100 bytes
+    fieldSize: 1048576, // 1MB
+    fileSize: 10485760, // 10MB
+  },
 });
-
-// files
-const upload = multer();
 
 export const FileRouter = express.Router();
 
-FileRouter.use(async (req, res, next) => {
-  const user = await getUserFromSession(req.id, req.session.user_id, req.session.cookie.expires);
-
-  if (!user) {
-    return next(new TRPCError({ code: 'UNAUTHORIZED' }));
-  }
-
-  return next();
-});
-
-// /api/file/upload/single
-FileRouter.post('/upload/single', upload.single('file'), async (req, res, next) => {
-  if (!req.file) {
-    return next(
-      new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'ファイルが選択されていません。',
-      }),
-    );
-  }
-
-  const file = req.file;
-
-  return prisma
-    .$transaction(async (prisma) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const json = await FileService.createFile(req.id, prisma, req.session.user_id!, file);
-      res.json(json);
-    })
-    .catch(next);
-});
-
-// /api/file/upload/array
-FileRouter.post('/upload/array', upload.array('files'), async (req, res, next) => {
-  if (!req.files || !Array.isArray(req.files)) {
-    return next(
-      new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'ファイルが選択されていません。',
-      }),
-    );
-  }
-
-  const files = req.files;
-
-  return prisma
-    .$transaction(async (prisma) => {
-      const json = await Promise.all(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        files.map((file) => FileService.createFile(req.id, prisma, req.session.user_id!, file)),
+FileRouter.get(
+  '/api/file/download/single/:file_id',
+  createProtectHandler(z.object({ params: FileRouterSchema.getInput }), async ({ ctx, input }) => {
+    await $transaction(ctx.prisma, async (prisma) => {
+      const { filedata, buffer } = await FileService.readFile(
+        { ...ctx, reqid: ctx.req.reqid, prisma },
+        input.params,
       );
-      res.json(json);
-    })
-    .catch(next);
-});
 
-// /api/file/download/:file_id
-FileRouter.get('/download/:file_id', async (req, res, next) => {
-  const file_id = req.params.file_id;
-
-  return prisma
-    .$transaction(async (prisma) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const buffer = await FileService.downloadFile(req.id, prisma, req.session.user_id!, {
-        file_id,
+      ctx.res.set({
+        'Content-Disposition': `attachment; filename=${encodeURIComponent(filedata.filename)}`,
       });
-      res.send(buffer);
-    })
-    .catch(next);
+      return ctx.res.send(buffer);
+    });
+  }),
+);
+
+FileRouter.get(
+  '/api/file/download/many',
+  createProtectHandler(
+    z.object({ query: FileRouterSchema.getManyInput }),
+    async ({ ctx, input }) => {
+      await $transaction(ctx.prisma, async (prisma) => {
+        const { filedata, buffer } = await FileService.readManyFile(
+          { ...ctx, reqid: ctx.req.reqid, prisma },
+          input.query,
+        );
+
+        ctx.res.set({
+          'Content-Disposition': `attachment; filename=${encodeURIComponent(filedata.filename)}`,
+        });
+        return ctx.res.send(buffer);
+      });
+    },
+  ),
+);
+
+FileRouter.post(
+  '/api/file/upload/single',
+  upload.single('file'),
+  createProtectHandler(FileRouterSchema.createInput, async ({ ctx, input }) => {
+    await $transaction(ctx.prisma, async (prisma) => {
+      const json = await FileService.createFile({ ...ctx, reqid: ctx.req.reqid, prisma }, input);
+
+      return ctx.res.json(json);
+    });
+  }),
+);
+
+FileRouter.post(
+  '/api/file/upload/many',
+  upload.array('files'),
+  createProtectHandler(FileRouterSchema.createManyInput, async ({ ctx, input }) => {
+    await $transaction(ctx.prisma, async (prisma) => {
+      const json = await FileService.createManyFile(
+        { ...ctx, reqid: ctx.req.reqid, prisma },
+        input,
+      );
+
+      return ctx.res.json(json);
+    });
+  }),
+);
+
+////////////////////////////////////////////////
+// trpc
+////////////////////////////////////////////////
+export const file = router({
+  search: protectedProcedure
+    .input(FileRouterSchema.searchInput)
+    .output(FileRouterSchema.searchOutput)
+    .query(async ({ ctx, input }) => {
+      return $transaction(ctx.prisma, async (prisma) => {
+        return FileService.searchFile({ ...ctx, reqid: ctx.req.reqid, prisma }, input);
+      });
+    }),
+
+  delete: protectedProcedure
+    .input(FileRouterSchema.deleteInput)
+    .mutation(async ({ ctx, input }) => {
+      return $transaction(ctx.prisma, async (prisma) => {
+        return FileService.deleteFile({ ...ctx, reqid: ctx.req.reqid, prisma }, input);
+      });
+    }),
+
+  deleteMany: protectedProcedure
+    .input(FileRouterSchema.deleteInput.array())
+    .mutation(async ({ ctx, input }) => {
+      return $transaction(ctx.prisma, async (prisma) => {
+        return FileService.deleteManyFile({ ...ctx, reqid: ctx.req.reqid, prisma }, input);
+      });
+    }),
 });

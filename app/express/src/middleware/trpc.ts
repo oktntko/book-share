@@ -1,20 +1,37 @@
-import type { inferAsyncReturnType } from '@trpc/server';
+import { ZodError } from '@book-share/lib/zod';
+import { User } from '@book-share/prisma/schema';
 import { initTRPC, TRPCError } from '@trpc/server';
-import type * as trpcExpress from '@trpc/server/adapters/express';
+import * as trpcExpress from '@trpc/server/adapters/express';
 import superjson from 'superjson';
-import { ZodError } from 'zod';
-import { getUserFromSession } from '~/middleware/session';
+import { generatePrisma, PrismaClient } from '~/middleware/prisma';
+import { SessionService } from '~/middleware/session';
+import {
+  MESSAGE_INPUT_INVALID,
+  MESSAGE_INTERNAL_SERVER_ERROR,
+  MESSAGE_UNAUTHORIZED,
+} from '~/repository/_repository';
 
 // The app's context - is generated for each incoming request
-export async function createContext(opts: trpcExpress.CreateExpressContextOptions) {
+export function createContext(
+  opts: Pick<trpcExpress.CreateExpressContextOptions, 'req' | 'res'>,
+  prisma: PrismaClient = generatePrisma(opts.req.reqid),
+): {
+  req: trpcExpress.CreateExpressContextOptions['req'];
+  res: trpcExpress.CreateExpressContextOptions['res'];
+  prisma: PrismaClient;
+} {
   return {
     req: opts.req,
-    reqid: opts.req.id,
     res: opts.res,
+    prisma,
   };
 }
 
-export type Context = inferAsyncReturnType<typeof createContext>;
+type Context = ReturnType<typeof createContext>;
+export type PublicContext = {
+  reqid: string;
+  prisma: PrismaClient;
+};
 
 // You can use any variable name you like.
 // We use t to keep things simple.
@@ -24,10 +41,10 @@ const t = initTRPC.context<Context>().create({
       code: opts.shape.code, // TRPC_ERROR_CODE_NUMBER
       message:
         opts.error.code === 'INTERNAL_SERVER_ERROR'
-          ? 'システムエラーが発生しました。'
+          ? MESSAGE_INTERNAL_SERVER_ERROR
           : opts.error.code === 'BAD_REQUEST' && opts.error.cause instanceof ZodError
-          ? '入力値に誤りがあります。'
-          : opts.shape.message, // string,
+            ? MESSAGE_INPUT_INVALID
+            : opts.shape.message, // string,
       data: {
         httpStatus: opts.shape.data.httpStatus,
         code: opts.error.code, // TRPC_ERROR_CODE_KEY
@@ -45,6 +62,7 @@ const t = initTRPC.context<Context>().create({
 export const router = t.router;
 export const procedure = t.procedure;
 export const middleware = t.middleware;
+export const createCallerFactory = t.createCallerFactory;
 
 export const publicProcedure = procedure;
 
@@ -52,26 +70,35 @@ export const publicProcedure = procedure;
  * Reusable middleware that checks if users are authenticated.
  **/
 const isAuthed = middleware(async ({ next, ctx }) => {
-  const user = await getUserFromSession(
-    ctx.reqid,
-    ctx.req.session.user_id,
-    ctx.req.session.cookie.expires,
-  );
-
+  const user = await SessionService.findUserBySession({
+    expires: ctx.req.session.cookie.expires,
+    user_id: ctx.req.session.user_id,
+  });
   if (!user) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: MESSAGE_UNAUTHORIZED,
+    });
   }
 
   return next({
     ctx: {
       ...ctx,
-      operator_id: user.user_id,
-      user: {
-        user_id: user.user_id,
-        email: user.email,
-      },
+      operator: user,
     },
   });
 });
 
 export const protectedProcedure = publicProcedure.use(isAuthed);
+export type ProtectedContext = PublicContext & {
+  operator: User;
+};
+
+export function createExpressMiddleware(
+  opts: Omit<Parameters<typeof trpcExpress.createExpressMiddleware>[0], 'createContext'>,
+) {
+  return trpcExpress.createExpressMiddleware({
+    ...opts,
+    createContext,
+  });
+}
