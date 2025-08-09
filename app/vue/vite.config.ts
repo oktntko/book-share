@@ -57,7 +57,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
+      '/book-share/api': {
         target: `http://localhost:${process.env['EXPRESS_PORT'] || 8080}`,
         changeOrigin: true,
       },

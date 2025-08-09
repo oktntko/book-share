@@ -319,8 +319,8 @@ export const BookVolumeQueryfieldList = [
   'inpublisher',
   'subject',
   'isbn',
-  'lccn',
-  'oclc',
+  // 'lccn',
+  // 'oclc',
 ] as const;
 export const BookVolumeQueryfieldSchema = z.enum(BookVolumeQueryfieldList);
 export const BookVolumeQueryfield: Record<z.infer<typeof BookVolumeQueryfieldSchema>, string> = {
@@ -330,8 +330,8 @@ export const BookVolumeQueryfield: Record<z.infer<typeof BookVolumeQueryfieldSch
   inpublisher: '発行元',
   subject: 'カテゴリ',
   isbn: 'ISBN',
-  lccn: 'Library of Congress Control Number',
-  oclc: 'Online Computer Library Center number',
+  // lccn: 'Library of Congress Control Number',
+  // oclc: 'Online Computer Library Center number',
 } as const;
 
 export const BookVolumeOrderByList = ['newest', 'relevance'] as const;

@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:msw": "vite --mode msw",
     "build": "vite build",
-    "build:gh-pages": "vite build --mode github-pages",
+    "build:msw": "vite build --mode msw",
     "type-check": "vue-tsc --build --force tsconfig.app.json",
     "preview": "vite preview",
     "lint": "run-s lint:*",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@cspell/eslint-plugin": "^9.2.0",
+    "@faker-js/faker": "^9.9.0",
     "@iconify/json": "^2.2.367",
     "@iconify/tailwind4": "^1.0.6",
     "@markuplint/vue-parser": "^4.6.19",

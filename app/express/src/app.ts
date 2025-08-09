@@ -46,7 +46,7 @@ const SessionMiddleware = session({
 app.use(SessionMiddleware);
 
 app.use(
-  '/api/trpc',
+  '/book-share' + '/api/trpc',
   createExpressMiddleware({
     router: TrpcRouter,
     onError(opts) {
@@ -74,7 +74,7 @@ app.use(
     },
   }),
 );
-app.use(...ExpressRouter);
+app.use('/book-share', ...ExpressRouter);
 
 app.use(ErrorHandler);
 app.use(NotFoundHandler);

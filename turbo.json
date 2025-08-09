@@ -20,7 +20,7 @@
         "^build"
       ]
     },
-    "build:gh-pages": {
+    "build:msw": {
       "dependsOn": [
         "build"
       ]

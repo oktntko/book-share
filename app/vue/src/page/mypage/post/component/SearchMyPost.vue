@@ -33,6 +33,8 @@ const handleSubmit = validateSubmit(async () => {
   loading.value = true;
   try {
     data.value = await trpc.post.getMyPostList.query(modelValue.value);
+    currentPost.value = data.value.post_list[0];
+    refQuillEditor.value?.setContents(currentPost.value?.content);
   } finally {
     loading.value = false;
   }
