@@ -14,6 +14,7 @@ import VueLayouts from 'vite-plugin-vue-layouts';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/book-share/', // for GitHub Pages
   plugins: [
     VueRouter({
       extensions: ['.vue'],

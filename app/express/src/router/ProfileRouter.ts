@@ -5,12 +5,14 @@ import { OutputProfileSchema, ProfileRouterSchema } from '~/schema/ProfileRouter
 import { ProfileService } from '~/service/ProfileService';
 
 export const profile = router({
+  // profile.get
   get: protectedProcedure.output(OutputProfileSchema).query(async ({ ctx }) => {
     return $transaction(ctx.prisma, async (prisma) =>
       ProfileService.getProfile({ ...ctx, reqid: ctx.req.reqid, prisma }),
     );
   }),
 
+  // profile.patchProfile
   patchProfile: protectedProcedure
     .input(ProfileRouterSchema.patchProfileInput)
     .output(OutputProfileSchema)
@@ -20,6 +22,7 @@ export const profile = router({
       );
     }),
 
+  // profile.patchPassword
   patchPassword: protectedProcedure
     .input(ProfileRouterSchema.patchPasswordInput)
     .output(OutputProfileSchema)
@@ -29,6 +32,7 @@ export const profile = router({
       );
     }),
 
+  // profile.delete
   delete: protectedProcedure.output(z.void()).mutation(async ({ ctx }) => {
     return $transaction(ctx.prisma, async (prisma) => {
       await ProfileService.deleteProfile({ ...ctx, reqid: ctx.req.reqid, prisma });
@@ -40,6 +44,7 @@ export const profile = router({
   }),
 
   // 二要素認証関連
+  // profile.generateSecret
   generateSecret: protectedProcedure.mutation(async ({ ctx }) => {
     return $transaction(ctx.prisma, async (prisma) => {
       const data = await ProfileService.generateSecret({ ...ctx, reqid: ctx.req.reqid, prisma });
@@ -51,6 +56,7 @@ export const profile = router({
     });
   }),
 
+  // profile.enableSecret
   enableSecret: protectedProcedure
     .input(ProfileRouterSchema.enableSecretInput)
     .output(z.void())
@@ -71,6 +77,7 @@ export const profile = router({
       });
     }),
 
+  // profile.disableSecret
   disableSecret: protectedProcedure.output(z.void()).mutation(async ({ ctx }) => {
     return $transaction(ctx.prisma, async (prisma) => {
       await ProfileService.disableSecret({ ...ctx, reqid: ctx.req.reqid, prisma });

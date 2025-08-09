@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:gh-pages": "vite build --mode github-pages",
     "type-check": "vue-tsc --build --force tsconfig.app.json",
     "preview": "vite preview",
     "lint": "run-s lint:*",
@@ -53,6 +54,8 @@
     "eslint-plugin-oxlint": "^1.11.0",
     "eslint-plugin-vue": "^10.4.0",
     "markuplint": "^4.12.0",
+    "msw": "^2.10.4",
+    "msw-trpc": "^2.0.1",
     "npm-check-updates": "^18.0.2",
     "npm-run-all2": "^8.0.4",
     "oxlint": "^1.11.0",
@@ -68,5 +71,10 @@
     "vite": "^7.1.1",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vue-tsc": "^3.0.5"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

@@ -8,6 +8,7 @@ import { AuthRouterSchema, AuthSchema } from '~/schema/AuthRouterSchema';
 import { AuthService } from '~/service/AuthService';
 
 export const auth = router({
+  // auth.signup
   signup: publicProcedure
     .input(AuthRouterSchema.signupInput)
     .output(z.void())
@@ -23,6 +24,7 @@ export const auth = router({
       });
     }),
 
+  // auth.signin
   signin: publicProcedure
     .input(AuthRouterSchema.signinInput)
     .output(AuthSchema)
@@ -53,6 +55,7 @@ export const auth = router({
       });
     }),
 
+  // auth.signinTwofa
   signinTwofa: publicProcedure
     .input(AuthRouterSchema.signinTwofaInput)
     .output(AuthSchema)
@@ -74,6 +77,7 @@ export const auth = router({
       });
     }),
 
+  // auth.get
   get: publicProcedure.output(AuthSchema).query(async ({ ctx }) => {
     const user = await SessionService.findUserBySession({
       user_id: ctx.req.session.user_id,
@@ -83,6 +87,7 @@ export const auth = router({
     return { auth: !!user };
   }),
 
+  // auth.delete
   delete: publicProcedure.output(z.void()).mutation(async ({ ctx }) => {
     ctx.req.session.destroy(() => {
       /*Nothing To Do*/

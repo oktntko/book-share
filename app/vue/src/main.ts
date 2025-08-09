@@ -63,3 +63,9 @@ app.config.errorHandler = handleError;
  * - 読んだ本の一覧、テーブルでよくないか？
  * - Google Analytics を入れる
  */
+if (import.meta.env.MODE === 'github-pages') {
+  const { worker } = await import('./mock/browser');
+  await worker.start({
+    onUnhandledRequest: 'bypass',
+  });
+}

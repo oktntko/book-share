@@ -4,6 +4,7 @@ import { BookRouterSchema, VolumeSchema } from '~/schema/BookRouterSchema';
 import { BookService } from '~/service/BookService';
 
 export const book = router({
+  // book.listVolume
   listVolume: publicProcedure
     .input(BookRouterSchema.listInput)
     .output(BookRouterSchema.listOutput)
@@ -13,6 +14,7 @@ export const book = router({
       });
     }),
 
+  // book.getVolume
   getVolume: publicProcedure
     .input(BookRouterSchema.getInput)
     .output(VolumeSchema)
@@ -22,6 +24,7 @@ export const book = router({
       });
     }),
 
+  // book.ranking
   ranking: publicProcedure
     .input(BookRouterSchema.rankingInput)
     .output(BookRouterSchema.rankingOutput)

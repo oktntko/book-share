@@ -1,12 +1,13 @@
 {
   "name": "book-share",
   "version": "1.0.0",
-  "description": "",
+  "description": "book",
   "main": "index.js",
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "dev": "turbo dev --ui=tui || true",
     "build": "turbo build",
+    "build:gh-pages": "turbo build:gh-pages",
     "type-check": "turbo type-check",
     "preview": "turbo preview --ui=tui || true",
     "generate": "turbo run @todo/prisma#generate",

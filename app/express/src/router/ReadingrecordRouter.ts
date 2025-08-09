@@ -1,13 +1,14 @@
+import { ReadingrecordSchema } from '@book-share/prisma/schema';
 import { $transaction } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
 import {
   ReadingrecordRouterSchema,
   ReadingrecordSchemaOutput,
 } from '~/schema/ReadingrecordRouterSchema';
-import { ReadingrecordSchema } from '@book-share/prisma/schema';
 import { ReadingrecordService } from '~/service/ReadingrecordService';
 
 export const readingrecord = router({
+  // readingrecord.list
   list: protectedProcedure
     .input(ReadingrecordRouterSchema.listInput)
     .output(ReadingrecordRouterSchema.listOutput)
@@ -17,15 +18,7 @@ export const readingrecord = router({
       );
     }),
 
-  create: protectedProcedure
-    .input(ReadingrecordRouterSchema.createInput)
-    .output(ReadingrecordSchemaOutput)
-    .mutation(async ({ ctx, input }) => {
-      return $transaction(ctx.prisma, async (prisma) =>
-        ReadingrecordService.createReadingrecord({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
-      );
-    }),
-
+  // readingrecord.get
   get: protectedProcedure
     .input(ReadingrecordRouterSchema.getInput)
     .output(ReadingrecordSchema)
@@ -35,6 +28,17 @@ export const readingrecord = router({
       );
     }),
 
+  // readingrecord.create
+  create: protectedProcedure
+    .input(ReadingrecordRouterSchema.createInput)
+    .output(ReadingrecordSchemaOutput)
+    .mutation(async ({ ctx, input }) => {
+      return $transaction(ctx.prisma, async (prisma) =>
+        ReadingrecordService.createReadingrecord({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
+      );
+    }),
+
+  // readingrecord.update
   update: protectedProcedure
     .input(ReadingrecordRouterSchema.updateInput)
     .output(ReadingrecordSchemaOutput)
@@ -44,6 +48,7 @@ export const readingrecord = router({
       );
     }),
 
+  // readingrecord.delete
   delete: protectedProcedure
     .input(ReadingrecordRouterSchema.deleteInput)
     .output(ReadingrecordSchema)

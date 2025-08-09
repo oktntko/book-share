@@ -5,6 +5,7 @@ import { PostRouterSchema, PostSchemaOutput } from '~/schema/PostRouterSchema';
 import { PostService } from '~/service/PostService';
 
 export const post = router({
+  // post.list
   list: publicProcedure
     .input(PostRouterSchema.listInput)
     .output(PostRouterSchema.listOutput)
@@ -14,6 +15,7 @@ export const post = router({
       );
     }),
 
+  // post.getMyPostList
   getMyPostList: protectedProcedure
     .input(PostRouterSchema.listInput)
     .output(PostRouterSchema.listOutput)
@@ -23,6 +25,7 @@ export const post = router({
       );
     }),
 
+  // post.get
   get: publicProcedure
     .input(PostRouterSchema.getInput)
     .output(PostSchemaOutput)
@@ -32,6 +35,7 @@ export const post = router({
       );
     }),
 
+  // post.getMyPost
   getMyPost: protectedProcedure
     .input(PostRouterSchema.getInput)
     .output(PostSchemaOutput)
@@ -41,6 +45,7 @@ export const post = router({
       );
     }),
 
+  // post.create
   create: protectedProcedure
     .input(PostRouterSchema.createInput)
     .output(PostSchema)
@@ -50,6 +55,7 @@ export const post = router({
       );
     }),
 
+  // post.update
   update: protectedProcedure
     .input(PostRouterSchema.updateInput)
     .output(PostSchema)
@@ -59,6 +65,7 @@ export const post = router({
       );
     }),
 
+  // post.delete
   delete: protectedProcedure
     .input(PostRouterSchema.deleteInput)
     .output(PostSchema)
@@ -68,6 +75,7 @@ export const post = router({
       );
     }),
 
+  // post.publish
   publish: protectedProcedure
     .input(PostRouterSchema.publishInput)
     .output(PostSchema)
