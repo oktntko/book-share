@@ -62,23 +62,4 @@ export default defineConfig({
       },
     },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    include: ['test/**'],
-    alias: {
-      '~': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-    reporters: ['default', 'html'],
-    outputFile: {
-      html: '.report/html/index.html',
-    },
-    coverage: {
-      provider: 'v8',
-      enabled: true,
-      include: ['src/**'],
-      exclude: ['**/*.d.ts'],
-      reportsDirectory: '.report/coverage',
-    },
-  },
 });

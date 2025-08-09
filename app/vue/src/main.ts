@@ -1,18 +1,13 @@
-import { createPinia } from 'pinia';
-import { createApp } from 'vue';
 import App from '~/App.vue';
-import '~/assets/main.css';
-import '~/lib/dayjs';
+import router from '~/lib/router';
 import { isRouterError } from '~/lib/trpc';
-import { useTable } from '~/lib/vxe-table';
-import '~/lib/zod';
-import router from '~/middleware/router';
+import '~/main.css';
 import DialogPlugin from '~/plugin/DialogPlugin';
 import LoadingPlugin from '~/plugin/LoadingPlugin';
 import ModalPlugin from '~/plugin/ModalPlugin';
 import ToastPlugin from '~/plugin/ToastPlugin';
 import WindowPlugin from '~/plugin/WindowPlugin';
-import { useAuthStore } from '~/stores/AuthStore';
+import { useAuthStore } from '~/store/AuthStore';
 
 const app = createApp(App);
 
@@ -22,8 +17,6 @@ app.use(createPinia());
 const { fetchAuth } = useAuthStore();
 router.afterEach(fetchAuth);
 app.use(router);
-
-app.use(useTable);
 
 app.use(WindowPlugin);
 app.use(DialogPlugin);

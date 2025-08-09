@@ -1,6 +1,6 @@
 import type { App } from 'vue';
-import MyLoading from '~/components/MyLoading.vue';
-import { useDialogStore } from '~/stores/DialogStore';
+import { useDialogStore } from '~/store/DialogStore';
+import PluginLoading from './component/PluginLoading.vue';
 
 type LoadingPlugin = ReturnType<typeof installLoadingPlugin>;
 
@@ -31,7 +31,7 @@ function installLoadingPlugin(parentApp: App) {
       const parent = document.createElement('div');
       document.body.appendChild(parent);
 
-      const app = createApp(MyLoading, {
+      const app = createApp(PluginLoading, {
         onClose: () => {
           app.unmount();
           document.body.removeChild(parent);
@@ -43,7 +43,7 @@ function installLoadingPlugin(parentApp: App) {
       app.config.globalProperties = parentApp.config.globalProperties;
       Object.assign(app._context, parentApp._context);
 
-      const vm = app.mount(parent) as InstanceType<typeof MyLoading>;
+      const vm = app.mount(parent) as InstanceType<typeof PluginLoading>;
       DialogStore.increment();
       return {
         close: vm.close,

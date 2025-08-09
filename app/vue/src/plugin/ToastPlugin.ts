@@ -1,8 +1,8 @@
 import type { App } from 'vue';
-import MyToast from '~/components/MyToast.vue';
-import type { ComponentProps } from '~/lib/utility-types';
+import type { ComponentProps } from '~/utility-types';
+import PluginToast from './component/PluginToast.vue';
 
-type ToastProps = Omit<ComponentProps<typeof MyToast>, 'onClose'>;
+type ToastProps = Omit<ComponentProps<typeof PluginToast>, 'onClose'>;
 type ToastPlugin = ReturnType<typeof installToastPlugin>;
 
 const ToastPluginKey = Symbol() as InjectionKey<ToastPlugin>;
@@ -48,7 +48,7 @@ function installToastPlugin(parentApp: App) {
         document.body.appendChild(container);
       }
 
-      const app = createApp(MyToast, {
+      const app = createApp(PluginToast, {
         ...props,
         onClose: () => {
           app.unmount();
@@ -74,7 +74,7 @@ function installToastPlugin(parentApp: App) {
       return this.open({
         message,
         colorset: 'green',
-        icon: 'bx:check',
+        icon: 'icon-[bx--check]',
       });
     },
 
@@ -82,7 +82,7 @@ function installToastPlugin(parentApp: App) {
       return this.open({
         message,
         colorset: 'blue',
-        icon: 'bx:info-circle',
+        icon: 'icon-[bx--info-circle]',
       });
     },
   };

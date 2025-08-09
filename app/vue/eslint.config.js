@@ -36,6 +36,7 @@ export default defineConfigWithVueTs(
           },
         },
       ],
+      'vue/attribute-hyphenation': 'off',
     },
     languageOptions: {
       parserOptions: {

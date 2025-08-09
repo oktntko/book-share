@@ -1,9 +1,9 @@
 import type { App } from 'vue';
-import MyModal from '~/components/MyModal.vue';
-import type { ComponentProps } from '~/lib/utility-types';
-import { useDialogStore } from '~/stores/DialogStore';
+import { useDialogStore } from '~/store/DialogStore';
+import type { ComponentProps } from '~/utility-types';
+import PluginModal from './component/PluginModal.vue';
 
-type ModalProps = Omit<ComponentProps<typeof MyModal>, 'onClose'>;
+type ModalProps = Omit<ComponentProps<typeof PluginModal>, 'onClose'>;
 type ModalPlugin = ReturnType<typeof installModalPlugin>;
 
 const ModalPluginKey = Symbol() as InjectionKey<ModalPlugin>;
@@ -36,7 +36,7 @@ function installModalPlugin(parentApp: App) {
       let app: App<Element>;
       return new Promise<T | undefined>((resolve) => {
         // TODO: onClose 以外のイベントも Close できるようにする
-        app = createApp(MyModal, {
+        app = createApp(PluginModal, {
           ...props,
           onClose: (data?: T) => {
             resolve(data);

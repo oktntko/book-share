@@ -28,6 +28,6 @@
     ],
     // src/schema/FileRouterSchema.ts
     // https://stackoverflow.com/questions/75688293/namespace-global-express-has-no-exported-member-multer
-    "types": ["multer"]
+    "types": ["multer", "vite/client"]
   }
 }
