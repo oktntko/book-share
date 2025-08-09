@@ -4,6 +4,7 @@ import type { Session, SessionData } from 'express-session';
 import { $transaction } from '~/middleware/prisma';
 import { SessionService } from '~/middleware/session';
 import { publicProcedure, router } from '~/middleware/trpc';
+import { OutputProfileSchema } from '~/schema';
 import { AuthRouterSchema, AuthSchema } from '~/schema/AuthRouterSchema';
 import { AuthService } from '~/service/AuthService';
 
@@ -78,13 +79,11 @@ export const auth = router({
     }),
 
   // auth.get
-  get: publicProcedure.output(AuthSchema).query(async ({ ctx }) => {
-    const user = await SessionService.findUserBySession({
+  get: publicProcedure.output(OutputProfileSchema.nullable()).query(async ({ ctx }) => {
+    return SessionService.findUserBySession({
       user_id: ctx.req.session.user_id,
       expires: ctx.req.session.cookie.expires,
     });
-
-    return { auth: !!user };
   }),
 
   // auth.delete

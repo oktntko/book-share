@@ -43,7 +43,7 @@ const handleSubmit = validateSubmit(async () => {
       <h1 class="mb-6 flex items-center text-2xl font-semibold text-gray-900">
         <span class="icon-[noto-v1--books] ml-[-16px] h-10 w-10 rounded-full p-2 text-white">
         </span>
-        <span class="text-xl">Book Share</span>
+        <span class="ml-2 text-xl">Book Share</span>
       </h1>
 
       <!-- ボックス -->

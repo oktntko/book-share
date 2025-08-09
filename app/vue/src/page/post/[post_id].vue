@@ -49,11 +49,11 @@ onMounted(async () => {
     </div>
 
     <div class="flex w-64 shrink-0 flex-col gap-4 py-4">
-      <div class="table h-48 w-64 border bg-stone-300 p-4">
-        <span class="table-cell text-center align-middle text-2xl">広告スペース</span>
+      <div class="table h-48 w-64 border border-gray-200 bg-stone-300 p-4">
+        <span class="table-cell text-center align-middle text-2xl text-gray-400">広告スペース</span>
       </div>
-      <div class="table h-48 w-64 border bg-stone-300 p-4">
-        <span class="table-cell text-center align-middle text-2xl">広告スペース</span>
+      <div class="table h-48 w-64 border border-gray-200 bg-stone-300 p-4">
+        <span class="table-cell text-center align-middle text-2xl text-gray-400">広告スペース</span>
       </div>
     </div>
   </div>

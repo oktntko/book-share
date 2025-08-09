@@ -37,9 +37,7 @@ export const handlers: Array<RequestHandler | WebSocketHandler> = [
     };
   }),
   trpcMsw.auth.get.query(() => {
-    return {
-      auth: true,
-    };
+    return profile();
   }),
   trpcMsw.auth.delete.mutation(() => {
     // void

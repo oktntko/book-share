@@ -147,7 +147,7 @@ function restoreSession() {
                 id="q"
                 v-model="modelValue.q"
                 type="search"
-                class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                class="block w-full rounded-lg border border-gray-300 bg-white p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 required
                 autofocus
               />

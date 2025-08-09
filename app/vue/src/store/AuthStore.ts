@@ -4,11 +4,11 @@ import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/lib/trpc';
 
 export const useAuthStore = defineStore('auth', () => {
-  const auth = ref<RouterOutput['auth']['get']>();
+  const profile = ref<RouterOutput['auth']['get']>();
 
   async function fetchAuth() {
-    auth.value = await trpc.auth.get.query();
+    profile.value = await trpc.auth.get.query();
   }
 
-  return { auth, fetchAuth };
+  return { profile, fetchAuth };
 });

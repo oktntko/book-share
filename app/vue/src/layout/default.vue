@@ -8,7 +8,7 @@ const $router = useRouter();
 const showMenu = ref(false);
 const keyword = ref('');
 
-const { auth } = storeToRefs(useAuthStore());
+const { profile } = storeToRefs(useAuthStore());
 </script>
 
 <template>
@@ -16,7 +16,7 @@ const { auth } = storeToRefs(useAuthStore());
     class="flex min-h-screen flex-col bg-gray-50 text-gray-800 antialiased dark:bg-gray-700 dark:text-white"
   >
     <!-- Header -->
-    <header class="h-16 border-b-2 bg-gray-100">
+    <header class="h-16 border-b border-gray-200 bg-gray-100">
       <div class="container mx-auto flex flex-col flex-wrap items-center px-4 py-4 md:flex-row">
         <nav class="flex flex-wrap items-center gap-5 text-base md:ml-auto lg:w-2/5">
           <RouterLink
@@ -42,7 +42,7 @@ const { auth } = storeToRefs(useAuthStore());
                 id="keyword"
                 v-model="keyword"
                 type="search"
-                class="block w-full rounded-lg border border-gray-300 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                class="block w-full rounded-lg border border-gray-300 bg-white p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                 placeholder="投稿を探す"
                 required
               />
@@ -63,15 +63,11 @@ const { auth } = storeToRefs(useAuthStore());
         >
           <span class="icon-[noto-v1--books] ml-[-16px] h-10 w-10 rounded-full p-2 text-white">
           </span>
-          <span class="text-xl">Book Share</span>
+          <span class="ml-2 text-xl">Book Share</span>
         </RouterLink>
         <nav class="flex flex-wrap items-center gap-5 text-base lg:ml-0 lg:w-2/5 lg:justify-end">
           <!-- ログイン中 -->
-          <template v-if="auth?.auth">
-            <!-- ベルマーク -->
-            <button type="button">
-              <span class="icon-[mdi--bell] h-5 w-5"> </span>
-            </button>
+          <template v-if="profile != null">
             <div class="relative inline-block text-left">
               <OnClickOutside
                 class="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-100 dark:bg-gray-600"
@@ -83,7 +79,16 @@ const { auth } = storeToRefs(useAuthStore());
                   colorset="white"
                   @click="showMenu = !showMenu"
                 >
-                  <span class="font-medium text-gray-600 dark:text-gray-300">⚙️</span>
+                  <img
+                    v-if="profile.avatar_image"
+                    :src="profile.avatar_image"
+                    width="32"
+                    height="32"
+                    decoding="async"
+                    class="h-8 w-8 rounded-full object-cover object-center"
+                    alt="avatar"
+                  />
+                  <span v-else class="h-8 w-8 rounded-full object-cover object-center">⚙️</span>
                 </MyButton>
               </OnClickOutside>
 
@@ -181,7 +186,7 @@ const { auth } = storeToRefs(useAuthStore());
           </template>
 
           <!-- ゲスト -->
-          <template v-else-if="auth?.auth === false">
+          <template v-else>
             <RouterLink
               to="/login"
               class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm transition-all hover:bg-gray-200 focus:ring focus:outline-none"
