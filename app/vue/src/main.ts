@@ -66,6 +66,9 @@ app.config.errorHandler = handleError;
 if (import.meta.env.MODE === 'github-pages') {
   const { worker } = await import('./mock/browser');
   await worker.start({
+    serviceWorker: {
+      url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
+    },
     onUnhandledRequest: 'bypass',
   });
 }
