@@ -38,6 +38,9 @@ async function findManyPost(
   log.trace(ctx.reqid, 'findManyPost');
 
   const post_list = await ctx.prisma.post.findMany({
+    include: {
+      toukousya: true,
+    },
     where: params.where,
     orderBy: params.orderBy,
     take: params.take,
@@ -64,6 +67,9 @@ async function findUniquePost(
 
   return ctx.prisma.post
     .findUnique({
+      include: {
+        toukousya: true,
+      },
       where: params.where,
     })
     .then((post) => mergeVolume(ctx, post));
@@ -96,7 +102,7 @@ async function updatePost(
   ctx: ProtectedContext,
   params: {
     where: Prisma.PostWhereUniqueInput;
-    data: Omit<Prisma.PostUpdateInput, 'post_id' | 'toukousya_id' | CommonColumn>;
+    data: Omit<Prisma.PostUncheckedUpdateInput, 'post_id' | 'toukousya_id' | CommonColumn>;
   },
 ) {
   log.trace(ctx.reqid, 'updatePost');

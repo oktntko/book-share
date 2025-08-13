@@ -81,7 +81,7 @@ async function rankingBook(
 
   const volume_list: books_v1.Schema$Volume & { count: number }[] = [];
   for (const data of volumeIdList) {
-    const volume = await getVolume(ctx, { volume_id: data.volume_id });
+    const volume = await BookService.getVolume(ctx, { volume_id: data.volume_id });
     volume_list.push(R.merge(volume, { count: data._count }));
   }
 

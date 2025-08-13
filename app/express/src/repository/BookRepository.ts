@@ -1,14 +1,29 @@
 import { books, type books_v1 } from '@googleapis/books';
+import NodeCache from 'node-cache';
 import { log } from '~/lib/log4js';
 
 const api = books('v1');
+const cache = new NodeCache({
+  stdTTL: 60 * 60 * 24,
+  checkperiod: 60 * 60 * 24,
+});
 
 async function getVolume(ctx: { reqid: string }, params: { where: { volume_id: string } }) {
   log.trace(ctx.reqid, 'getVolume');
 
-  const { data: volume } = await api.volumes.get({ volumeId: params.where.volume_id });
+  const cachedVolume = cache.get<books_v1.Schema$Volume>(params.where.volume_id);
+  if (cachedVolume) {
+    log.info(ctx.reqid, 'getVolume', 'use cache');
+    return cachedVolume;
+  }
 
-  return transformVolume(volume);
+  const volume = await api.volumes
+    .get({ volumeId: params.where.volume_id })
+    .then(({ data: volume }) => transformVolume(volume));
+
+  cache.set(params.where.volume_id, volume);
+
+  return volume;
 }
 
 async function listVolume(
@@ -48,8 +63,6 @@ async function listVolume(
     printType: query.printType,
     projection: query.projection,
   });
-
-  data.items?.map(transformVolume);
 
   return {
     items: data.items?.map(transformVolume),

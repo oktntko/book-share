@@ -3,19 +3,24 @@ import SearchMyPost from '~/page/mypage/post/component/SearchMyPost.vue';
 </script>
 
 <template>
-  <div class="mb-8">
-    <MyBreadcrumb
-      class="container mx-auto my-4"
-      icon="icon-[uil--setting]"
-      :items="[
-        {
-          label: '投稿一覧',
-          to: '/mypage/post',
-        },
-      ]"
-    >
-    </MyBreadcrumb>
+  <div class="px-4 py-4 xl:container xl:mx-auto">
+    <div class="flex flex-col gap-4">
+      <MyBreadcrumb
+        icon="icon-[uil--setting]"
+        :items="[
+          {
+            label: 'マイページ',
+            to: '/mypage/',
+          },
+          {
+            label: '投稿一覧',
+            to: '/mypage/post',
+          },
+        ]"
+      >
+      </MyBreadcrumb>
 
-    <SearchMyPost class="container mx-auto my-4"></SearchMyPost>
+      <SearchMyPost></SearchMyPost>
+    </div>
   </div>
 </template>

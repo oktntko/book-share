@@ -16,13 +16,13 @@ const showMenu = ref(false);
 
 <template>
   <div
-    class="flex flex-col gap-1 border border-gray-300 bg-white p-4 transition-all"
+    class="row-span-5 grid grid-rows-subgrid gap-1 border border-gray-300 bg-white p-4 transition-all"
     :title="readingrecord.volume?.volumeInfo?.description ?? ''"
   >
     <!-- 日付 -->
     <div class="flex justify-between">
-      <div class="flex items-center gap-1">
-        <span class="icon-[mdi--read] text-green-800"></span>{{ readingrecord.read_date }}
+      <div class="flex items-center gap-1 text-sm">
+        {{ readingrecord.read_date }}
       </div>
       <div class="relative inline-block text-left">
         <OnClickOutside
@@ -48,7 +48,7 @@ const showMenu = ref(false);
             tabindex="-1"
           >
             <a
-              class="block cursor-pointer border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
+              class="block cursor-pointer rounded-t-md border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               @click="$emit('post')"
             >
               投稿を書く
@@ -60,7 +60,7 @@ const showMenu = ref(false);
               編集する
             </a>
             <a
-              class="block cursor-pointer border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
+              class="block cursor-pointer rounded-b-md border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
               @click="$emit('delete')"
             >
               削除する
@@ -68,6 +68,11 @@ const showMenu = ref(false);
           </div>
         </Transition>
       </div>
+    </div>
+
+    <!-- タイトル -->
+    <div class="line-clamp-2 text-base font-bold">
+      {{ readingrecord.volume?.volumeInfo?.title ?? '' }}
     </div>
 
     <!-- 画像 -->
@@ -100,14 +105,6 @@ const showMenu = ref(false);
       </div>
     </div>
 
-    <!-- タイトル -->
-    <h2
-      v-if="readingrecord.volume?.volumeInfo?.title"
-      class="line-clamp line-clamp-2 text-lg font-bold"
-    >
-      {{ readingrecord.volume.volumeInfo.title }}
-    </h2>
-
     <!-- 評価 -->
     <input
       id="star"
@@ -122,32 +119,20 @@ const showMenu = ref(false);
     />
 
     <!-- ひとこと -->
-    <div class="block w-full p-2.5 text-gray-600 sm:text-sm">
+    <div class="block w-full text-sm text-gray-600">
       {{ readingrecord.hitokoto }}
     </div>
   </div>
 </template>
 
 <style scoped>
-/* https://blanche-toile.com/web/css-line-clamp-property */
-/* 複数行の省略 */
-.line-clamp {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  -webkit-line-clamp: 2;
-}
-
 .rating {
   --dir: right;
   --fill: gold;
   --fillbg: rgba(100, 100, 100, 0.15);
   --star: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.25l-6.188 3.75 1.641-7.031-5.438-4.734 7.172-0.609 2.813-6.609 2.813 6.609 7.172 0.609-5.438 4.734 1.641 7.031z"/></svg>');
   --stars: 5;
-  --starsize: 2rem;
+  --starsize: 1.5rem;
   --symbol: var(--star);
   --value: 1;
   --w: calc(var(--stars) * var(--starsize));

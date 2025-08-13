@@ -20,15 +20,11 @@ withDefaults(
 <template>
   <div
     :class="[
-      'flex flex-col border border-gray-300 bg-white p-4 transition-all',
+      'flex flex-col gap-2 border border-gray-300 bg-white p-4 transition-all',
       active ? '-translate-x-0.5! -translate-y-0.5! transform! bg-blue-50! drop-shadow!' : '',
       hoverable ? 'hover:bg-blue-100' : '',
     ]"
   >
-    <div>
-      <slot name="header" :volume="volume"></slot>
-    </div>
-
     <div class="flex gap-4">
       <!-- 左側 -->
       <div class="flex shrink-0 flex-col">
@@ -59,10 +55,10 @@ withDefaults(
         <h3 v-if="volume.volumeInfo?.authors" class="text-xs text-blue-500 transition-colors">
           {{ volume.volumeInfo?.authors.join(', ') }}
         </h3>
-        <h2 v-if="volume.volumeInfo?.title" class="line-clamp line-clamp-2 text-lg font-bold">
+        <h2 v-if="volume.volumeInfo?.title" class="line-clamp-2 text-lg font-bold">
           {{ volume.volumeInfo?.title }}
         </h2>
-        <h2 v-if="volume.volumeInfo?.subtitle" class="text-sm text-gray-600">
+        <h2 v-if="volume.volumeInfo?.subtitle" class="line-clamp-2 text-sm text-gray-600">
           {{ volume.volumeInfo?.subtitle }}
         </h2>
         <span v-if="volume.volumeInfo?.publishedDate" class="text-xs text-gray-600">
@@ -101,41 +97,9 @@ withDefaults(
     <!-- 詳細 -->
     <p
       v-if="showDescription && volume.volumeInfo?.description"
-      class="line-clamp line-clamp-4 text-base leading-relaxed"
+      class="line-clamp-4 text-xs leading-relaxed"
     >
       {{ volume.volumeInfo?.description }}
     </p>
-
-    <!-- 拡張 -->
-    <div>
-      <slot name="footer" :volume="volume"></slot>
-    </div>
   </div>
 </template>
-
-<style scoped>
-/* https://blanche-toile.com/web/css-line-clamp-property */
-/* 複数行の省略 */
-.line-clamp {
-  margin: 1rem 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  -webkit-line-clamp: 2;
-}
-.line-clamp-3 {
-  -webkit-line-clamp: 3;
-}
-.line-clamp-4 {
-  -webkit-line-clamp: 4;
-}
-.line-clamp-5 {
-  -webkit-line-clamp: 5;
-}
-.line-clamp-6 {
-  -webkit-line-clamp: 6;
-}
-</style>

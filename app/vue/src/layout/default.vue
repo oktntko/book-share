@@ -17,23 +17,21 @@ const { profile } = storeToRefs(useAuthStore());
   >
     <!-- Header -->
     <header class="h-16 border-b border-gray-200 bg-gray-100">
-      <div class="container mx-auto flex flex-col flex-wrap items-center px-4 py-4 md:flex-row">
-        <nav class="flex flex-wrap items-center gap-5 text-base md:ml-auto lg:w-2/5">
+      <div class="flex gap-4 px-4 py-4 md:grid md:grid-cols-3 xl:container xl:mx-auto">
+        <nav class="inline-flex grow items-center justify-end gap-2 text-base md:justify-start">
           <RouterLink
             :to="{ name: '/' }"
             class="hover:text-blue-600"
-            active-class="text-blue-600 border-b-gray-200"
+            exact-active-class="text-blue-600 border-b-gray-200"
           >
             投稿を読む
           </RouterLink>
           <!-- 検索 -->
-          <form @submit.prevent="$router.push({ path: '/', query: { keyword } })">
-            <label
-              for="keyword"
-              class="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-            >
-              Search
-            </label>
+          <form
+            class="hidden xl:inline-block"
+            @submit.prevent="$router.push({ path: '/', query: { keyword } })"
+          >
+            <label for="keyword" class="sr-only"> Search </label>
             <div class="relative">
               <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <span class="icon-[flat-color-icons--search] h-5 w-5"> </span>
@@ -51,7 +49,7 @@ const { profile } = storeToRefs(useAuthStore());
           <RouterLink
             :to="{ name: '/book/' }"
             class="hover:text-blue-600"
-            active-class="text-blue-600 border-b-gray-200 "
+            exact-active-class="text-blue-600 border-b-gray-200 "
           >
             本を探す
             <!-- 投稿を書く・投稿を探す・記録をつける -->
@@ -59,13 +57,12 @@ const { profile } = storeToRefs(useAuthStore());
         </nav>
         <RouterLink
           :to="{ name: '/' }"
-          class="order-first mb-4 flex items-center font-medium text-gray-900 md:mb-0 lg:order-0 lg:w-1/5 lg:items-center lg:justify-center"
+          class="order-first inline-flex items-center justify-center font-medium text-gray-900 md:order-none"
         >
-          <span class="icon-[noto-v1--books] ml-[-16px] h-10 w-10 rounded-full p-2 text-white">
-          </span>
+          <span class="icon-[noto-v1--books] h-10 w-10 rounded-full p-2 text-white"> </span>
           <span class="ml-2 text-xl">Book Share</span>
         </RouterLink>
-        <nav class="flex flex-wrap items-center gap-5 text-base lg:ml-0 lg:w-2/5 lg:justify-end">
+        <nav class="inline-flex items-center justify-end gap-2 text-base">
           <!-- ログイン中 -->
           <template v-if="profile != null">
             <div class="relative inline-block text-left">
@@ -88,16 +85,19 @@ const { profile } = storeToRefs(useAuthStore());
                     class="h-8 w-8 rounded-full object-cover object-center"
                     alt="avatar"
                   />
-                  <span v-else class="h-8 w-8 rounded-full object-cover object-center">⚙️</span>
+                  <span
+                    v-else
+                    class="icon-[clarity--avatar-solid] h-8 w-8 rounded-full object-cover object-center text-gray-400"
+                  ></span>
                 </MyButton>
               </OnClickOutside>
 
               <Transition
                 enter-from-class="transform opacity-0 scale-95"
-                enter-active-class="transition ease-out duration-100"
+                enter-exact-active-class="transition ease-out duration-100"
                 enter-to-class="transform opacity-100 scale-100"
                 leave-from-class="transform opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
+                leave-exact-active-class="transition ease-in duration-75"
                 leave-to-class="transform opacity-0 scale-95"
               >
                 <div
@@ -111,17 +111,15 @@ const { profile } = storeToRefs(useAuthStore());
                     <RouterLink
                       :to="{ name: '/mypage/readingrecord/' }"
                       class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                      exact
-                      active-class="text-blue-600 border-l-gray-200"
+                      exact-active-class="text-blue-600 border-l-gray-200"
                     >
-                      マイ本棚
+                      本棚
                       <p class="text-xs text-gray-400">読書の記録の確認はここから</p>
                     </RouterLink>
                     <RouterLink
                       :to="{ name: '/' }"
                       class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                      exact
-                      active-class="text-blue-600 border-l-gray-200"
+                      exact-active-class="text-blue-600 border-l-gray-200"
                     >
                       ストックした投稿
                       <p class="text-xs text-gray-400">参考になった投稿を確認する</p>
@@ -131,8 +129,7 @@ const { profile } = storeToRefs(useAuthStore());
                     <RouterLink
                       :to="{ name: '/mypage/post/add' }"
                       class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                      exact
-                      active-class="text-blue-600 border-l-gray-200"
+                      exact-active-class="text-blue-600 border-l-gray-200"
                     >
                       投稿を書く
                       <p class="text-xs text-gray-400">BOOK を SHARE しましょう</p>
@@ -140,8 +137,7 @@ const { profile } = storeToRefs(useAuthStore());
                     <RouterLink
                       :to="{ name: '/mypage/post/' }"
                       class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                      exact
-                      active-class="text-blue-600 border-l-gray-200"
+                      exact-active-class="text-blue-600 border-l-gray-200"
                     >
                       投稿一覧
                       <p class="text-xs text-gray-400">下書きの仕上げ、過去の投稿の編集</p>
@@ -151,7 +147,6 @@ const { profile } = storeToRefs(useAuthStore());
                     <RouterLink
                       :to="{ name: '/mypage/profile/' }"
                       class="block border-l-4 border-l-transparent px-4 py-2 text-sm transition-colors hover:bg-gray-300 hover:text-blue-600"
-                      exact
                       active-class="text-blue-600 border-l-gray-200"
                     >
                       プロフィール
@@ -178,7 +173,7 @@ const { profile } = storeToRefs(useAuthStore());
             </div>
             <RouterLink
               :to="{ name: '/mypage/post/add' }"
-              class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:ring focus:outline-none"
+              class="hidden min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:ring focus:outline-none md:inline-flex"
             >
               <span class="icon-[line-md--edit-twotone] mr-2 -ml-1 h-4 w-4"> </span>
               投稿を書く

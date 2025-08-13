@@ -3,19 +3,24 @@ import SearchMyReadingrecord from '~/page/mypage/readingrecord/component/SearchM
 </script>
 
 <template>
-  <div class="mb-8">
-    <MyBreadcrumb
-      class="container mx-auto my-4"
-      icon="icon-[uil--setting]"
-      :items="[
-        {
-          label: '読んだ本',
-          to: '/mypage/readingrecord',
-        },
-      ]"
-    >
-    </MyBreadcrumb>
+  <div class="px-4 py-4 xl:container xl:mx-auto">
+    <div class="flex flex-col gap-4">
+      <MyBreadcrumb
+        icon="icon-[uil--setting]"
+        :items="[
+          {
+            label: 'マイページ',
+            to: '/mypage/',
+          },
+          {
+            label: '本棚',
+            to: '/mypage/readingrecord',
+          },
+        ]"
+      >
+      </MyBreadcrumb>
 
-    <SearchMyReadingrecord class="container mx-auto my-4"></SearchMyReadingrecord>
+      <SearchMyReadingrecord></SearchMyReadingrecord>
+    </div>
   </div>
 </template>

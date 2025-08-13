@@ -41,7 +41,7 @@ async function handleFileInput(files?: FileList | null) {
 
 <template>
   <form
-    class="flex flex-col gap-8 lg:max-w-3xl xl:max-w-4xl"
+    class="flex flex-col gap-8"
     autocomplete="off"
     @submit.prevent="
       validateSubmit(async () => {
@@ -58,7 +58,7 @@ async function handleFileInput(files?: FileList | null) {
       })()
     "
   >
-    <section class="flex flex-col gap-4 sm:flex-row sm:gap-8">
+    <section class="flex flex-col gap-4 md:flex-row md:gap-8">
       <div class="flex grow flex-col gap-4">
         <!-- 名前 -->
         <div>

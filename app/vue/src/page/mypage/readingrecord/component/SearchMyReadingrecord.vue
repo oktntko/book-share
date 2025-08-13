@@ -43,7 +43,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-8 overflow-y-auto">
+  <div class="flex flex-col gap-8">
     <header>
       <form
         class="flex flex-col gap-4"
@@ -82,7 +82,7 @@ onMounted(() => {
       </form>
     </header>
 
-    <main class="shrink grow overflow-y-auto">
+    <main class="shrink grow">
       <Transition
         mode="out-in"
         enter-from-class="transform opacity-0"
@@ -111,59 +111,59 @@ onMounted(() => {
         </div>
 
         <!-- 件数あり 検索結果 -->
-        <div v-else-if="data.total" class="flex flex-wrap gap-4 px-2">
+        <div
+          v-else-if="data.total"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+        >
           <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
-          <div
+          <ViewBookReadingrecord
             v-for="(readingrecord, i) of data.readingrecord_list"
             :key="readingrecord.readingrecord_id"
+            class="rounded"
+            :readingrecord="data.readingrecord_list[i]"
+            @update="
+              async () => {
+                const result = await $modal.open<
+                  RouterOutput['readingrecord']['update'] | undefined
+                >({
+                  component: ModalEditReadingrecord,
+                  componentProps: {
+                    readingrecord_id: readingrecord.readingrecord_id,
+                  },
+                  componentEvents: {},
+                });
+
+                if (result) {
+                  data.readingrecord_list[i] = result;
+                }
+              }
+            "
+            @delete="
+              async () => {
+                if (await $dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
+                  const loading = $loading.open();
+                  try {
+                    await trpc.readingrecord.delete.mutate(readingrecord);
+
+                    data.readingrecord_list = data.readingrecord_list.filter(
+                      (x) => x.readingrecord_id !== readingrecord.readingrecord_id,
+                    );
+
+                    $toast.success('データを削除しました。');
+                  } finally {
+                    loading.close();
+                  }
+                }
+              }
+            "
+            @post="
+              $router.push({
+                name: '/mypage/post/add',
+                query: { volume_id: readingrecord.volume_id },
+              })
+            "
           >
-            <ViewBookReadingrecord
-              class="w-72 rounded"
-              :readingrecord="data.readingrecord_list[i]"
-              @update="
-                async () => {
-                  const result = await $modal.open<
-                    RouterOutput['readingrecord']['update'] | undefined
-                  >({
-                    component: ModalEditReadingrecord,
-                    componentProps: {
-                      readingrecord_id: readingrecord.readingrecord_id,
-                    },
-                    componentEvents: {},
-                  });
-
-                  if (result) {
-                    data.readingrecord_list[i] = result;
-                  }
-                }
-              "
-              @delete="
-                async () => {
-                  if (await $dialog.confirm('データを削除しますか？\nこの操作は取り消せません。')) {
-                    const loading = $loading.open();
-                    try {
-                      await trpc.readingrecord.delete.mutate(readingrecord);
-
-                      data.readingrecord_list = data.readingrecord_list.filter(
-                        (inlist) => inlist.readingrecord_id !== readingrecord.readingrecord_id,
-                      );
-
-                      $toast.success('データを削除しました。');
-                    } finally {
-                      loading.close();
-                    }
-                  }
-                }
-              "
-              @post="
-                $router.push({
-                  name: '/mypage/post/add',
-                  query: { volume_id: readingrecord.volume_id },
-                })
-              "
-            >
-            </ViewBookReadingrecord>
-          </div>
+          </ViewBookReadingrecord>
         </div>
 
         <!-- 件数なし 該当なしメッセージ -->
@@ -197,7 +197,7 @@ onMounted(() => {
       @click="
         (page) => {
           modelValue.page = page;
-          handleSubmit();
+          return handleSubmit();
         }
       "
     >

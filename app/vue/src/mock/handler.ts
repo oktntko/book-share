@@ -1,3 +1,4 @@
+/* eslint-disable @cspell/spellchecker */
 import type { TrpcRouter } from '@book-share/express';
 import { OutputProfileSchema, PostSchemaOutput } from '@book-share/express/schema';
 import { R } from '@book-share/lib/remeda';
@@ -1049,6 +1050,8 @@ function post(): z.infer<typeof PostSchemaOutput> {
     hearts: faker.number.int({ max: 1000 }),
     created_at: faker.date.anytime(),
     updated_at: faker.date.anytime(),
+
+    toukousya: profile(),
   };
 }
 

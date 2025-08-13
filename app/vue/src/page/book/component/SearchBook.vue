@@ -9,15 +9,13 @@ import { useVueValidateZod } from 'use-vue-validate-schema/zod';
 import { trpc, type RouterOutput } from '~/lib/trpc';
 import ViewBook from '~/page/component/ViewBook.vue';
 
-const KEY_BOOK_SEARCH = 'KEY_BOOK_SEARCH';
-
 withDefaults(defineProps<{ volume_id?: string }>(), { volume_id: '' });
 
 defineEmits<{
   selected: [RouterOutput['book']['getVolume'], MouseEvent];
 }>();
 
-const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
+const modelValue = ref<Required<z.infer<typeof BookRouterSchema.listInput>>>({
   q: '',
   queryfield: '',
   page: 1,
@@ -26,10 +24,7 @@ const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>({
   printType: 'all',
   projection: 'lite',
 });
-const { validateSubmit, ErrorMessage, revert } = useVueValidateZod(
-  BookRouterSchema.listInput,
-  modelValue,
-);
+const { validateSubmit, revert } = useVueValidateZod(BookRouterSchema.listInput, modelValue);
 
 const data = ref<RouterOutput['book']['listVolume']>({
   total: 0,
@@ -63,6 +58,8 @@ onMounted(() => {
   }
 });
 
+const KEY_BOOK_SEARCH = 'KEY_BOOK_SEARCH';
+
 function saveSession() {
   sessionStorage.setItem(KEY_BOOK_SEARCH, JSON.stringify(modelValue.value));
 }
@@ -72,114 +69,136 @@ function clearSession() {
 function restoreSession() {
   return sessionStorage.getItem(KEY_BOOK_SEARCH);
 }
+
+const showMenu = ref(false);
 </script>
 
 <template>
-  <div class="flex flex-col gap-8">
+  <div class="flex flex-col gap-4">
     <header>
       <form
         class="flex flex-col gap-4"
         @submit.prevent="
           () => {
             modelValue.page = 1;
-            handleSubmit();
+            return handleSubmit();
           }
         "
       >
-        <section class="flex flex-col gap-2">
-          <!-- 一段目 -->
-          <div class="flex items-start gap-4 lg:items-center">
-            <!-- フィルター -->
-            <div class="flex shrink-0 items-start lg:items-center">
-              <span class="icon-[bx--filter-alt] mr-2 h-5 w-5"></span>
-              <div class="flex flex-col gap-0 lg:flex-row lg:gap-2">
-                <label
-                  v-for="[key, label] of Object.entries(BookVolumeQueryfield)"
-                  :key="key"
-                  :for="`queryfield-${key}`"
-                  class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
-                >
-                  <input
-                    :id="`queryfield-${key}`"
-                    v-model="modelValue.queryfield"
-                    type="radio"
-                    :value="key"
-                    class="mr-1 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-                  />
-                  {{ label }}
-                </label>
-                <ErrorMessage class="text-xs text-red-600" field="queryfield" />
+        <div class="flex">
+          <div class="relative shrink-0">
+            <OnClickOutside @trigger="() => (showMenu = false)">
+              <button
+                class="inline-flex w-32 items-center rounded-s-lg border border-gray-300 bg-white p-2 text-center text-sm text-gray-900 transition-all"
+                :class="['hover:bg-gray-200 focus:ring focus:ring-gray-300 focus:outline-none']"
+                type="button"
+                @click="showMenu = !showMenu"
+              >
+                <span class="icon-[bx--filter-alt] mr-2 h-5 w-5"></span>
+                <span class="grow text-left">
+                  {{ BookVolumeQueryfield[modelValue.queryfield] }}
+                </span>
+                <span class="icon-[mingcute--down-fill] -mr-1 ml-2 h-5 w-5"></span>
+              </button>
+            </OnClickOutside>
+            <Transition
+              enter-from-class="opacity-0 -translate-y-2"
+              enter-active-class="transition ease-out duration-150"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-active-class="transition ease-in duration-100"
+              leave-to-class="opacity-0 -translate-y-2"
+            >
+              <div
+                v-show="showMenu"
+                class="absolute left-0 z-50 w-full divide-y divide-gray-100 rounded-lg border border-gray-300 bg-white shadow-lg"
+                :class="['min-w-max whitespace-nowrap']"
+                role="menu"
+                aria-orientation="vertical"
+                tabindex="-1"
+              >
+                <ul class="text-sm text-gray-900">
+                  <li
+                    v-for="[key, label] of Object.entries(BookVolumeQueryfield)"
+                    :key="key"
+                    class="first:rounded-t-lg last:rounded-b-lg"
+                    :class="[
+                      'transition-colors hover:bg-blue-100',
+                      { 'bg-blue-100': modelValue.queryfield === key },
+                    ]"
+                  >
+                    <label
+                      :for="`queryfield-${key}`"
+                      class="inline-flex w-full cursor-pointer items-center px-2.5 py-2.5 text-sm font-medium text-gray-900"
+                    >
+                      <input
+                        :id="`queryfield-${key}`"
+                        v-model="modelValue.queryfield"
+                        type="radio"
+                        :value="key"
+                        class="mr-1 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                      />
+                      {{ label }}
+                    </label>
+                  </li>
+                </ul>
               </div>
-            </div>
-
-            <!-- ソート -->
-            <div class="flex shrink-0 items-start lg:items-center">
-              <span class="icon-[bx--sort-down] mr-2 h-5 w-5"></span>
-              <div class="flex flex-col gap-0 lg:flex-row lg:gap-2">
-                <label
-                  v-for="[key, label] of Object.entries(BookVolumeOrderBy)"
-                  :key="key"
-                  :for="`orderBy-${key}`"
-                  class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
-                >
-                  <input
-                    :id="`orderBy-${key}`"
-                    v-model="modelValue.orderBy"
-                    type="radio"
-                    :value="key"
-                    class="mr-1 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-                  />
-                  {{ label }}
-                </label>
-                <ErrorMessage class="text-xs text-red-600" field="orderBy" />
-              </div>
-            </div>
+            </Transition>
           </div>
+          <div class="relative grow">
+            <input
+              id="q"
+              v-model="modelValue.q"
+              type="search"
+              class="block w-full border border-s-0 border-e-0 border-gray-300 bg-white p-2 text-sm text-gray-900 transition-all"
+              :class="['focus:ring focus:ring-gray-300 focus:outline-none']"
+              required
+              autofocus
+              @search="
+                () => {
+                  // イベントが発生するのは、①Enter によって検索を実行したとき or ②xボタンをクリックしたとき
+                  if (!modelValue.q) {
+                    revert();
+                    clearSession();
+                  }
+                }
+              "
+            />
+          </div>
+          <div class="relative shrink-0">
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center rounded-e-lg border px-4 py-2 text-sm transition-all focus:ring focus:outline-none"
+              :class="['border-blue-700 bg-white text-blue-700 hover:bg-blue-800 hover:text-white']"
+            >
+              <span class="icon-[line-md--search-twotone] mr-2 -ml-2 h-5 w-5"></span>
+              検索
+            </button>
+          </div>
+        </div>
 
-          <!-- 二段目 -->
-          <div>
-            <label for="q" class="sr-only"> キーワード </label>
-            <div class="relative">
-              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span class="icon-[flat-color-icons--search] h-5 w-5"> </span>
-              </div>
+        <!-- ソート -->
+        <div class="flex shrink-0 items-center">
+          <span class="icon-[bx--sort-down] mr-2 h-5 w-5"></span>
+          <div class="flex flex-row gap-2">
+            <label
+              v-for="[key, label] of Object.entries(BookVolumeOrderBy)"
+              :key="key"
+              :for="`orderBy-${key}`"
+              class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
+            >
               <input
-                id="q"
-                v-model="modelValue.q"
-                type="search"
-                class="block w-full rounded-lg border border-gray-300 bg-white p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                required
-                autofocus
+                :id="`orderBy-${key}`"
+                v-model="modelValue.orderBy"
+                type="radio"
+                :value="key"
+                class="mr-1 h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+                @change="handleSubmit"
               />
-            </div>
+              {{ label }}
+            </label>
           </div>
-        </section>
-
-        <section class="flex gap-4">
-          <MyButton type="submit" classset="text" colorset="green">
-            <span
-              :horizontal-flip="true"
-              inline
-              class="icon-[line-md--search-twotone] mr-2 -ml-4 h-4 w-4"
-            ></span>
-            検索
-          </MyButton>
-
-          <MyButton
-            type="button"
-            classset="text"
-            colorset="white"
-            @click="
-              () => {
-                revert();
-                clearSession();
-              }
-            "
-          >
-            <span class="icon-[bi--x] mr-2 -ml-4 h-4 w-4"></span>
-            リセット
-          </MyButton>
-        </section>
+        </div>
       </form>
     </header>
 
@@ -200,16 +219,13 @@ function restoreSession() {
       <!-- 件数あり 検索結果 -->
       <div v-else-if="data.total">
         <!-- startIndexを進めていくと、totalItems が大きくなるが items にデータが返却されない(undefinedになる)ので、配列の長さ判定する -->
-        <div class="masonry-wrapper px-4">
-          <a
-            v-for="volume of data.volume_list"
-            :key="volume.id!"
-            class="masonry-item block cursor-pointer py-2"
-            @click.stop="(e) => $emit('selected', volume, e)"
-          >
-            <ViewBook class="rounded" :volume="volume" :active="volume_id === volume.id">
-            </ViewBook>
-          </a>
+        <div class="masonry-wrapper">
+          <div v-for="volume of data.volume_list" :key="volume.id!" class="masonry-item py-2">
+            <a class="block cursor-pointer" @click.stop="(e) => $emit('selected', volume, e)">
+              <ViewBook class="rounded" :volume="volume" :active="volume_id === volume.id">
+              </ViewBook>
+            </a>
+          </div>
         </div>
 
         <MyPaginator

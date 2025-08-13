@@ -41,28 +41,28 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="mb-8">
-    <MyBreadcrumb
-      class="container mx-auto my-4"
-      icon="icon-[uil--setting]"
-      :items="[
-        {
-          label: '投稿一覧',
-          to: '/mypage/post',
-        },
-        {
-          label: '投稿を書く',
-          to: '/mypage/post/add',
-        },
-      ]"
-    >
-    </MyBreadcrumb>
+  <div class="px-4 py-4 xl:container xl:mx-auto">
+    <div class="flex flex-col gap-4">
+      <MyBreadcrumb
+        icon="icon-[uil--setting]"
+        :items="[
+          {
+            label: 'マイページ',
+            to: '/mypage/',
+          },
+          {
+            label: '投稿一覧',
+            to: '/mypage/post',
+          },
+          {
+            label: '投稿を書く',
+            to: '/mypage/post/add',
+          },
+        ]"
+      >
+      </MyBreadcrumb>
 
-    <FormPost
-      v-model="modelValue"
-      v-model:volume="volume"
-      class="container mx-auto my-4"
-      @submit="handleSubmit"
-    ></FormPost>
+      <FormPost v-model="modelValue" v-model:volume="volume" @submit="handleSubmit"></FormPost>
+    </div>
   </div>
 </template>

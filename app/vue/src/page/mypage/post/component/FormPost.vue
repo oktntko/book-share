@@ -20,7 +20,7 @@ const volume = defineModel<RouterOutput['book']['getVolume'] | undefined>('volum
   required: true,
 });
 
-const { validateSubmit, ErrorMessage, isDirty, reset } = useVueValidateZod(
+const { validateSubmit, isDirty, reset } = useVueValidateZod(
   PostRouterSchema.createInput,
   modelValue,
 );
@@ -46,45 +46,27 @@ async function openModalSearchBook() {
 </script>
 
 <template>
-  <form
-    class="flex flex-col gap-8 lg:max-w-3xl xl:max-w-4xl"
-    autocomplete="off"
-    @submit.prevent="handleSubmit"
-  >
-    <section class="flex flex-col gap-4">
+  <form class="flex flex-col gap-8 lg:flex-row" autocomplete="off" @submit.prevent="handleSubmit">
+    <!-- 左 -->
+    <div class="top-4 w-full shrink-0 self-start lg:sticky lg:w-64 xl:w-80">
       <!-- 選択した本 -->
       <div v-show="volume" class="relative">
         <ViewBook class="rounded border bg-gray-100" :volume="volume" :hoverable="false">
         </ViewBook>
-        <div class="absolute top-2 right-4">
-          <div class="flex gap-4">
-            <MyButton
-              type="button"
-              classset="text"
-              colorset="blue"
-              secondary
-              @click="openModalSearchBook"
-            >
-              <span class="icon-[flat-color-icons--search] mr-2 -ml-1 h-4 w-4"></span>
-              本を探す
-            </MyButton>
-            <MyButton
-              type="button"
-              classset="text"
-              colorset="white"
-              @click="
-                () => {
-                  volume = undefined;
-                  modelValue.volume_id = '';
-                  modelValue.book_title = '';
-                }
-              "
-            >
-              <span class="icon-[bi--x] mr-2 -ml-1 h-4 w-4"></span>
-              リセット
-            </MyButton>
-          </div>
-        </div>
+        <button
+          type="button"
+          class="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-gray-300 bg-white text-gray-900 transition-colors hover:bg-gray-200"
+          aria-label="reset"
+          @click="
+            () => {
+              volume = undefined;
+              modelValue.volume_id = '';
+              modelValue.book_title = '';
+            }
+          "
+        >
+          <span class="icon-[bi--x] h-6 w-6" />
+        </button>
       </div>
       <!-- 本が選択されなかったときは、本を探してほしいメッセージ -->
       <div
@@ -113,7 +95,14 @@ async function openModalSearchBook() {
           </MyButton>
         </div>
       </div>
+    </div>
 
+    <!-- 真ん中 -->
+    <div
+      class="flex grow flex-col justify-start gap-4"
+      autocomplete="off"
+      @submit.prevent="handleSubmit"
+    >
       <!-- タイトル -->
       <div class="relative">
         <input
@@ -130,28 +119,32 @@ async function openModalSearchBook() {
         >
           タイトル
         </label>
-        <ErrorMessage class="text-xs text-red-600" field="post_title" />
       </div>
       <!-- エディタ -->
-      <QuillEditor
-        v-model="modelValue.content"
-        class="bg-white"
-        :options="{
-          readOnly: false,
-          theme: 'snow',
-          modules: {
-            toolbar: true,
-          },
-        }"
-      ></QuillEditor>
-    </section>
+      <div>
+        <QuillEditor
+          v-model="modelValue.content"
+          class="bg-white"
+          :options="{
+            readOnly: false,
+            theme: 'snow',
+            modules: {
+              toolbar: true,
+            },
+          }"
+        ></QuillEditor>
+      </div>
+    </div>
 
-    <section class="flex gap-4">
-      <MyButton type="submit" classset="text" colorset="green" :disabled="!isDirty">
-        <span class="icon-[entypo--save] mr-2 -ml-1 h-5 w-5"> </span>
-        保存する
-      </MyButton>
-      <slot name="sub-button"></slot>
-    </section>
+    <!-- 右 -->
+    <div class="top-4 flex w-48 shrink-0 flex-col gap-4 self-start lg:sticky xl:w-64">
+      <section class="flex flex-row gap-4 lg:flex-col">
+        <MyButton type="submit" classset="text" colorset="green" :disabled="!isDirty">
+          <span class="icon-[entypo--save] mr-2 -ml-1 h-5 w-5"> </span>
+          保存する
+        </MyButton>
+        <slot name="sub-button"></slot>
+      </section>
+    </div>
   </form>
 </template>
