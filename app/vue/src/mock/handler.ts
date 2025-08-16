@@ -1060,6 +1060,7 @@ function profile(): z.infer<typeof OutputProfileSchema> {
     username: faker.internet.username(),
     email: faker.internet.email(),
     twofa_enable: false,
+    description: faker.internet.displayName(),
     avatar_image: faker.image.avatar(),
   };
 }

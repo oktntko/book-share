@@ -52,6 +52,8 @@ model User {
   twofa_secret String  @default("") @db.VarChar(255) /// @zod.string.trim().max(255)
   /// アバターイメージ
   avatar_image String  @default("") @db.Text
+  /// 自己紹介
+  description  String  @default("") @db.VarChar(400) /// @zod.string.trim().max(400)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)

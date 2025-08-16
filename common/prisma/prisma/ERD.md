@@ -9,6 +9,7 @@ erDiagram
     Boolean twofa_enable 
     String twofa_secret 
     String avatar_image 
+    String description 
     DateTime created_at 
     DateTime updated_at 
     }

@@ -4,6 +4,7 @@ import { UserSchema } from '@book-share/prisma/schema';
 export const OutputProfileSchema = UserSchema.pick({
   username: true,
   email: true,
+  description: true,
   avatar_image: true,
   twofa_enable: true,
 });
@@ -12,6 +13,7 @@ const patchProfileInput = UserSchema.pick({
   username: true,
   email: true,
   avatar_image: true,
+  description: true,
 });
 
 const patchPasswordInput = z

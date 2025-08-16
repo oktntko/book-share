@@ -79,6 +79,7 @@ async function updateUser(
       password: params.data.password,
       username: params.data.username,
       avatar_image: params.data.avatar_image,
+      description: params.data.description,
       twofa_enable: params.data.twofa_enable,
       twofa_secret: params.data.twofa_secret,
     },

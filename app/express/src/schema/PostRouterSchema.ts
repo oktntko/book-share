@@ -4,9 +4,9 @@ import {
   PostSchema,
   SearchParamPostStatusEnum,
   SortOrderSchema,
-  UserSchema,
 } from '@book-share/prisma/schema';
 import { VolumeSchema } from './BookRouterSchema';
+import { ProfileRouterSchema } from './ProfileRouterSchema';
 
 const listInput = z.object({
   where: z.object({
@@ -21,14 +21,9 @@ const listInput = z.object({
   page: z.number().int(),
 });
 
-export const ToukousyaOutput = UserSchema.pick({
-  username: true,
-  email: true,
-  avatar_image: true,
-});
 export const PostSchemaOutput = PostSchema.merge(
   z.object({
-    toukousya: ToukousyaOutput,
+    toukousya: ProfileRouterSchema.patchProfileInput,
     volume: VolumeSchema.optional(),
   }),
 );
