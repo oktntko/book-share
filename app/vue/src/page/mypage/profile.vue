@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+useTitle('プロフィール | BookShare');
+</script>
 
 <template>
   <div class="px-4 py-4 xl:container xl:mx-auto">

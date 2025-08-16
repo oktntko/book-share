@@ -54,11 +54,6 @@ const handleSubmit = validateSubmit(async () => {
 });
 
 onMounted(() => {
-  const json = restoreSession();
-  if (json) {
-    modelValue.value = JSON.parse(json);
-  }
-
   if (modelValue.value.q) {
     handleSubmit();
   } else {

@@ -10,15 +10,20 @@ import PostCard from './PostCard.vue';
 
 const $router = useRouter();
 
-const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>({
-  where: {
-    keyword: '',
-    postStatus: 'すべて',
-  },
-  sort: { field: 'updated_at', order: 'desc' },
-  limit: 30,
-  page: 1,
-});
+const json = restoreSession();
+const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>(
+  json
+    ? JSON.parse(json)
+    : {
+        where: {
+          keyword: '',
+          postStatus: 'すべて',
+        },
+        sort: { field: 'updated_at', order: 'desc' },
+        limit: 30,
+        page: 1,
+      },
+);
 
 const { validateSubmit, revert } = useVueValidateZod(PostRouterSchema.listInput, modelValue);
 
@@ -45,16 +50,7 @@ const handleSubmit = validateSubmit(async () => {
 });
 
 onMounted(() => {
-  const json = restoreSession();
-  if (json) {
-    modelValue.value = JSON.parse(json);
-  }
-
-  if (modelValue.value.where.keyword) {
-    handleSubmit();
-  } else {
-    data.value = { total: 0, post_list: [] };
-  }
+  return handleSubmit();
 });
 
 const KEY_POST_SEARCH = 'KEY_POST_SEARCH';

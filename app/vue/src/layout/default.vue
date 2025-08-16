@@ -193,7 +193,6 @@ const { profile } = storeToRefs(useAuthStore());
               to="/signup"
               class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:ring focus:outline-none"
             >
-              <span class="icon-[el--ok-sign] mr-2 -ml-1 h-4 w-4"> </span>
               新規登録
             </RouterLink>
           </template>

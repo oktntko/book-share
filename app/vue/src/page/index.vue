@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useTitle('BookShare | 本を読む人と読まない人のための情報共有サイト');
+
 import { PostRouterSchema } from '@book-share/express/schema';
 import { dayjs } from '@book-share/lib/dayjs';
 import { R } from '@book-share/lib/remeda';

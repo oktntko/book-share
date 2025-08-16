@@ -4,6 +4,8 @@ meta:
 </route>
 
 <script setup lang="ts">
+useTitle('ログイン | BookShare');
+
 import { AuthRouterSchema } from '@book-share/express/schema';
 import type { z } from '@book-share/lib/zod';
 import { useVueValidateZod } from 'use-vue-validate-schema/zod';

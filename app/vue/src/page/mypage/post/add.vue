@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useTitle('投稿を書く | BookShare');
+
 import type { RouterOutput } from '~/lib/trpc';
 import { trpc } from '~/lib/trpc';
 import FormPost, { type ModelPost } from '~/page/mypage/post/component/FormPost.vue';

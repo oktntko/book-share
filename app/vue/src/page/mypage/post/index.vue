@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useTitle('投稿一覧 | BookShare');
+
 import SearchMyPost from '~/page/mypage/post/component/SearchMyPost.vue';
 </script>
 

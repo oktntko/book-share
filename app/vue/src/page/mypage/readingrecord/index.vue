@@ -1,4 +1,6 @@
 <script setup lang="ts">
+useTitle('本棚 | BookShare');
+
 import SearchMyReadingrecord from '~/page/mypage/readingrecord/component/SearchMyReadingrecord.vue';
 </script>
 

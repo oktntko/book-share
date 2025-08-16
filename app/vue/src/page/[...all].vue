@@ -3,6 +3,10 @@ meta:
   layout: empty
 </route>
 
+<script setup lang="ts">
+useTitle('お探しのページは存在しません | BookShare');
+</script>
+
 <template>
   <section class="bg-gray-50 dark:bg-gray-900">
     <div class="container mx-auto flex min-h-screen items-center px-6 py-12">
