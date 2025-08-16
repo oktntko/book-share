@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import type { RouterOutput } from '~/lib/trpc';
 
-withDefaults(
-  defineProps<{
-    volume?: RouterOutput['book']['getVolume'];
-    hoverable?: boolean;
-    active?: boolean;
-    showDescription?: boolean;
-  }>(),
-  {
-    volume: () => ({}),
-    hoverable: true,
-    active: false,
-    showDescription: true,
-  },
-);
+const {
+  volume,
+  hoverable = true,
+  active = false,
+  showDescription = true,
+} = defineProps<{
+  volume: RouterOutput['book']['getVolume'];
+  hoverable?: boolean;
+  active?: boolean;
+  showDescription?: boolean;
+}>();
 </script>
 
 <template>

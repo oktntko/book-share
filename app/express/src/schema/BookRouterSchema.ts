@@ -343,12 +343,12 @@ export const BookVolumeOrderBy: Record<z.infer<typeof BookVolumeOrderBySchema>, 
 
 const listInput = z.object({
   q: z.string().min(1),
-  queryfield: BookVolumeQueryfieldSchema.optional(),
+  queryfield: BookVolumeQueryfieldSchema,
   limit: z.number().int().max(100),
   page: z.number().int(),
-  orderBy: z.union([z.literal('newest'), z.literal('relevance')]).optional(),
-  printType: z.union([z.literal('all'), z.literal('books'), z.literal('magazines')]).optional(),
-  projection: z.union([z.literal('full'), z.literal('lite')]).optional(),
+  orderBy: z.union([z.literal('newest'), z.literal('relevance')]),
+  printType: z.union([z.literal('all'), z.literal('books'), z.literal('magazines')]),
+  projection: z.union([z.literal('full'), z.literal('lite')]),
 });
 
 const listOutput = z.object({

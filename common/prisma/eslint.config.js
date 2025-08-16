@@ -9,10 +9,10 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.{.js,ts,mjs,mts,cjs,cts}'],
     languageOptions: {
       parserOptions: {
         parser: '@typescript-eslint/parser',
+        tsconfigRootDir: '.',
       },
     },
     rules: {

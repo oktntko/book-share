@@ -22,6 +22,6 @@
   "devDependencies": {
     "cspell": "^9.2.0",
     "prettier": "^3.6.2",
-    "turbo": "^2.5.5"
+    "turbo": "^2.5.6"
   }
 }

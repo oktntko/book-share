@@ -56,7 +56,7 @@ export const handlers: Array<RequestHandler | WebSocketHandler> = [
       min: 0,
       max: volume_list.length - 1,
     });
-    return volume_list[i];
+    return volume_list[i]!;
   }),
   trpcMsw.book.ranking.query(() => {
     return {
@@ -1012,7 +1012,7 @@ function post(): z.infer<typeof PostSchemaOutput> {
   const i = faker.number.int({
     max: volume_list.length - 1,
   });
-  const volume = volume_list[i];
+  const volume = volume_list[i]!;
   return {
     post_id: faker.number.int(),
     toukousya_id: faker.number.int(),
@@ -1068,7 +1068,7 @@ function readingrecord(): z.infer<typeof ReadingrecordSchema> {
   const i = faker.number.int({
     max: volume_list.length - 1,
   });
-  const volume = volume_list[i];
+  const volume = volume_list[i]!;
   return {
     readingrecord_id: faker.number.int(),
     volume_id: volume.id,

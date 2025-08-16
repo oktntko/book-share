@@ -26,6 +26,8 @@
 
       // No `ScriptHost` because Vue 3 dropped support for IE
     ],
+    // override strictest
+    "exactOptionalPropertyTypes": false,
     // src/schema/FileRouterSchema.ts
     // https://stackoverflow.com/questions/75688293/namespace-global-express-has-no-exported-member-multer
     "types": ["multer", "vite/client"]

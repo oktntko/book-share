@@ -236,7 +236,7 @@ function scrollCarousel(direction: number) {
               <!-- 上 -->
               <div
                 class="line-clamp-2 text-base font-bold text-gray-900"
-                :title="volume.volumeInfo?.title"
+                :title="volume.volumeInfo?.title ?? ''"
               >
                 {{ volume.volumeInfo?.title }}
               </div>
@@ -269,7 +269,7 @@ function scrollCarousel(direction: number) {
                 </div>
               </div>
               <!-- 下 -->
-              <div class="text-xs text-gray-600" :title="volume.volumeInfo?.subtitle">
+              <div class="text-xs text-gray-600" :title="volume.volumeInfo?.subtitle ?? ''">
                 {{ volume.volumeInfo?.subtitle }}
               </div>
 

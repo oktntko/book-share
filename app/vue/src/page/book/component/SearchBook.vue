@@ -9,22 +9,30 @@ import { useVueValidateZod } from 'use-vue-validate-schema/zod';
 import { trpc, type RouterOutput } from '~/lib/trpc';
 import ViewBook from '~/page/component/ViewBook.vue';
 
-withDefaults(defineProps<{ volume_id?: string }>(), { volume_id: '' });
+const { volume_id = '' } = defineProps<{ volume_id?: string }>();
 
 defineEmits<{
   selected: [RouterOutput['book']['getVolume'], MouseEvent];
 }>();
 
-const modelValue = ref<Required<z.infer<typeof BookRouterSchema.listInput>>>({
-  q: '',
-  queryfield: '',
-  page: 1,
-  limit: 30,
-  orderBy: 'relevance',
-  printType: 'all',
-  projection: 'lite',
-});
-const { validateSubmit, revert } = useVueValidateZod(BookRouterSchema.listInput, modelValue);
+const json = restoreSession();
+const modelValue = ref<z.infer<typeof BookRouterSchema.listInput>>(
+  json
+    ? JSON.parse(json)
+    : {
+        q: '',
+        queryfield: '',
+        page: 1,
+        limit: 30,
+        orderBy: 'relevance',
+        printType: 'all',
+        projection: 'lite',
+      },
+);
+const { validateSubmit, revert, isInvalid } = useVueValidateZod(
+  BookRouterSchema.listInput,
+  modelValue,
+);
 
 const data = ref<RouterOutput['book']['listVolume']>({
   total: 0,
@@ -233,6 +241,7 @@ const showMenu = ref(false);
           :currentPage="modelValue.page"
           :limit="modelValue.limit"
           :total="data.total"
+          :disabled="isInvalid"
           @click="
             (page) => {
               modelValue.page = page;

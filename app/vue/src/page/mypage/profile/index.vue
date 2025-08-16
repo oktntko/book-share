@@ -23,7 +23,7 @@ async function handleFileInput(files?: FileList | null) {
     return;
   }
 
-  const file = files[0];
+  const file = files[0]!;
 
   if (!file.type.startsWith('image/')) {
     $dialog.alert('Choose a IMAGE file.');

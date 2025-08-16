@@ -50,7 +50,7 @@ async function openModalSearchBook() {
     <!-- 左 -->
     <div class="top-4 w-full shrink-0 self-start lg:sticky lg:w-64 xl:w-80">
       <!-- 選択した本 -->
-      <div v-show="volume" class="relative">
+      <div v-if="volume" class="relative">
         <ViewBook class="rounded border bg-gray-100" :volume="volume" :hoverable="false">
         </ViewBook>
         <button

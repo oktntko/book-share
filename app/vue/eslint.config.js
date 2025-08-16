@@ -43,6 +43,7 @@ export default defineConfigWithVueTs(
         ecmaFeatures: {
           jsx: true,
         },
+        tsconfigRootDir: '.',
       },
     },
   },
