@@ -1,10 +1,9 @@
 import type { z } from '@book-share/lib/zod';
 import type { Prisma } from '@book-share/prisma/client';
-import { TRPCError } from '@trpc/server';
 import { log } from '~/lib/log4js';
 import { ProtectedContext, PublicContext } from '~/middleware/trpc';
 import { PostRepository } from '~/repository/PostRepository';
-import { MESSAGE_DATA_IS_NOT_EXIST, checkPreviousVersion } from '~/repository/_repository';
+import { checkDataExist, checkPreviousVersion } from '~/repository/_repository';
 import type { PostRouterSchema } from '~/schema/PostRouterSchema';
 
 export const PostService = {
@@ -82,13 +81,7 @@ async function getPost(
     where.toukousya_id = ctx.operator.user_id;
   }
 
-  const post = await PostRepository.findUniquePost(ctx, { where });
-
-  if (!post) {
-    throw new TRPCError({ code: 'NOT_FOUND', message: MESSAGE_DATA_IS_NOT_EXIST });
-  }
-
-  return post;
+  return checkDataExist({ data: PostRepository.findUniquePost(ctx, { where }) });
 }
 
 // # post.create

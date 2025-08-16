@@ -1,10 +1,9 @@
 import type { z } from '@book-share/lib/zod';
 import type { Prisma } from '@book-share/prisma/client';
-import { TRPCError } from '@trpc/server';
 import { log } from '~/lib/log4js';
 import { ProtectedContext } from '~/middleware/trpc';
 import { ReadingrecordRepository } from '~/repository/ReadingrecordRepository';
-import { MESSAGE_DATA_IS_NOT_EXIST, checkPreviousVersion } from '~/repository/_repository';
+import { checkDataExist, checkPreviousVersion } from '~/repository/_repository';
 import type { ReadingrecordRouterSchema } from '~/schema/ReadingrecordRouterSchema';
 
 export const ReadingrecordService = {
@@ -61,15 +60,11 @@ async function getReadingrecord(
 ) {
   log.trace(ctx.reqid, 'getReadingrecord', ctx.operator.user_id, input);
 
-  const readingrecord = await ReadingrecordRepository.findUniqueReadingrecord(ctx, {
-    where: { readingrecord_id: input.readingrecord_id },
+  return checkDataExist({
+    data: ReadingrecordRepository.findUniqueReadingrecord(ctx, {
+      where: { readingrecord_id: input.readingrecord_id },
+    }),
   });
-
-  if (!readingrecord) {
-    throw new TRPCError({ code: 'NOT_FOUND', message: MESSAGE_DATA_IS_NOT_EXIST });
-  }
-
-  return readingrecord;
 }
 
 // # readingrecord.create

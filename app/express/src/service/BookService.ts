@@ -3,12 +3,11 @@ import { R } from '@book-share/lib/remeda';
 import type { z } from '@book-share/lib/zod';
 import { Prisma } from '@book-share/prisma/client';
 import { books_v1 } from '@googleapis/books';
-import { TRPCError } from '@trpc/server';
 import { log } from '~/lib/log4js';
 import { PublicContext } from '~/middleware/trpc';
 import { BookRepository } from '~/repository/BookRepository';
 import { PostRepository } from '~/repository/PostRepository';
-import { MESSAGE_DATA_IS_NOT_EXIST } from '~/repository/_repository';
+import { checkDataExist } from '~/repository/_repository';
 import { BookRouterSchema } from '~/schema/BookRouterSchema';
 
 export const BookService = {
@@ -44,15 +43,11 @@ async function listVolume(ctx: PublicContext, input: z.infer<typeof BookRouterSc
 async function getVolume(ctx: PublicContext, input: z.infer<typeof BookRouterSchema.getInput>) {
   log.trace(ctx.reqid, 'getBook', input);
 
-  const volume = await BookRepository.getVolume(ctx, {
-    where: { volume_id: input.volume_id },
-  }).catch(() => null);
-
-  if (!volume) {
-    throw new TRPCError({ code: 'NOT_FOUND', message: MESSAGE_DATA_IS_NOT_EXIST });
-  }
-
-  return volume;
+  return checkDataExist({
+    data: BookRepository.getVolume(ctx, {
+      where: { volume_id: input.volume_id },
+    }).catch(() => null),
+  });
 }
 
 // # book.ranking

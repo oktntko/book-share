@@ -5,7 +5,7 @@ import { log } from '~/lib/log4js';
 import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
 import { ProtectedContext } from '~/middleware/trpc';
 import { UserRepository } from '~/repository/UserRepository';
-import { checkDuplicate } from '~/repository/_repository';
+import { checkDataExist, checkDuplicate } from '~/repository/_repository';
 import type { ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
 
 export const ProfileService = {
@@ -22,18 +22,12 @@ export const ProfileService = {
 async function getProfile(ctx: ProtectedContext) {
   log.trace(ctx.reqid, 'getProfile', ctx.operator.user_id);
 
-  const user = await UserRepository.findUniqueUser(ctx, {
-    where: { user_id: ctx.operator.user_id },
+  return checkDataExist({
+    data: UserRepository.findUniqueUser(ctx, {
+      where: { user_id: ctx.operator.user_id },
+    }),
+    dataIsNotExistMessage: '該当データが見つかりません。再度ログインし直してください。',
   });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
-
-  return user;
 }
 
 // # profile.update
@@ -43,16 +37,7 @@ async function patchPassword(
 ) {
   log.trace(ctx, 'patchPassword', ctx.operator.user_id, input);
 
-  const user = await UserRepository.findUniqueUser(ctx, {
-    where: { user_id: ctx.operator.user_id },
-  });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
+  const user = await ProfileService.getProfile(ctx);
 
   // 現在のパスワードの確認
   if (!HashPassword.compare(input.current_password, user.password)) {
@@ -76,16 +61,7 @@ async function updateProfile(
 ) {
   log.trace(ctx.reqid, 'updateProfile', ctx.operator.user_id, input);
 
-  const user = await UserRepository.findUniqueUser(ctx, {
-    where: { user_id: ctx.operator.user_id },
-  });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
+  const user = await ProfileService.getProfile(ctx);
 
   await checkDuplicate({
     duplicate: UserRepository.findUniqueUser(ctx, { where: { email: user.email } }),
@@ -134,21 +110,12 @@ async function enableSecret(
 ) {
   log.trace(ctx.reqid, 'enableSecret', ctx.operator.user_id, input);
 
+  await ProfileService.getProfile(ctx); // checkDataExist
+
   if (!input.setting_twofa || dayjs(input.setting_twofa.expires).isBefore(dayjs())) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: '二要素認証のQRコードが発行されていないか、QRコードの有効期限が切れています。',
-    });
-  }
-
-  const user = await UserRepository.findUniqueUser(ctx, {
-    where: { user_id: ctx.operator.user_id },
-  });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
     });
   }
 
@@ -171,16 +138,7 @@ async function enableSecret(
 async function disableSecret(ctx: ProtectedContext) {
   log.trace(ctx.reqid, 'disableSecret', ctx.operator.user_id);
 
-  const user = await UserRepository.findUniqueUser(ctx, {
-    where: { user_id: ctx.operator.user_id },
-  });
-
-  if (!user) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: '該当データが見つかりません。再度ログインし直してください。',
-    });
-  }
+  await ProfileService.getProfile(ctx); // checkDataExist
 
   return UserRepository.updateUser(ctx, {
     data: { twofa_enable: false, twofa_secret: '' },
