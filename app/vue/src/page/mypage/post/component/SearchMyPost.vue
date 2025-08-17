@@ -27,7 +27,7 @@ const modelValue = ref<z.infer<typeof PostRouterSchema.listInput>>(
 
 const { validateSubmit, revert } = useVueValidateZod(PostRouterSchema.listInput, modelValue);
 
-const data = ref<RouterOutput['post']['getMyPostList']>({
+const data = ref<RouterOutput['mypost']['list']>({
   total: 0,
   post_list: [],
 });
@@ -36,7 +36,7 @@ const loading = ref(true);
 const handleSubmit = validateSubmit(async () => {
   loading.value = true;
   try {
-    data.value = await trpc.post.getMyPostList.query(modelValue.value);
+    data.value = await trpc.mypost.list.query(modelValue.value);
 
     if (data.value.total) {
       saveSession();
@@ -65,7 +65,7 @@ function restoreSession() {
   return sessionStorage.getItem(KEY_POST_SEARCH);
 }
 
-const currentPost = ref<RouterOutput['post']['getMyPostList']['post_list'][number]>();
+const currentPost = ref<RouterOutput['mypost']['list']['post_list'][number]>();
 
 const refQuillEditor = useTemplateRef<typeof QuillEditor>('refQuillEditor');
 
@@ -91,7 +91,6 @@ const { y } = useWindowScroll();
             type="search"
             class="block w-full rounded-s-lg border border-e-0 border-gray-300 bg-white p-2 text-sm text-gray-900 transition-all"
             :class="['focus:ring focus:ring-gray-300 focus:outline-none']"
-            required
             autofocus
             @search="
               () => {
@@ -189,7 +188,7 @@ const { y } = useWindowScroll();
                 ) {
                   const loading = $loading.open();
                   try {
-                    await trpc.post.delete.mutate({
+                    await trpc.mypost.delete.mutate({
                       post_id: post.post_id,
                       updated_at: post.updated_at,
                     });

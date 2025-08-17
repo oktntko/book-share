@@ -2,14 +2,16 @@
 import { dayjs } from '@book-share/lib/dayjs';
 import type { RouterOutput } from '~/lib/trpc';
 
+type Post = RouterOutput['mypost']['list']['post_list'][number];
+
 const emit = defineEmits<{
-  select: [post: RouterOutput['post']['getMyPostList']['post_list'][number]];
-  edit: [post: RouterOutput['post']['getMyPostList']['post_list'][number]];
-  delete: [post: RouterOutput['post']['getMyPostList']['post_list'][number]];
+  select: [Post];
+  edit: [Post];
+  delete: [Post];
 }>();
 
 defineProps<{
-  post: RouterOutput['post']['getMyPostList']['post_list'][number];
+  post: Post;
 }>();
 
 const showMenu = ref(false);

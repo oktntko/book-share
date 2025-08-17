@@ -8,7 +8,9 @@ import type { PostRouterSchema } from '~/schema/PostRouterSchema';
 
 export const PostService = {
   listPost,
+  listMyPost,
   getPost,
+  getMyPost,
   createPost,
   updatePost,
   deletePost,
@@ -16,11 +18,8 @@ export const PostService = {
 };
 
 // # post.list
-async function listPost(
-  ctx: ({ public: true } & PublicContext) | ({ public: false } & ProtectedContext),
-  input: z.infer<typeof PostRouterSchema.listInput>,
-) {
-  log.trace(ctx.reqid, 'listPost', ctx.public, input);
+async function listPost(ctx: PublicContext, input: z.infer<typeof PostRouterSchema.listInput>) {
+  log.trace(ctx.reqid, 'listPost', input);
 
   const where: Prisma.PostWhereInput = {};
   if (input.where.keyword) {
@@ -31,18 +30,52 @@ async function listPost(
     ];
   }
 
-  if (ctx.public) {
-    // 公開中の投稿に対する検索なので、 公開中＝true 固定
-    where.published = true;
-  } else {
-    // 自分の投稿に対する検索なので、 投稿者ID＝操作者ID
-    where.toukousya_id = ctx.operator.user_id;
+  // 公開中の投稿に対する検索なので、 公開中＝true 固定
+  where.published = true;
 
-    if (input.where.postStatus === '公開中') {
-      where.published = true;
-    } else if (input.where.postStatus === '下書き') {
-      where.published = false;
-    }
+  log.debug('where', where);
+
+  const orderBy: Prisma.PostOrderByWithRelationInput = { [input.sort.field]: input.sort.order };
+
+  const [total, post_list] = await Promise.all([
+    PostRepository.countPost(ctx, { where }),
+    PostRepository.findManyPost(ctx, {
+      where,
+      orderBy,
+      take: input.limit,
+      skip: input.limit * (input.page - 1),
+    }),
+  ]);
+
+  return {
+    total,
+    post_list,
+  };
+}
+
+// # mypost.list
+async function listMyPost(
+  ctx: ProtectedContext,
+  input: z.infer<typeof PostRouterSchema.listInput>,
+) {
+  log.trace(ctx.reqid, 'listPost', input);
+
+  const where: Prisma.PostWhereInput = {};
+  if (input.where.keyword) {
+    where.OR = [
+      { book_title: { contains: input.where.keyword } },
+      { post_title: { contains: input.where.keyword } },
+      { content: { contains: input.where.keyword } },
+    ];
+  }
+
+  // 自分の投稿に対する検索なので、 投稿者ID＝操作者ID
+  where.toukousya_id = ctx.operator.user_id;
+
+  if (input.where.postStatus === '公開中') {
+    where.published = true;
+  } else if (input.where.postStatus === '下書き') {
+    where.published = false;
   }
 
   log.debug('where', where);
@@ -66,25 +99,44 @@ async function listPost(
 }
 
 // # post.get
-async function getPost(
-  ctx: ({ public: true } & PublicContext) | ({ public: false } & ProtectedContext),
-  input: z.infer<typeof PostRouterSchema.getInput>,
-) {
-  log.trace(ctx.reqid, 'getPost', ctx.public, input);
+async function getPost(ctx: PublicContext, input: z.infer<typeof PostRouterSchema.getInput>) {
+  log.trace(ctx.reqid, 'getPost', input);
 
   const where: Prisma.PostWhereUniqueInput = { post_id: input.post_id };
-  if (ctx.public) {
-    // 公開中の投稿に対する検索なので、 公開中＝true 固定
-    where.published = true;
-  } else {
-    // 自分の投稿に対する検索なので、 投稿者ID＝操作者ID
-    where.toukousya_id = ctx.operator.user_id;
-  }
+  // operator_id なしは、公開中の投稿に対する検索なので、 公開中＝true 固定
+  where.published = true;
+
+  const post = await checkDataExist({ data: PostRepository.findUniquePost(ctx, { where }) });
+
+  return {
+    ...post,
+    related_post_list: post.volume_id
+      ? await PostRepository.findManyPost(ctx, {
+          where: {
+            volume_id: post.volume_id,
+            post_id: { not: post.post_id },
+            published_at: { not: null },
+          },
+          orderBy: { published_at: 'desc' },
+          skip: 0,
+          take: 10,
+        })
+      : [],
+  };
+}
+
+// # mypost.get
+async function getMyPost(ctx: ProtectedContext, input: z.infer<typeof PostRouterSchema.getInput>) {
+  log.trace(ctx.reqid, 'getPost', ctx.operator.user_id, input);
+
+  const where: Prisma.PostWhereUniqueInput = { post_id: input.post_id };
+  // 自分の投稿に対する検索なので、 投稿者ID＝操作者ID
+  where.toukousya_id = ctx.operator.user_id;
 
   return checkDataExist({ data: PostRepository.findUniquePost(ctx, { where }) });
 }
 
-// # post.create
+// # mypost.create
 async function createPost(
   ctx: ProtectedContext,
   input: z.infer<typeof PostRouterSchema.createInput>,
@@ -96,7 +148,7 @@ async function createPost(
   });
 }
 
-// # post.update
+// # mypost.update
 async function updatePost(
   ctx: ProtectedContext,
   input: z.infer<typeof PostRouterSchema.updateInput>,
@@ -121,7 +173,7 @@ async function updatePost(
   });
 }
 
-// # post.delete
+// # mypost.delete
 async function deletePost(
   ctx: ProtectedContext,
   input: z.infer<typeof PostRouterSchema.deleteInput>,
@@ -138,7 +190,7 @@ async function deletePost(
   return PostRepository.deletePost(ctx, { where: { post_id: input.post_id } });
 }
 
-// # post.publish
+// # mypost.publish
 async function publishPost(
   ctx: ProtectedContext,
   input: z.infer<typeof PostRouterSchema.publishInput>,

@@ -28,6 +28,12 @@ export const PostSchemaOutput = PostSchema.merge(
   }),
 );
 
+export const PublicPostSchemaOutput = PostSchemaOutput.merge(
+  z.object({
+    related_post_list: PostSchemaOutput.array(),
+  }),
+);
+
 const listOutput = z.object({
   total: z.number(),
   post_list: z.array(PostSchemaOutput),

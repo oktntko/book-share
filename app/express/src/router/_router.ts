@@ -2,6 +2,7 @@ import { createCallerFactory, router } from '~/middleware/trpc';
 import { auth } from '~/router/AuthRouter';
 import { book } from '~/router/BookRouter';
 import { file, FileRouter } from '~/router/FileRouter';
+import { mypost } from '~/router/MyPostRouter';
 import { post } from '~/router/PostRouter';
 import { profile } from '~/router/ProfileRouter';
 import { readingrecord } from '~/router/ReadingrecordRouter';
@@ -10,6 +11,7 @@ export const TrpcRouter = router({
   auth,
   book,
   file,
+  mypost,
   post,
   profile,
   readingrecord,

@@ -74,28 +74,34 @@ export const handlers: Array<RequestHandler | WebSocketHandler> = [
       post_list: R.range(1, faker.number.int({ max: 20 })).map(post),
     };
   }),
-  trpcMsw.post.getMyPostList.query(() => {
+  trpcMsw.mypost.list.query(() => {
     return {
       total: 100,
       post_list: R.range(1, faker.number.int({ max: 20 })).map(post),
     };
   }),
   trpcMsw.post.get.query(() => {
+    return {
+      ...post(),
+      related_post_list: R.range(1, faker.number.int({ max: 20 })).map(post),
+    };
+  }),
+  trpcMsw.mypost.get.query(() => {
     return post();
   }),
-  trpcMsw.post.getMyPost.query(() => {
+  trpcMsw.mypost.get.query(() => {
     return post();
   }),
-  trpcMsw.post.create.mutation(() => {
+  trpcMsw.mypost.create.mutation(() => {
     return post();
   }),
-  trpcMsw.post.update.mutation(() => {
+  trpcMsw.mypost.update.mutation(() => {
     return post();
   }),
-  trpcMsw.post.delete.mutation(() => {
+  trpcMsw.mypost.delete.mutation(() => {
     return post();
   }),
-  trpcMsw.post.publish.mutation(() => {
+  trpcMsw.mypost.publish.mutation(() => {
     return post();
   }),
 
@@ -1075,7 +1081,7 @@ function readingrecord(): z.infer<typeof ReadingrecordSchema> {
     volume_id: volume.id,
     book_title: faker.book.title(),
     hitokoto: faker.lorem.sentences(),
-    read_date: '',
+    read_date: faker.date.recent().toISOString(),
     star: faker.number.int({ max: 5 }),
     user_id: faker.number.int(),
     created_at: new Date(),

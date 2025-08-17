@@ -31,7 +31,7 @@ const $loading = useLoading();
 async function handleSubmit() {
   const loading = $loading.open();
   try {
-    await trpc.post.create.mutate(modelValue.value);
+    await trpc.mypost.create.mutate(modelValue.value);
 
     $router.replace({ name: `/mypage/post/` });
 
