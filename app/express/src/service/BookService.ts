@@ -55,7 +55,7 @@ async function rankingBook(
   ctx: PublicContext,
   input: z.infer<typeof BookRouterSchema.rankingInput>,
 ) {
-  log.trace(ctx.reqid, 'listPost', input);
+  log.trace(ctx.reqid, 'rankingBook', input);
 
   const where: Prisma.PostWhereInput = {};
 

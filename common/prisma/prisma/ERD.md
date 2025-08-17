@@ -48,7 +48,6 @@ erDiagram
     String content 
     Boolean published 
     DateTime published_at "❓"
-    Int hearts 
     DateTime created_at 
     DateTime updated_at 
     }
@@ -68,8 +67,10 @@ erDiagram
   
     "user" o{--}o "session" : "session_list"
     "user" o{--}o "post" : "post_list"
+    "user" o{--}o "post" : "heart_list"
     "user" o{--}o "readingrecord" : "readingrecord_list"
     "session" o|--|o "user" : "user"
     "post" o|--|| "user" : "toukousya"
+    "post" o{--}o "user" : "hearted_list"
     "readingrecord" o|--|| "user" : "user"
 ```

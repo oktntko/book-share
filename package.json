@@ -11,7 +11,7 @@
     "build:msw": "turbo build:msw",
     "type-check": "turbo type-check",
     "preview": "turbo preview --ui=tui || true",
-    "generate": "turbo run @todo/prisma#generate",
+    "generate": "turbo run @book-share/prisma#generate",
     "lint": "turbo lint",
     "cspell": "cspell .",
     "format": "turbo format",

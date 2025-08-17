@@ -40,6 +40,11 @@ async function findManyPost(
   const post_list = await ctx.prisma.post.findMany({
     include: {
       toukousya: true,
+      _count: {
+        select: {
+          hearted_list: true,
+        },
+      },
     },
     where: params.where,
     orderBy: params.orderBy,
@@ -69,6 +74,11 @@ async function findUniquePost(
     .findUnique({
       include: {
         toukousya: true,
+        _count: {
+          select: {
+            hearted_list: true,
+          },
+        },
       },
       where: params.where,
     })
@@ -91,7 +101,6 @@ async function createPost(
       book_title: params.data.book_title,
       post_title: params.data.post_title,
       content: params.data.content,
-      hearts: params.data.hearts,
       published: params.data.published,
       published_at: params.data.published_at,
     },
@@ -114,7 +123,6 @@ async function updatePost(
       book_title: params.data.book_title,
       post_title: params.data.post_title,
       content: params.data.content,
-      hearts: params.data.hearts,
       published: params.data.published,
       published_at: params.data.published_at,
     },

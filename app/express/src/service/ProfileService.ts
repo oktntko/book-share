@@ -6,6 +6,7 @@ import { HashPassword, OnetimePassword, SecretPassword } from '~/lib/secret';
 import { ProtectedContext } from '~/middleware/trpc';
 import { UserRepository } from '~/repository/UserRepository';
 import { checkDataExist, checkDuplicate } from '~/repository/_repository';
+import { PostRouterSchema } from '~/schema';
 import type { ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
 
 export const ProfileService = {
@@ -16,6 +17,8 @@ export const ProfileService = {
   generateSecret,
   enableSecret,
   disableSecret,
+  heartPost,
+  unheartPost,
 };
 
 // # profile.get
@@ -142,6 +145,33 @@ async function disableSecret(ctx: ProtectedContext) {
 
   return UserRepository.updateUser(ctx, {
     data: { twofa_enable: false, twofa_secret: '' },
+    where: { user_id: ctx.operator.user_id },
+  });
+}
+
+// # profile.heartPost
+async function heartPost(ctx: ProtectedContext, input: z.infer<typeof PostRouterSchema.getInput>) {
+  log.trace(ctx.reqid, 'heartPost', ctx.operator.user_id);
+
+  return UserRepository.updateUser(ctx, {
+    data: {
+      heart_list: { connect: { post_id: input.post_id } },
+    },
+    where: { user_id: ctx.operator.user_id },
+  });
+}
+
+// # profile.unheartPost
+async function unheartPost(
+  ctx: ProtectedContext,
+  input: z.infer<typeof PostRouterSchema.getInput>,
+) {
+  log.trace(ctx.reqid, 'heartPost', ctx.operator.user_id);
+
+  return UserRepository.updateUser(ctx, {
+    data: {
+      heart_list: { disconnect: { post_id: input.post_id } },
+    },
     where: { user_id: ctx.operator.user_id },
   });
 }

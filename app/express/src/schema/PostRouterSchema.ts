@@ -25,6 +25,9 @@ export const PostSchemaOutput = PostSchema.merge(
   z.object({
     toukousya: ProfileRouterSchema.patchProfileInput,
     volume: VolumeSchema.optional(),
+    _count: z.object({
+      hearted_list: z.number(),
+    }),
   }),
 );
 
@@ -42,7 +45,6 @@ const listOutput = z.object({
 const createInput = PostSchema.omit({
   post_id: true,
   toukousya_id: true,
-  hearts: true,
   published: true,
   published_at: true,
   created_at: true,

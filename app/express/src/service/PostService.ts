@@ -144,7 +144,7 @@ async function createPost(
   log.trace(ctx.reqid, 'createPost', ctx.operator.user_id, input);
 
   return PostRepository.createPost(ctx, {
-    data: { ...input, hearts: 0, published: false, published_at: null },
+    data: { ...input, published: false, published_at: null },
   });
 }
 
@@ -165,7 +165,6 @@ async function updatePost(
   return PostRepository.updatePost(ctx, {
     data: {
       ...input,
-      hearts: previous.hearts,
       published: previous.published,
       published_at: previous.published_at,
     },
@@ -207,7 +206,6 @@ async function publishPost(
   return PostRepository.updatePost(ctx, {
     data: {
       ...previous,
-      hearts: previous.hearts,
       published: input.published,
       published_at: input ? new Date() : null,
     },

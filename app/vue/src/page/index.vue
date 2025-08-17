@@ -414,9 +414,28 @@ function scrollCarousel(direction: number) {
               </div>
 
               <div class="flex grow flex-col gap-2">
-                <div class="line-clamp-1 text-xs text-gray-400">
-                  {{ post.volume?.volumeInfo?.title ?? '(本未選択)' }}
+                <div class="flex">
+                  <div class="line-clamp-1 grow text-xs text-gray-400">
+                    {{ post.volume?.volumeInfo?.title ?? '(本未選択)' }}
+                  </div>
+                  <div
+                    class="inline-flex shrink-0 items-center rounded-full text-xs font-bold uppercase"
+                  >
+                    <span
+                      class="mr-1 h-4 w-4"
+                      :class="
+                        post._count.hearted_list < 5
+                          ? 'icon-[akar-icons--heart]'
+                          : post._count.hearted_list < 10
+                            ? 'icon-[bi--hearts]'
+                            : 'icon-[emojione--revolving-hearts]'
+                      "
+                    >
+                    </span>
+                    {{ post._count.hearted_list }}
+                  </div>
                 </div>
+
                 <div class="line-clamp-2 grow text-lg text-gray-900">
                   {{ `${post.post_title ? post.post_title : '(タイトル未設定)'}` }}
                 </div>
@@ -460,25 +479,6 @@ function scrollCarousel(direction: number) {
             </RouterLink>
           </div>
 
-          <!-- TODO ハート -->
-          <!-- <div class="flex shrink-0 flex-row gap-2">
-                    <div
-                      class="leading-sm inline-flex items-center rounded-full py-1 text-xs font-bold uppercase"
-                    >
-                      <span
-                        class="mr-1 h-4 w-4"
-                        :class="
-                          post.hearts < 5
-                            ? 'icon-[akar-icons--heart]'
-                            : post.hearts < 10
-                              ? 'icon-[bi--hearts]'
-                              : 'icon-[emojione--revolving-hearts]'
-                        "
-                      >
-                      </span>
-                      {{ post.hearts }}
-                    </div>
-                  </div> -->
           <!-- ページング -->
           <!-- TODO Paginator -->
           <!-- <Paginator

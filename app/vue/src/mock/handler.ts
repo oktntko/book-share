@@ -1053,10 +1053,10 @@ function post(): z.infer<typeof PostSchemaOutput> {
     ]),
     published: true,
     published_at: faker.date.anytime(),
-    hearts: faker.number.int({ max: 1000 }),
     created_at: faker.date.anytime(),
     updated_at: faker.date.anytime(),
 
+    _count: { hearted_list: faker.number.int({ max: 1000 }) },
     toukousya: profile(),
   };
 }

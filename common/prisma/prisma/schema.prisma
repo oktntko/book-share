@@ -60,6 +60,7 @@ model User {
 
   session_list       Session[]
   post_list          Post[]
+  heart_list         Post[]          @relation(name: "heart")
   readingrecord_list Readingrecord[]
 
   @@index([username], name: "index_username")
@@ -121,10 +122,11 @@ model Post {
   content      String    @default("") @db.Text() /// @zod.string.trim()
   published    Boolean   @default(false)
   published_at DateTime? @db.Timestamptz(3)
-  hearts       Int       @default(0)
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  hearted_list User[] @relation(name: "heart")
 
   @@map("post")
 }

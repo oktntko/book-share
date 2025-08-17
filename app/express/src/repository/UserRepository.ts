@@ -70,7 +70,9 @@ async function updateUser(
     where: Prisma.UserWhereUniqueInput;
     data: Partial<
       Omit<Prisma.UserUncheckedUpdateInput, CommonColumn | 'session_list' | 'file_list'>
-    >;
+    > & {
+      heart_list?: Prisma.PostUpdateManyWithoutHearted_listNestedInput;
+    };
   },
 ) {
   return ctx.prisma.user.update({
@@ -82,6 +84,7 @@ async function updateUser(
       description: params.data.description,
       twofa_enable: params.data.twofa_enable,
       twofa_secret: params.data.twofa_secret,
+      heart_list: params.data.heart_list,
     },
     where: params.where,
   });

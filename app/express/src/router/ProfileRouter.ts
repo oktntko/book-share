@@ -1,6 +1,7 @@
 import { z } from '@book-share/lib/zod';
 import { $transaction } from '~/middleware/prisma';
 import { protectedProcedure, router } from '~/middleware/trpc';
+import { PostRouterSchema } from '~/schema';
 import { OutputProfileSchema, ProfileRouterSchema } from '~/schema/ProfileRouterSchema';
 import { ProfileService } from '~/service/ProfileService';
 
@@ -42,6 +43,24 @@ export const profile = router({
       });
     });
   }),
+
+  heartPost: protectedProcedure
+    .input(PostRouterSchema.getInput)
+    .output(OutputProfileSchema)
+    .mutation(async ({ ctx, input }) => {
+      return $transaction(ctx.prisma, async (prisma) =>
+        ProfileService.heartPost({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
+      );
+    }),
+
+  unheartPost: protectedProcedure
+    .input(PostRouterSchema.getInput)
+    .output(OutputProfileSchema)
+    .mutation(async ({ ctx, input }) => {
+      return $transaction(ctx.prisma, async (prisma) =>
+        ProfileService.unheartPost({ ...ctx, reqid: ctx.req.reqid, prisma }, input),
+      );
+    }),
 
   // 二要素認証関連
   // profile.generateSecret
