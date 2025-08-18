@@ -70,7 +70,7 @@ const {
             :href="volume.volumeInfo?.infoLink"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-blue-500! shadow-sm transition-all hover:bg-gray-200 hover:underline focus:ring focus:outline-none"
+            class="inline-flex min-w-24 items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-blue-500! shadow-sm transition-all hover:bg-gray-200 hover:underline focus:ring focus:outline-none"
             @click.stop
           >
             <span class="icon-[bi--google-play] mr-1"></span>
@@ -81,7 +81,7 @@ const {
             :href="volume.volumeInfo?.previewLink"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-blue-500! shadow-sm transition-all hover:bg-gray-200 hover:underline focus:ring focus:outline-none"
+            class="inline-flex min-w-24 items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-blue-500! shadow-sm transition-all hover:bg-gray-200 hover:underline focus:ring focus:outline-none"
             @click.stop
           >
             <span class="icon-[fluent-emoji-high-contrast--free-button] mr-1"></span>

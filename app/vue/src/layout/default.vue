@@ -173,7 +173,7 @@ const { profile } = storeToRefs(useAuthStore());
             </div>
             <RouterLink
               :to="{ name: '/mypage/post/add' }"
-              class="hidden min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:ring focus:outline-none md:inline-flex"
+              class="hidden min-w-24 items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:ring focus:outline-none md:inline-flex"
             >
               <span class="icon-[line-md--edit-twotone] mr-2 -ml-1 h-4 w-4"> </span>
               投稿を書く
@@ -184,14 +184,14 @@ const { profile } = storeToRefs(useAuthStore());
           <template v-else>
             <RouterLink
               to="/login"
-              class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm transition-all hover:bg-gray-200 focus:ring focus:outline-none"
+              class="inline-flex min-w-24 items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm transition-all hover:bg-gray-200 focus:ring focus:outline-none"
             >
               <span class="icon-[material-symbols--login] mr-2 -ml-1 h-4 w-4"> </span>
               ログイン
             </RouterLink>
             <RouterLink
               to="/signup"
-              class="inline-flex min-w-[120px] items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:ring focus:outline-none"
+              class="inline-flex min-w-24 items-center justify-center rounded-md border border-blue-700 bg-white px-4 py-2 text-sm font-medium text-blue-700 shadow-sm transition-all hover:bg-blue-800 hover:text-white focus:ring focus:outline-none"
             >
               新規登録
             </RouterLink>

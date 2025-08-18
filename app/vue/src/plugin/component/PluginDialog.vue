@@ -129,7 +129,7 @@ function closeDelay(returnValue?: typeof CONFIRMED_VALUE | undefined) {
           type="button"
           :class="[
             'inline-flex cursor-pointer items-center justify-center shadow-xs transition-all focus:ring-3 focus:outline-hidden',
-            'min-w-[120px] rounded-md border px-4 py-2 text-sm font-medium',
+            'min-w-24 rounded-md border px-4 py-2 text-sm font-medium',
             colorset === 'blue' && 'border-blue-700 bg-blue-600 text-white hover:bg-blue-800',
             colorset === 'red' && 'border-red-700 bg-red-600 text-white hover:bg-red-800',
             colorset === 'yellow' &&
@@ -145,7 +145,7 @@ function closeDelay(returnValue?: typeof CONFIRMED_VALUE | undefined) {
           v-if="cancelText"
           type="button"
           :class="[
-            'inline-flex cursor-pointer items-center justify-center shadow-sm transition-colors focus:ring focus:outline-hidden',
+            'inline-flex cursor-pointer items-center justify-center shadow-xs transition-all focus:ring-3 focus:outline-hidden',
             'min-w-24 rounded-md border px-4 py-2 text-sm font-medium',
             'border-gray-300 bg-white text-gray-800 hover:bg-gray-200',
           ]"
