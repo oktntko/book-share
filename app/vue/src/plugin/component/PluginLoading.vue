@@ -5,6 +5,16 @@ const emit = defineEmits<{
 
 const refDialog = useTemplateRef<HTMLDialogElement>('refDialog');
 const open = ref(false);
+const transitionstart = ref(false);
+
+// playwright など await-time が 0 の処理に Loading を挟むと、
+// transition が開始される前に close が呼ばれるため、 transitionend を受け取ることができない。
+// transitionstart をみてから transitionend を待つかどうか決める。
+useEventListener(refDialog, 'transitionstart', (e) => {
+  if (e.target === refDialog.value) {
+    transitionstart.value = true;
+  }
+});
 
 onMounted(() => {
   refDialog.value?.showModal();

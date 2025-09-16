@@ -7,15 +7,18 @@
   // words - list of words to be always considered correct
   "words": [
     "appenders",
+    "autoincrement",
     "classset",
     "colorset",
     "dataurl",
+    "filesize",
     "hitokoto",
     "hoverable",
     "qrcode",
     "readingrecord",
     "remeda",
     "reqid",
+    "Timestamptz",
     "toukousya",
     "trpc",
     "twofa",
